@@ -20,21 +20,25 @@ Learns from your failures. Gets smarter over time. Zero dependencies beyond Pyth
 
 ### Install
 
-**Option 1 — from GitHub (no PyPI needed):**
+**Option 1 — PyPI (recommended):**
 ```bash
-pip install git+https://github.com/val1813/wlbs-cli.git
+pip install wlbs-scan
 wlbs-scan --help
 ```
 
-**Option 2 — clone and install locally:**
+**Option 2 — from GitHub:**
+```bash
+pip install git+https://github.com/val1813/wlbs-cli.git
+```
+
+**Option 3 — clone and install locally:**
 ```bash
 git clone https://github.com/val1813/wlbs-cli.git
 cd wlbs-cli
 pip install -e .
-wlbs-scan --help
 ```
 
-**Option 3 — run directly without installing:**
+**Option 4 — run directly without installing:**
 ```bash
 python wlbs_scan.py <path>
 ```
@@ -243,21 +247,25 @@ WeChat: val001813
 
 ### 安装
 
-**方式一 — 直接从 GitHub 安装（无需发布到 PyPI）：**
+**方式一 — PyPI 直装（推荐）：**
 ```bash
-pip install git+https://github.com/val1813/wlbs-cli.git
+pip install wlbs-scan
 wlbs-scan --help
 ```
 
-**方式二 — clone 后本地安装：**
+**方式二 — 从 GitHub 安装：**
+```bash
+pip install git+https://github.com/val1813/wlbs-cli.git
+```
+
+**方式三 — clone 后本地安装：**
 ```bash
 git clone https://github.com/val1813/wlbs-cli.git
 cd wlbs-cli
 pip install -e .
-wlbs-scan --help
 ```
 
-**方式三 — 无需安装，直接运行：**
+**方式四 — 无需安装，直接运行：**
 ```bash
 python wlbs_scan.py <路径>
 ```
