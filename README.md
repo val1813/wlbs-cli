@@ -205,11 +205,33 @@ wlbs-scan . --reset      # start over
 
 ---
 
+### Figures
+
+**Figure 1 — System Architecture**
+
+![System Architecture](docs/fig1_architecture.png)
+
+**Figure 2 — World-Line Data Structure**
+
+![World-Line Data Structure](docs/fig2_worldline.png)
+
+**Figure 3 — Curvature Backpropagation (Aporia)**
+
+![Curvature Backpropagation](docs/fig3_backprop.png)
+
+**Figure 4 — Resolution-Decay Context Assembly**
+
+![Resolution Decay](docs/fig4_resolution.png)
+
+---
+
 ### Theory
 
 > *World-Line Behavior Space: A Unified Framework for Continual Learning and Spatial Root-Cause Attribution in AI-Driven Autonomous Systems*
-> Zhongchang Huang, 2026
+> Zhongchang Huang (黄中常), 2026
 > CN Patent Applications 2026103746505 · 2026103756225
+>
+> Full paper: [PAPER.md](PAPER.md)
 
 ---
 
@@ -389,11 +411,33 @@ python ../wlbs_scan.py . --dist roles rbac
 
 ---
 
+### 论文附图
+
+**附图 1 — 系统架构**
+
+![系统架构](docs/fig1_architecture.png)
+
+**附图 2 — 世界线数据结构**
+
+![世界线数据结构](docs/fig2_worldline.png)
+
+**附图 3 — 曲率反向传播（Aporia）**
+
+![曲率反向传播](docs/fig3_backprop.png)
+
+**附图 4 — 分辨率衰减上下文组装**
+
+![分辨率衰减](docs/fig4_resolution.png)
+
+---
+
 ### 理论基础
 
 > *世界线行为空间：AI 驱动自主系统中持续学习与空间根因归因的统一框架*
 > 黄中常，2026
 > 中国专利申请 2026103746505 · 2026103756225
+>
+> 完整论文：[PAPER.md](PAPER.md)
 
 ---
 
