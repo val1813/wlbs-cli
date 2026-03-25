@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "wlbs-scan"
+version = "0.5.0"
+description = "WLBS Behavior Graph Scanner — static + dynamic curvature analysis for Python/JS codebases"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.8"
+keywords = [
+    "static analysis", "behavior graph", "curvature",
+    "world-line", "code quality", "fault localization", "MoE",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+wlbs-scan = "wlbs_scan:main"
+
+[project.urls]
+Homepage = "https://github.com/wlbs-scan/wlbs-scan"
+Issues   = "https://github.com/wlbs-scan/wlbs-scan/issues"
+
+[tool.setuptools]
+py-modules = ["wlbs_scan"]
