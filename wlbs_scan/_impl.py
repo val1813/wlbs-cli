@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.6"
+__version__ = "0.6.7"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1849,8 +1849,30 @@ def _find_project_root() -> str:
     return str(current)
 
 
+def _print_friendly_help():
+    print(colored("wlbs-scan v" + __version__, BOLD))
+    print()
+    print("  Quick start:")
+    print(colored("    wlbs begin", CYAN) + "          # register + configure pytest (first time)")
+    print(colored("    wlbs bug", CYAN) + "            # scan project for risky files")
+    print(colored("    wlbs fix", CYAN) + "            # get repair suggestions")
+    print()
+    print("  Advanced:")
+    print("    wlbs-scan . --history        # learning history")
+    print("    wlbs-scan . --record-failure <node>  # manually record failure")
+    print("    wlbs-scan . --record-fix <node>      # manually record fix")
+    print("    wlbs-scan . --json           # JSON output for CI/CD")
+    print("    wlbs-scan . --reset          # clear memory")
+    print()
+    print(colored("  Run 'wlbs-scan --help' for full options.", GRAY))
+
+
 def main():
     # ── friendly subcommand aliases ─────────────────────────────────────────
+    if len(sys.argv) == 1:
+        # bare `wlbs` with no arguments → show friendly help
+        _print_friendly_help()
+        return
     if len(sys.argv) >= 2:
         sub = sys.argv[1]
         if sub == "begin":
