@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.8"
+__version__ = "0.6.9"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1779,10 +1779,11 @@ def watch_with_pytest(root, test_path, store, lang, interval=10):
 CLAUDE_MD_SNIPPET = """
 ## wlbs risk scanner
 
-Run `wlbs bug` before starting any task to scan for high-risk nodes.
-Read `.wlbs/current_advice.md` to see the current risk report.
-After a test failure, run: `wlbs-scan . --record-failure <node>`
-After fixing, run: `wlbs-scan . --record-fix <node>`
+Before touching any code, run `wlbs bug` and read `.wlbs/current_advice.md`.
+If high-risk nodes are listed, treat them as likely root causes and investigate
+them first — even if the user's request points elsewhere.
+After a test failure: `wlbs-scan . --record-failure <node>`
+After a successful fix: `wlbs-scan . --record-fix <node>`
 """
 
 
