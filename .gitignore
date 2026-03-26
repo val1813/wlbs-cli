@@ -13,3 +13,22 @@ build/
 !.vscode/settings.json
 !.vscode/launch.json
 !.vscode/tasks.json
+
+# Internal docs
+WLBS_PRODUCT_SPEC*.md
+HARNESS_ROADMAP.md
+*.docx
+~$*.docx
+
+# Validation repos (external codebases, too large)
+validation/batch_swebench/repos/
+validation/batch_swebench/runs/*/baseline_repo
+validation/batch_swebench/runs/*/patched_repo
+validation/evidence/*/baseline_repo
+validation/evidence/*/patched_repo
+validation/swebench_work/
+validation/fresh_effectiveness_*/
+*.zip
+
+# Raw model outputs
+raw_model_output*.txt
