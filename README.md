@@ -12,9 +12,6 @@
 
 <br>
 
-[!\[PyPI](https://img.shields.io/pypi/v/wlbs-scan?color=brightgreen\&label=pip%20install%20wlbs-scan\&logo=python\&logoColor=white)](https://pypi.org/project/wlbs-scan/)
-[!\[Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://pypi.org/project/wlbs-scan/)
-
 </div>
 
 \---
