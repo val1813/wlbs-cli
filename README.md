@@ -1,4 +1,5 @@
 # wlbs-scan
+<img width="1448" height="705" alt="image" src="https://github.com/user-attachments/assets/07db7dd1-6e4e-4282-888c-3feec34bf324" />
 
 **[English](#english) | [中文](#chinese)**
 
