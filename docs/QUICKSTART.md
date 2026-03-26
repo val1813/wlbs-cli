@@ -1,6 +1,6 @@
 # wlbs-scan 新手教程
 
-> 版本 v0.6.3 · 适用于 Python 项目
+> 版本 v0.6.9 · 适用于 Python / JS / TS 项目
 
 ---
 
@@ -14,43 +14,27 @@ pip install wlbs-scan
 
 ---
 
-## 第一步：注册 + 配置（只需做一次）
+## 第一步：集成到 AI 编程助手（只需做一次）
 
 ```bash
-cd 你的项目根目录
 wlbs begin
 ```
 
-`wlbs begin` 会依次完成两件事：
+`wlbs begin` 会输出一段配置片段，把它加到你项目的 `CLAUDE.md`（或 `AGENTS.md` / `.cursorrules`）里：
 
-**1. 注册账号（必须）**
+```markdown
+## wlbs risk scanner
 
-```
-wlbs begin — onboarding
-Step 1/2  Register
-Email: you@example.com
-Sending verification code to you@example.com...
-Code sent! Check your inbox.
-Verification code: xxxxxx
-Account created! Signed in as you@example.com (tier: free)
-Credentials saved to C:\Users\你的用户名\.wlbs\config.json
+Before touching any code, run `wlbs bug` and read `.wlbs/current_advice.md`.
+If high-risk nodes are listed, treat them as likely root causes and investigate
+them first — even if the user's request points elsewhere.
+After a test failure: `wlbs-scan . --record-failure <node>`
+After a successful fix: `wlbs-scan . --record-fix <node>`
 ```
 
-- 无需密码，邮箱 + 验证码即可
-- 凭据保存在 `~/.wlbs/config.json`，后续无需重复登录
+加完后，AI 助手（Claude Code / Cursor / Codex）每次任务前会自动扫描并关注高风险节点。
 
-**2. 自动配置 pytest 插件**
-
-脚本会按优先级检测以下文件，自动写入 `--wlbs` 参数：
-
-| 检测顺序 | 文件 | 写入内容 |
-|---|---|---|
-| 1 | `pyproject.toml` | `[tool.pytest.ini_options] addopts = ['--wlbs']` |
-| 2 | `setup.cfg` | `[tool:pytest] addopts = --wlbs` |
-| 3 | `pytest.ini` | `addopts = --wlbs` |
-| 4 | `conftest.py` | 追加注释行 |
-
-配置后，每次 `pytest` 运行都会自动上报结果，wlbs 越用越准。
+片段也会自动保存到 `.wlbs/claude_md_snippet.md` 方便复制。
 
 ---
 
