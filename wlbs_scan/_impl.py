@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.7"
+__version__ = "0.6.8"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1776,66 +1776,40 @@ def watch_with_pytest(root, test_path, store, lang, interval=10):
         except KeyboardInterrupt:
             print(colored("\n  Stopped.", GRAY)); break
 
-def _cmd_begin() -> None:
-    """Guided onboarding: register (required) → auto-install pytest hook."""
-    print(colored("\n  wlbs begin — onboarding", BOLD))
-    print(colored("  Step 1/2  Register (required to store world-lines)", CYAN))
-    try:
-        from wlbs_scan.cloud import interactive_register
-        interactive_register()
-    except ImportError:
-        print(colored("  (cloud module not available — skipping registration)", YELLOW))
-    except Exception as e:
-        print(colored(f"  Registration error: {e}", RED))
-        return
+CLAUDE_MD_SNIPPET = """
+## wlbs risk scanner
 
-    print(colored("\n  Step 2/2  Auto-configure pytest plugin", CYAN))
-    root = Path(".").resolve()
-    cfg_candidates = [root / "pyproject.toml", root / "setup.cfg", root / "pytest.ini", root / "conftest.py"]
-    toml = root / "pyproject.toml"
-    cfg  = root / "setup.cfg"
-    ini  = root / "pytest.ini"
-    configured = False
-    if toml.exists():
-        text = toml.read_text(encoding="utf-8")
-        if "wlbs" in text:
-            print(colored("  pytest plugin already configured in pyproject.toml", GREEN))
-            configured = True
-        else:
-            toml.write_text(text.rstrip() + "\n\n[tool.pytest.ini_options]\naddopts = [\'--wlbs\']\n", encoding="utf-8")
-            print(colored("  ✓ Added --wlbs to [tool.pytest.ini_options] in pyproject.toml", GREEN))
-            configured = True
-    if not configured and cfg.exists():
-        text = cfg.read_text(encoding="utf-8")
-        if "wlbs" in text:
-            print(colored("  pytest plugin already configured in setup.cfg", GREEN))
-            configured = True
-        else:
-            cfg.write_text(text.rstrip() + "\n\n[tool:pytest]\naddopts = --wlbs\n", encoding="utf-8")
-            print(colored("  ✓ Added --wlbs to [tool:pytest] in setup.cfg", GREEN))
-            configured = True
-    if not configured and ini.exists():
-        text = ini.read_text(encoding="utf-8")
-        if "wlbs" in text:
-            print(colored("  pytest plugin already configured in pytest.ini", GREEN))
-            configured = True
-        else:
-            ini.write_text(text.rstrip() + "\naddopts = --wlbs\n", encoding="utf-8")
-            print(colored("  ✓ Added --wlbs to pytest.ini", GREEN))
-            configured = True
-    if not configured:
-        conftest = root / "conftest.py"
-        note = "# wlbs auto-configured\nimport pytest  # noqa\n"
-        if conftest.exists():
-            text = conftest.read_text(encoding="utf-8")
-            if "wlbs" not in text:
-                conftest.write_text(text + "\n" + note, encoding="utf-8")
-                print(colored("  ✓ conftest.py updated", GREEN))
-            else:
-                print(colored("  pytest plugin already configured in conftest.py", GREEN))
-        else:
-            print(colored("  No pytest config file found. Run inside your project root or create a pytest.ini.", YELLOW))
-    print(colored("\n  Setup complete. Run: wlbs bug   (scan)   |   wlbs fix   (suggestions)", BOLD))
+Run `wlbs bug` before starting any task to scan for high-risk nodes.
+Read `.wlbs/current_advice.md` to see the current risk report.
+After a test failure, run: `wlbs-scan . --record-failure <node>`
+After fixing, run: `wlbs-scan . --record-fix <node>`
+"""
+
+
+def _cmd_begin() -> None:
+    """Onboarding: show quick start + generate CLAUDE.md snippet."""
+    print(colored("\n  wlbs begin — setup", BOLD))
+    print()
+    print(colored("  Step 1/1  Add wlbs to your AI coding assistant", CYAN))
+    print()
+    print("  Add the following to your project's CLAUDE.md (or AGENTS.md / .cursorrules):")
+    print(colored("  ─" * 54, GRAY))
+    print(colored(CLAUDE_MD_SNIPPET.strip(), WHITE))
+    print(colored("  ─" * 54, GRAY))
+    print()
+    # Also write a ready-to-copy file in cwd
+    snippet_path = Path(".").resolve() / ".wlbs" / "claude_md_snippet.md"
+    try:
+        snippet_path.parent.mkdir(parents=True, exist_ok=True)
+        snippet_path.write_text(CLAUDE_MD_SNIPPET.strip() + "\n", encoding="utf-8")
+        print(colored(f"  Snippet also saved to: {snippet_path}", GRAY))
+    except Exception:
+        pass
+    print()
+    print(colored("  Then in your project directory:", BOLD))
+    print(colored("    wlbs bug", CYAN) + "   — scan for risky files")
+    print(colored("    wlbs fix", CYAN) + "   — get repair suggestions")
+    print()
 
 
 def _find_project_root() -> str:
@@ -1853,7 +1827,7 @@ def _print_friendly_help():
     print(colored("wlbs-scan v" + __version__, BOLD))
     print()
     print("  Quick start:")
-    print(colored("    wlbs begin", CYAN) + "          # register + configure pytest (first time)")
+    print(colored("    wlbs begin", CYAN) + "          # setup: get CLAUDE.md snippet for AI assistants")
     print(colored("    wlbs bug", CYAN) + "            # scan project for risky files")
     print(colored("    wlbs fix", CYAN) + "            # get repair suggestions")
     print()
