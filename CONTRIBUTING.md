@@ -13,8 +13,8 @@ cd wlbs-scan
 pip install -e .
 ```
 
-The entire tool is a single file: `wlbs_scan.py`.
-No build step, no compiled extensions, no mandatory third-party dependencies.
+The runtime logic lives in `wlbs_scan/_impl.py`, with package wrappers in `wlbs_scan/`.
+No compiled extensions, no mandatory third-party dependencies.
 
 ---
 
@@ -23,13 +23,15 @@ No build step, no compiled extensions, no mandatory third-party dependencies.
 The project ships with a small self-test you can run against itself:
 
 ```bash
-wlbs-scan . --json          # sanity: should produce valid JSON
-wlbs-scan . --suggest       # sanity: should print suggestions without error
-wlbs-scan . --badges        # sanity: badge markdown
+wlbs-scan . --json                  # sanity: should produce valid JSON
+wlbs-scan . --suggest               # sanity: should print suggestions without error
+wlbs-scan . --badges                # sanity: badge markdown
+python -m pytest tests -q           # unit test suite
+python -m wlbs_scan.validate        # full validation suite
 ```
 
 If you add new features, please include at least one CLI invocation in the
-examples section of `main()` (the `epilog` string).
+examples section of `main()` (the `epilog` string inside `wlbs_scan/_impl.py`).
 
 ---
 
@@ -38,8 +40,7 @@ examples section of `main()` (the `epilog` string).
 - Python 3.8 compatible (`from __future__ import annotations` is already in place)
 - Zero mandatory runtime dependencies — keep it that way
 - Optional imports (e.g. `pytest`, `hashlib`) go inside the function that needs them
-- Preserve the single-file layout; resist splitting into packages unless the file
-  genuinely exceeds ~2000 lines
+- Keep package wrappers thin; core behavior should continue to live in `wlbs_scan/_impl.py`
 
 ---
 
@@ -57,6 +58,25 @@ required, outputs into the shared `BehaviorGraph`.
 2. Keep commits focused — one logical change per commit.
 3. Update `CHANGELOG.md` under an `[Unreleased]` heading.
 4. Open the PR with a short description of *why* the change is needed.
+
+---
+
+## Release Checklist
+
+Every release should pass all of the following:
+
+- `python -m pytest tests -q`
+- `python -m wlbs_scan.validate`
+- `python -m wlbs_scan.validate --json`
+- `python -m wlbs_scan . --advise rbac --json`
+- `python -m wlbs_scan . --record-outcome --symptom rbac --final-target roles --result pass`
+- `python -m build`
+- Install the built wheel in a clean environment and confirm `python -m wlbs_scan.validate` still works
+- When reviewing validation results, check `validation_mode`:
+  - `repo-validation` means the full repository validation suite ran
+  - `installed-fallback` means the embedded wheel self-check ran
+- Sync `validation/VALIDATION_RESULTS.md` to the latest measured data
+- Update `CHANGELOG.md`
 
 ---
 

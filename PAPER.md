@@ -54,10 +54,19 @@ This mechanism requires no neural computation — it is pure rule-based arithmet
 ### 3.3  Resolution Decay Context Assembly
 Historical information is organized into three tiers by behavioral distance:
 
+| Tier | Distance from focus node | Representation |
+|---|---|---|
+| L1 (near / focal) | d <= 1 | full node record, dependency edges, recent world-line events |
+| L2 (mid / parafoveal) | d = 2 | summarized node metadata, latest event only |
+| L3 (far / peripheral) | d >= 3 | identifier, distance, curvature, singularity flag |
+
+In the standalone `wlbs-scan` reference implementation, this mechanism is exposed directly through `--context <node>`. For the paper's `roles.py -> rbac.py` demo, the near tier contains both the symptom node (`rbac`) and the upstream root-cause candidate (`roles`), while more distant nodes are compressed into metadata-only entries. This yields an executable approximation of the intended Gate input cross-section: maximum fidelity for local causal structure, bounded detail for the rest of the graph.
 
 This mechanism, inspired by the biological fovea, ensures that the most relevant historical information receives full fidelity while distant information contributes structural context without consuming excessive context budget.
 ### 3.4  Reasoning Feedback Loop
 Each Gate decision records its reasoning process (gate_reasoning) and outcome (was_correct) in the corresponding node's world-line. When the same node is encountered in a future task, the decision layer observes previous reasoning failures and corrects its inference direction without parameter updates. This differs from Reflexion [Shinn et al., 2023] in that reasoning history persists as structured events across tasks rather than as natural language in an episodic buffer.
+
+In `wlbs-scan v0.6`, we implement a lightweight executable form of this layer through `--suggest --suggest-node <node>` and the agent-oriented `--advise <node>` interface. These commands assemble the resolution-decay context around the focus node, rank nearby upstream candidates, and emit a reasoning chain plus an action chain. Although this is not yet an LLM gate, it operationalizes the paper's claim that structural world-line data can directly drive routing without an intermediate natural-language retrieval step.
 ## 4.  System Architecture: OpenCraft
 We implement WLBS in OpenCraft. The system comprises five modules:
 - BehaviorGraph: Maintains the function-level behavior graph, world-line structures, and node curvature. Constructed via AST static analysis augmented by runtime tracing (sys.settrace). Supports incremental growth without full reconstruction.
@@ -70,12 +79,45 @@ We implement WLBS in OpenCraft. The system comprises five modules:
 We evaluate OpenCraft on a set of Python software repair tasks. We compare two configurations:
 - Baseline (A): Original architecture with rule injection via living state, active_understanding, and Aporia boundary_note text generation.
 - WLBS (B): Behavior graph context replacement with curvature propagation, resolution decay assembly, and Gate whitelist fields.
+
+To make the mechanism reproducible outside the larger OpenCraft runtime, we also maintain a standalone reference implementation, `wlbs-scan`, plus an executable validation suite in this repository. The validation protocol has three parts:
+
+1. Real-demo validation on the preserved `roles.py -> rbac.py` failure fixture.
+2. Deterministic synthetic projects for scaling and monotonicity measurements.
+3. Context-assembly and reasoning-chain checks after controlled downstream failure injection.
+
+All standalone scanner timings are measured in-process through `build_graph()` plus `compute_curvature()` so that the reported numbers reflect scanner work rather than Python process startup overhead.
 ### 5.2  Verified Results
 The following results are directly measured from the OpenCraft implementation. All spatial attribution results refer to a single cross-file dependency case (b-16: roles.py→rbac.py, 1-hop). Generalizability to other cross-file scenarios requires full benchmark evaluation across diverse task types.
 
+To improve reproducibility outside the full OpenCraft stack, we also provide a standalone reference implementation, `wlbs-scan v0.6`, together with an executable validation suite (`python validation/run_validation.py`) in this repository. On the March 26, 2026 run captured in `validation/VALIDATION_RESULTS.md`, the suite validated 15/15 claims with the following directly measured outputs:
+
+| Validation target | Measured result |
+|---|---|
+| Demo graph build + curvature latency | avg 28.00 ms, max 39.94 ms |
+| Scaling benchmark | avg 47.10 ms at 60 synthetic Python modules |
+| Behavioral distance | d(roles, rbac) = 1 |
+| Upstream singularity detection | `roles` marked singularity, `rbac` not singularity |
+| Upstream curvature elevation | roles κ = 1.000, static κ = 0.590, downstream failures = 3 |
+| World-line accumulation | κ series = 0.087 → 0.411 → 0.415 → 0.419 → 0.423 |
+| Pytest auto-record | 4 passed, 2 failed, 2 failure events persisted |
+| JavaScript import-graph scan | d(core, api) = 1 |
+| HTML artifact generation | report size 10,621 bytes |
+| Resolution-decay context assembly | near tier contains both `rbac` and `roles` |
+| Reasoning-chain repair routing | symptom node `rbac` routed to upstream target `roles` |
+| Advisory CLI harness output | schema `wlbs-advisory-v1`, tone `suggestion` |
+| Task-level memory loop | `task_memory` persisted with routing statistics |
+| EMA-style policy update | pass-followed confidence 0.825, fail-followed confidence 0.277 |
+| Similar-task transfer | `similar_past_tasks` populated from structural match |
+
+These measurements do not replace the larger OpenCraft benchmark claims; instead, they provide a minimal, deterministic reproduction path for the core WLBS mechanisms discussed in Sections 3 and 4.
+
+For clarity, the standalone package now exposes `python -m wlbs_scan.validate` in two modes. Inside the repository checkout it runs the full validation suite used for the results above; outside the repository, the installed wheel falls back to an embedded self-check harness that preserves the same output schema while using built-in fixtures. This distinction is reported explicitly through a `validation_mode` field in the JSON output.
 
 ### 5.3  Limitations and Ongoing Work
-In our current OpenCraft implementation, we verified that the roles.py→rbac.py behavioral distance in the b-16 cross-file repair task is exactly one hop. Routing-context construction times were measured between 5.27 ms and 21.67 ms on three benchmark tasks. The Gate's WLBS-style routing prompt for b-16 remained compact at approximately 375 tokens while selecting roles.py as the first effective write target. In online execution, the system improved b-16 to 42/44 passing tests under a valid run configuration (gate failure rate 4.76%), with improvement from 34/44 to 42/44 observed across engineering iterations. Full completion and large-scale benchmark comparison remain ongoing; provider stability issues have prevented clean A/B evaluation at scale.
+In our current OpenCraft implementation, we verified that the roles.py→rbac.py behavioral distance in the b-16 cross-file repair task is exactly one hop. Routing-context construction times were measured between 5.27 ms and 21.67 ms on three benchmark tasks. The Gate's WLBS-style routing prompt for b-16 remained compact at approximately 375 tokens while selecting roles.py as the first effective write target. In online execution, the system improved b-16 to 42/44 passing tests under a valid run configuration (gate failure rate 4.76%), with improvement from 34/44 to 42/44 observed across engineering iterations.
+
+The standalone scanner narrows one important gap: it now contains an executable resolution-decay layer, an advisory CLI for agent consumption, a deterministic reasoning-chain router, task-level outcome recording, an EMA-updated routing confidence layer, and a minimal structural similar-task matcher. However, this router is still heuristic rather than model-based; it selects upstream targets through graph topology and world-line evidence rather than by a learned neural policy. The next empirical step is therefore not merely to add more commands, but to compare this heuristic-plus-memory harness against an actual Gate model on a multi-task benchmark with held-out cross-file failures. Full completion and large-scale benchmark comparison remain ongoing; provider stability issues have prevented clean A/B evaluation at scale.
 ## 6.  Beyond Software Engineering: Generalization of WLBS
 The following applications are proposed as potential future research directions. None have been experimentally validated in this paper; they are presented to illustrate the generalizability of the WLBS framework as a hypothesis for future investigation. The three requirements for applicability are: (1) the system has a dependency structure representable as a directed graph; (2) failure signals can be detected and attributed to nodes; (3) repeated tasks occur over time.
 ### 6.1  Microservice Fault Diagnosis

@@ -5,6 +5,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.6.0] — 2026-03
+
+### Added
+- `--context <node>` — executable resolution-decay context assembly with L1/L2/L3 tiers
+- `--suggest --suggest-node <node>` — reasoning-chain repair routing from symptom node to upstream target
+- `--advise <node>` — agent-friendly advisory JSON with confidence, open questions, and suggestion tone
+- `--record-outcome` — task-level memory persistence with routing statistics
+- EMA-based routing policy updates tied to task outcomes
+- Structural similar-task matching surfaced through advisory JSON
+- `python -m wlbs_scan.validate` — package-level self-validation entrypoint
+- First-party IDE workspace configs: `.vscode/`, `pyrightconfig.json`, `.editorconfig`
+- `--status` — product-style risk and account summary
+- `--dashboard` — local interactive dashboard entrypoint
+- `wlbs_server.py` — V3-aligned hub server with points, redeem, trace upload, and legacy snapshot compatibility
+- `deploy/DEPLOY_V3.md` and systemd/env examples for standalone server deployment
+- Validation suite expanded with context-assembly and reasoning-chain experiments
+- Machine-readable validation artifact: `validation/validation_results.json`
+
+### Changed
+- `--suggest` now uses graph topology, singularity status, and world-line evidence to build an action chain
+- `--history` now shows task-memory summaries and routing metrics
+- `--advise` now incorporates routing-policy confidence and similar past tasks
+- Standalone validation now measures scaling, context assembly, and deterministic routing in addition to core demo claims
+
+### Fixed
+- Singularity detection now matches the paper definition: upstream candidate, no direct failure, downstream failure evidence
+- Demo `roles.py` fixture now satisfies the paper's structural singularity criteria without changing the intended baseline defect
+- Version metadata synced to 0.6.0 across code, packaging, and docs
+
+---
+
 ## [0.5.0] — 2026-03
 
 ### Added

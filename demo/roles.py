@@ -16,6 +16,10 @@ PERMISSIONS = {
 
 def get_permissions(role: str) -> list:
     """Return permissions for a role. Raises KeyError if role unknown."""
+    if not isinstance(role, str):
+        raise TypeError("role must be a string")
+    if not role:
+        raise KeyError(role)
     return PERMISSIONS[role]  # Bug: no .get() fallback
 
 
