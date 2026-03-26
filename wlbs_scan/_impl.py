@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1837,6 +1837,17 @@ def _cmd_begin() -> None:
     print(colored("\n  Setup complete. Run: wlbs bug   (scan)   |   wlbs fix   (suggestions)", BOLD))
 
 
+def _find_project_root() -> str:
+    """Walk up from cwd to find project root (.git / pyproject.toml / setup.py).
+    Falls back to cwd if nothing found."""
+    markers = (".git", "pyproject.toml", "setup.py", "setup.cfg")
+    current = Path(os.getcwd()).resolve()
+    for parent in [current, *current.parents]:
+        if any((parent / m).exists() for m in markers):
+            return str(parent)
+    return str(current)
+
+
 def main():
     # ── friendly subcommand aliases ─────────────────────────────────────────
     if len(sys.argv) >= 2:
@@ -1845,12 +1856,12 @@ def main():
             _cmd_begin()
             return
         if sub == "bug":
-            # wlbs bug [path]  →  wlbs-scan [path|.]
-            path = sys.argv[2] if len(sys.argv) >= 3 else "."
+            # wlbs bug [path?]  →  auto-detect project root if no path given
+            path = sys.argv[2] if len(sys.argv) >= 3 else _find_project_root()
             sys.argv = [sys.argv[0], path]
         elif sub == "fix":
-            # wlbs fix [path]  →  wlbs-scan [path|.] --suggest
-            path = sys.argv[2] if len(sys.argv) >= 3 else "."
+            # wlbs fix [path?]  →  auto-detect project root if no path given
+            path = sys.argv[2] if len(sys.argv) >= 3 else _find_project_root()
             sys.argv = [sys.argv[0], path, "--suggest"]
     # ────────────────────────────────────────────────────────────────────────
     p=argparse.ArgumentParser(prog="wlbs-scan",
