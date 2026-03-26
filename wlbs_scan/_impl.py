@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1425,6 +1425,41 @@ def print_diff(graph: BehaviorGraph, root: Path):
     print()
 
 
+def _print_new_high_risks(graph: BehaviorGraph, root: Path):
+    """Show only nodes that became HIGH risk (κ≥0.70) since the last snapshot."""
+    prev = load_snapshot(root)
+    nodes = sorted(graph.nodes.values(), key=lambda n: n.curvature, reverse=True)
+    print()
+    print(colored("━"*58, CYAN, BOLD))
+    print(colored("  New high-risk nodes since last scan", WHITE, BOLD))
+    print(colored("━"*58, CYAN, BOLD))
+    if not prev:
+        print(colored("  No baseline found — showing all HIGH nodes:", GRAY))
+        new_high = [n for n in nodes if n.curvature >= 0.70]
+    else:
+        new_high = [
+            n for n in nodes
+            if n.curvature >= 0.70 and prev.get(n.id, 0.0) < 0.70
+        ]
+    if not new_high:
+        if prev:
+            print(colored("  No new high-risk nodes since last scan.", GREEN))
+        print()
+        print(colored("━"*58, CYAN))
+        print()
+        return
+    print(colored(f"  {'RISK':<8} {'κ':>6} {'Δκ':>6}  ID", GRAY))
+    print(colored("  "+"─"*52, GRAY))
+    for n in new_high:
+        old_k = prev.get(n.id, 0.0) if prev else 0.0
+        delta = n.curvature - old_k
+        delta_s = colored(f"+{delta:.3f}", RED)
+        print(f"  {n.risk_label} {n.curvature:>6.3f} {delta_s}  {colored(n.id, CYAN)}")
+    print()
+    print(colored("━"*58, CYAN))
+    print()
+
+
 # ── HTML report ────────────────────────────────────────────────────────────────
 def export_html(graph: BehaviorGraph, store: WorldLineStore, out_path: Path):
     nodes = sorted(graph.nodes.values(), key=lambda n: n.curvature, reverse=True)
@@ -1897,13 +1932,23 @@ def main():
             _cmd_begin()
             return
         if sub == "bug":
-            # wlbs bug [path?]  →  auto-detect project root if no path given
-            path = sys.argv[2] if len(sys.argv) >= 3 else _find_project_root()
-            sys.argv = [sys.argv[0], path]
+            # wlbs bug [path?] [--diff] [--all]
+            rest = sys.argv[2:]
+            path_args = [a for a in rest if not a.startswith("-")]
+            flag_args = [a for a in rest if a.startswith("-")]
+            path = path_args[0] if path_args else _find_project_root()
+            # --diff on bug alias means show only new high-risk nodes
+            if "--diff" in flag_args:
+                flag_args.remove("--diff")
+                flag_args.append("--new-risks")
+            sys.argv = [sys.argv[0], path] + flag_args
         elif sub == "fix":
             # wlbs fix [path?]  →  auto-detect project root if no path given
-            path = sys.argv[2] if len(sys.argv) >= 3 else _find_project_root()
-            sys.argv = [sys.argv[0], path, "--suggest"]
+            rest = sys.argv[2:]
+            path_args = [a for a in rest if not a.startswith("-")]
+            flag_args = [a for a in rest if a.startswith("-")]
+            path = path_args[0] if path_args else _find_project_root()
+            sys.argv = [sys.argv[0], path, "--suggest"] + flag_args
     # ────────────────────────────────────────────────────────────────────────
     p=argparse.ArgumentParser(prog="wlbs-scan",
         description="WLBS scanner — learns from failures, gets smarter over time",
@@ -1935,6 +1980,8 @@ Examples:
     p.add_argument("--no-singularities",action="store_true")
     p.add_argument("--all",action="store_true",
                    help="Show all nodes by curvature (default: only HIGH κ≥0.70)")
+    p.add_argument("--new-risks",action="store_true",
+                   help="Show only nodes that are newly HIGH risk since last scan (used by 'wlbs bug --diff')")
     p.add_argument("--dist",nargs=2,metavar=("SRC","DST"))
     p.add_argument("--context",metavar="NODE",
                    help="Show resolution-decay context assembly around a node")
@@ -2235,6 +2282,10 @@ Examples:
         compute_curvature(graph, store=store)
         if args.diff:
             print_diff(graph, root)
+            save_snapshot(graph, root)
+            return
+        if args.new_risks:
+            _print_new_high_risks(graph, root)
             save_snapshot(graph, root)
             return
         save_snapshot(graph, root)

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wlbs-scan"
-version = "0.7.0"
+version = "0.7.1"
 description = "WLBS Behavior Graph Scanner - static + dynamic curvature analysis for Python/JS codebases"
 readme = "README.md"
 authors = [
