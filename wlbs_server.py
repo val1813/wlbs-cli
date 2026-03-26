@@ -402,7 +402,7 @@ def admin_users(request: Request):
             "first_used_at": first_used,
             "expires_at": expires_at,
         })
-    users.sort(key=lambda u: u.get("created_at") or 0, reverse=True)
+    users.sort(key=lambda u: str(u.get("created_at") or ""), reverse=True)
     return {"users": users, "total": len(users)}
 
 
