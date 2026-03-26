@@ -46,7 +46,7 @@ POINTS_PATH = DATA_DIR / "points.json"
 PORT = int(os.environ.get("WLBS_PORT", "8765"))
 RATE_LIMITS: dict[str, list[float]] = {}
 
-app = FastAPI(title="wlbs Experience Hub", version="0.6.0")
+app = FastAPI(title="wlbs Experience Hub", version="0.6.1")
 
 
 def _load_json(path: Path, default):
@@ -359,7 +359,7 @@ def stats():
         "active_keys": len(keys),
         "points_accounts": len(points),
         "shared_crystals": crystals,
-        "version": "0.6.0",
+        "version": "0.6.1",
     }
 
 
