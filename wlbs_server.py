@@ -416,12 +416,20 @@ async def verify_code(request: Request):
     if code != stored_code:
         raise HTTPException(400, "Invalid code.")
     _VERIFY_CODES.pop(email, None)
-    # Check if already has a key
+    # Check if already has a key — return highest-tier non-expired key
     keys = _load_keys()
-    for k, info in keys.items():
-        if info.get("email", "").lower() == email:
-            _mark_first_use(k)
-            return {"key": k, "email": email, "plan": info.get("plan", "free"), "existing": True}
+    matches = [(k, info) for k, info in keys.items() if info.get("email", "").lower() == email]
+    if matches:
+        # Prefer pro over free, then non-expired over expired
+        tier_order = {"pro": 2, "free": 1}
+        def _key_score(item):
+            k, info = item
+            tier = info.get("plan", "free")
+            expired = _get_tier(k) == "expired"
+            return (0 if expired else 1, tier_order.get(tier, 0))
+        best_k, best_info = max(matches, key=_key_score)
+        _mark_first_use(best_k)
+        return {"key": best_k, "email": email, "plan": best_info.get("plan", "free"), "existing": True}
     # Create new free key
     key = add_key(email, plan="free")
     _mark_first_use(key)
