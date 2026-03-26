@@ -4,6 +4,9 @@ wlbs-scan v0.6 — WLBS Behavior Graph Scanner
 Learns from your failures. Gets smarter over time. Zero dependencies beyond Python 3.8+.
 
 Usage:
+    wlbs begin                               # 引导注册 + 自动配置 pytest
+    wlbs bug [path]                          # 扫描当前项目（同 wlbs-scan .）
+    wlbs fix [path]                          # 给高风险节点修复建议（同 wlbs-scan . --suggest）
     wlbs-scan .                              # 扫描 + 更新记忆
     wlbs-scan . --record-failure rbac        # 记录失败（测试失败后调用）
     wlbs-scan . --record-fix roles           # 记录修复成功
@@ -27,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.3"
+__version__ = "0.6.4"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1772,7 +1775,84 @@ def watch_with_pytest(root, test_path, store, lang, interval=10):
         except KeyboardInterrupt:
             print(colored("\n  Stopped.", GRAY)); break
 
+def _cmd_begin() -> None:
+    """Guided onboarding: register (required) → auto-install pytest hook."""
+    print(colored("\n  wlbs begin — onboarding", BOLD))
+    print(colored("  Step 1/2  Register (required to store world-lines)", CYAN))
+    try:
+        from wlbs_scan.cloud import interactive_register
+        interactive_register()
+    except ImportError:
+        print(colored("  (cloud module not available — skipping registration)", YELLOW))
+    except Exception as e:
+        print(colored(f"  Registration error: {e}", RED))
+        return
+
+    print(colored("\n  Step 2/2  Auto-configure pytest plugin", CYAN))
+    root = Path(".").resolve()
+    cfg_candidates = [root / "pyproject.toml", root / "setup.cfg", root / "pytest.ini", root / "conftest.py"]
+    toml = root / "pyproject.toml"
+    cfg  = root / "setup.cfg"
+    ini  = root / "pytest.ini"
+    configured = False
+    if toml.exists():
+        text = toml.read_text(encoding="utf-8")
+        if "wlbs" in text:
+            print(colored("  pytest plugin already configured in pyproject.toml", GREEN))
+            configured = True
+        else:
+            toml.write_text(text.rstrip() + "\n\n[tool.pytest.ini_options]\naddopts = [\'--wlbs\']\n", encoding="utf-8")
+            print(colored("  ✓ Added --wlbs to [tool.pytest.ini_options] in pyproject.toml", GREEN))
+            configured = True
+    if not configured and cfg.exists():
+        text = cfg.read_text(encoding="utf-8")
+        if "wlbs" in text:
+            print(colored("  pytest plugin already configured in setup.cfg", GREEN))
+            configured = True
+        else:
+            cfg.write_text(text.rstrip() + "\n\n[tool:pytest]\naddopts = --wlbs\n", encoding="utf-8")
+            print(colored("  ✓ Added --wlbs to [tool:pytest] in setup.cfg", GREEN))
+            configured = True
+    if not configured and ini.exists():
+        text = ini.read_text(encoding="utf-8")
+        if "wlbs" in text:
+            print(colored("  pytest plugin already configured in pytest.ini", GREEN))
+            configured = True
+        else:
+            ini.write_text(text.rstrip() + "\naddopts = --wlbs\n", encoding="utf-8")
+            print(colored("  ✓ Added --wlbs to pytest.ini", GREEN))
+            configured = True
+    if not configured:
+        conftest = root / "conftest.py"
+        note = "# wlbs auto-configured\nimport pytest  # noqa\n"
+        if conftest.exists():
+            text = conftest.read_text(encoding="utf-8")
+            if "wlbs" not in text:
+                conftest.write_text(text + "\n" + note, encoding="utf-8")
+                print(colored("  ✓ conftest.py updated", GREEN))
+            else:
+                print(colored("  pytest plugin already configured in conftest.py", GREEN))
+        else:
+            print(colored("  No pytest config file found. Run inside your project root or create a pytest.ini.", YELLOW))
+    print(colored("\n  Setup complete. Run: wlbs bug   (scan)   |   wlbs fix   (suggestions)", BOLD))
+
+
 def main():
+    # ── friendly subcommand aliases ─────────────────────────────────────────
+    if len(sys.argv) >= 2:
+        sub = sys.argv[1]
+        if sub == "begin":
+            _cmd_begin()
+            return
+        if sub == "bug":
+            # wlbs bug [path]  →  wlbs-scan [path|.]
+            path = sys.argv[2] if len(sys.argv) >= 3 else "."
+            sys.argv = [sys.argv[0], path]
+        elif sub == "fix":
+            # wlbs fix [path]  →  wlbs-scan [path|.] --suggest
+            path = sys.argv[2] if len(sys.argv) >= 3 else "."
+            sys.argv = [sys.argv[0], path, "--suggest"]
+    # ────────────────────────────────────────────────────────────────────────
     p=argparse.ArgumentParser(prog="wlbs-scan",
         description="WLBS scanner — learns from failures, gets smarter over time",
         formatter_class=argparse.RawDescriptionHelpFormatter,
