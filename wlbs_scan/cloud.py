@@ -100,6 +100,18 @@ def cmd_send_code(email: str) -> dict:
     return _post("/api/auth/send-code", {"email": email})
 
 
+def cmd_verify(email: str, code: str) -> dict:
+    """Verify code → get API key automatically."""
+    result = _post("/api/auth/verify", {"email": email, "code": code})
+    key = result.get("key", "")
+    if key:
+        cfg = _load_config()
+        cfg["email"] = email
+        cfg["api_key"] = key
+        _save_config(cfg)
+    return result
+
+
 def cmd_register(email: str, password: str, code: str) -> dict:
     """Register with email + password + verification code."""
     result = _post("/api/auth/register", {
@@ -330,49 +342,33 @@ def auto_upload_task_outcome(task_record: dict, api_key: Optional[str] = None, h
 # ── Interactive register/login prompts ─────────────────────────
 
 def interactive_register() -> None:
-    print("wlbs-scan cloud registration")
-    print("=============================")
-    email = input("Email: ").strip()
+    """Email → verification code → auto-save key. No password needed."""
+    print("wlbs-scan · sign up / sign in")
+    print("==============================")
+    email = input("Email: ").strip().lower()
     if not email:
         print("Cancelled."); return
     print(f"Sending verification code to {email}...")
     try:
         cmd_send_code(email)
-        print("Code sent. Check your inbox.")
+        print("Code sent! Check your inbox (also check spam).")
     except CloudError as e:
         print(f"Failed to send code: {e.detail}"); return
     code = input("Verification code: ").strip()
     if not code:
         print("Cancelled."); return
-    import getpass
-    pw = getpass.getpass("Password (min 8 chars): ")
-    if len(pw) < 8:
-        print("Password too short."); return
     try:
-        cmd_register(email, pw, code)
-        print(f"Registered successfully as {email}")
-        print("Logging in...")
-        cmd_login(email, pw)
-        print("Logged in. Generating API key...")
-        result = cmd_keygen(note="auto")
-        print(f"API key: {result.get('key', '')}")
-        print(f"Saved to {CONFIG_PATH}")
+        result = cmd_verify(email, code)
+        tier = result.get("plan", "free")
+        existing = result.get("existing", False)
+        action = "Welcome back" if existing else "Account created"
+        print(f"{action}! Signed in as {email} (tier: {tier})")
+        print(f"Credentials saved to {CONFIG_PATH}")
+        print("You're all set. Run: wlbs-scan . to start scanning.")
     except CloudError as e:
         print(f"Error: {e.detail}")
 
 
 def interactive_login() -> None:
-    print("wlbs-scan cloud login")
-    print("=====================")
-    email = input("Email: ").strip()
-    if not email:
-        print("Cancelled."); return
-    import getpass
-    pw = getpass.getpass("Password: ")
-    try:
-        result = cmd_login(email, pw)
-        tier = result.get("tier", "free")
-        print(f"Logged in as {email} (tier: {tier})")
-        print(f"Credentials saved to {CONFIG_PATH}")
-    except CloudError as e:
-        print(f"Login failed: {e.detail}")
+    """Alias for interactive_register — same email+code flow."""
+    interactive_register()

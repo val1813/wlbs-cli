@@ -12,14 +12,28 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import secrets
+import smtplib
 import time
 from datetime import datetime, timezone
+from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel
+
+# ── Email config ───────────────────────────────────────────────
+SMTP_HOST = os.environ.get("WLBS_SMTP_HOST", "smtp.mxhichina.com")
+SMTP_PORT = int(os.environ.get("WLBS_SMTP_PORT", "465"))
+SMTP_USER = os.environ.get("WLBS_SMTP_USER", "hello@kaiwucl.com")
+SMTP_PASS = os.environ.get("WLBS_SMTP_PASS", "LYlNHG7kY9RuFWQD")
+SMTP_FROM = os.environ.get("WLBS_SMTP_FROM", "hello@kaiwucl.com")
+
+# ── Verification code store (in-memory, TTL 10min) ─────────────
+_VERIFY_CODES: dict[str, tuple[str, float]] = {}  # email -> (code, expire_ts)
+_VERIFY_TTL = 600
 
 
 DATA_DIR = Path(os.environ.get("WLBS_DATA_DIR", str(Path.home() / ".wlbs" / "server")))
@@ -347,6 +361,71 @@ def stats():
         "shared_crystals": crystals,
         "version": "0.6.0",
     }
+
+
+# ── Email sender ──────────────────────────────────────────────
+
+def _send_email(to: str, subject: str, body: str) -> None:
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = SMTP_FROM
+    msg["To"] = to
+    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as s:
+        s.login(SMTP_USER, SMTP_PASS)
+        s.sendmail(SMTP_FROM, [to], msg.as_string())
+
+
+# ── Auth: send verification code ──────────────────────────────
+
+@app.post("/api/auth/send-code")
+async def send_code(request: Request):
+    body = await request.json()
+    email = str(body.get("email", "")).strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(400, "Valid email required")
+    _rate_limit(f"send-code:{email}", limit=5, window_seconds=3600)
+    code = str(random.randint(100000, 999999))
+    _VERIFY_CODES[email] = (code, time.time() + _VERIFY_TTL)
+    try:
+        _send_email(
+            email,
+            "Your wlbs-scan verification code",
+            f"Your verification code is: {code}\n\nValid for 10 minutes.\n\n-- wlbs-scan team"
+        )
+    except Exception as e:
+        raise HTTPException(500, f"Failed to send email: {e}")
+    return {"sent": True, "email": email}
+
+
+# ── Auth: verify code → auto-create free key ──────────────────
+
+@app.post("/api/auth/verify")
+async def verify_code(request: Request):
+    body = await request.json()
+    email = str(body.get("email", "")).strip().lower()
+    code = str(body.get("code", "")).strip()
+    if not email or not code:
+        raise HTTPException(400, "Email and code required")
+    entry = _VERIFY_CODES.get(email)
+    if not entry:
+        raise HTTPException(400, "No code found for this email. Request a new one.")
+    stored_code, expire_ts = entry
+    if time.time() > expire_ts:
+        _VERIFY_CODES.pop(email, None)
+        raise HTTPException(400, "Code expired. Request a new one.")
+    if code != stored_code:
+        raise HTTPException(400, "Invalid code.")
+    _VERIFY_CODES.pop(email, None)
+    # Check if already has a key
+    keys = _load_keys()
+    for k, info in keys.items():
+        if info.get("email", "").lower() == email:
+            _mark_first_use(k)
+            return {"key": k, "email": email, "plan": info.get("plan", "free"), "existing": True}
+    # Create new free key
+    key = add_key(email, plan="free")
+    _mark_first_use(key)
+    return {"key": key, "email": email, "plan": "free", "existing": False}
 
 
 ADMIN_TOKEN = os.environ.get("WLBS_ADMIN_TOKEN", "")
