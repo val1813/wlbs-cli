@@ -1,0 +1,11 @@
+--- a/src/sqlfluff/rules/layout.py
++++ b/src/sqlfluff/rules/layout.py
+@@ -1368,7 +1368,7 @@ class Rule_L036(BaseRule):
+                     # If it's the first select target, we need to check if it should
+                     # be on the SELECT line or not.
+                     if idx == 0:
+-                        indent = self._get_indent(segment)
++                        indent = self._get_indent(select_stmt)
+                         # If the first select target is on the same line as SELECT,
+                         # we should move it to the next line.
+                         if (

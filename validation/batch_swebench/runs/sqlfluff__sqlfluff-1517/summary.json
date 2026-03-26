@@ -1,0 +1,48 @@
+{
+  "instance_id": "sqlfluff__sqlfluff-1517",
+  "repo": "sqlfluff/sqlfluff",
+  "base_commit": "304a197829f98e7425a46d872ada73176137e5ae",
+  "model_name": "deepseek-chat",
+  "candidate_files": [
+    "src/sqlfluff/core/parser/helpers.py",
+    "src/sqlfluff/testing/rules.py",
+    "src/sqlfluff/core/linter/linter.py",
+    "src/sqlfluff/rules/L019.py",
+    "src/sqlfluff/core/parser/segments/base.py",
+    "src/sqlfluff/rules/L032.py"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/core/parser/helpers.py:27\nerror: src/sqlfluff/core/parser/helpers.py: patch does not apply",
+      "patch_bytes": 842
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: corrupt patch at line 27",
+      "patch_bytes": 1917
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/core/parser/helpers.py:27\nerror: src/sqlfluff/core/parser/helpers.py: patch does not apply",
+      "patch_bytes": 520
+    }
+  ],
+  "official_patch_ok": true,
+  "official_patch_mode": "recount_ignore_whitespace",
+  "official_patch_detail": "error: patch failed: test/dialects/ansi_test.py:3\nerror: test/dialects/ansi_test.py: patch does not apply\n\n--- relaxed ---",
+  "patch_apply_ok": true,
+  "patch_apply_mode": "recount_ignore_whitespace",
+  "patch_apply_detail": "error: patch failed: src/sqlfluff/core/parser/helpers.py:27\nerror: src/sqlfluff/core/parser/helpers.py: patch does not apply\n\n--- relaxed ---",
+  "fail_to_pass_count": 1,
+  "pass_to_pass_count": 42,
+  "baseline_fail_to_pass_rc": 4,
+  "patched_fail_to_pass_rc": 4,
+  "baseline_pass_to_pass_rc": 998,
+  "patched_pass_to_pass_rc": 998,
+  "run_pass_to_pass": false,
+  "target_improved": false
+}

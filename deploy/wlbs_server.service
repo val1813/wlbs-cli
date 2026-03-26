@@ -1,0 +1,14 @@
+[Unit]
+Description=wlbs experience hub
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/wlbs_scan
+EnvironmentFile=/opt/wlbs_scan/deploy/wlbs_server.env
+ExecStart=/usr/bin/env uvicorn wlbs_server:app --host 0.0.0.0 --port ${WLBS_PORT} --workers 2
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

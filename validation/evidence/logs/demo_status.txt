@@ -1,0 +1,15 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  wlbs-scan Status
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Likely root causes:
+    * roles  kappa=1.000  failures=0
+
+  High-risk files to investigate:
+    rbac  kappa=1.000
+    roles  kappa=1.000 SINGULARITY
+    rbac.RBACManager  kappa=0.547
+
+  Add --api-key <key> to see account info
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

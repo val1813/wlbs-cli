@@ -1,0 +1,15 @@
+```diff
+diff --git a/pvlib/iam.py b/pvlib/iam.py
+index 5d5d9e5..a6d6e5a 100644
+--- a/pvlib/iam.py
++++ b/pvlib/iam.py
+@@ -235,7 +235,7 @@ def physical(aoi, n=1.526, L=0.002, K=4.0):
+     # Fresnel's equation for perpendicularly polarized light
+     # (Eq. 3 in [1])
+     sin_theta_t = n1 * np.sin(theta_i) / n2
+-    theta_t = np.arcsin(sin_theta_t)
++    theta_t = np.arcsin(np.minimum(sin_theta_t, 1))
+     r_perp = ((n1 * np.cos(theta_i) - n2 * np.cos(theta_t)) /
+               (n1 * np.cos(theta_i) + n2 * np.cos(theta_t)))**2
+     # Fresnel's equation for parallelly polarized light
+```

@@ -1,0 +1,52 @@
+diff --git a/pvlib/tools.py b/pvlib/tools.py
+index 6d5d3c6..a6d5e5e 100644
+--- a/pvlib/tools.py
++++ b/pvlib/tools.py
+@@ -331,7 +331,10 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50):
+     df['VH'] = upper
+     df['fVH'] = func(df['VH'], **params)
+     df['fVL'] = func(df['VL'], **params)
+-    df['n'] = np.maximum(
++    # Handle case where upper and lower bounds are equal
++    equal_bounds = df['VH'] == df['VL']
++    df['n'] = np.where(equal_bounds, 0,
++        np.maximum(
+         # required iterations to meet atol, plus 2
+         2 +
+         # log((VH - VL)/atol) / log(phi)
+@@ -339,7 +342,7 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50):
+         # truncate to integer
+         np.trunc(np.log(atol / (df['VH'] - df['VL'])) / np.log(phim1)))
+     )
+-    df['n'] = np.minimum(df['n'], maxiter)
++    df['n'] = np.where(equal_bounds, 0, np.minimum(df['n'], maxiter))
+     # initial interior points:
+     df['VA'] = df['VL'] + (1 - phi) * (df['VH'] - df['VL'])
+     df['fVA'] = func(df['VA'], **params)
+@@ -347,7 +350,7 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50):
+     df['fVB'] = func(df['VB'], **params)
+ 
+     # iterate until n goes to 0
+-    while df['n'].max() > 0:
++    while df.loc[~equal_bounds, 'n'].max() > 0:
+         # case 1: fVA > fVB
+         case1 = df['fVA'] > df['fVB']
+         df.loc[case1, 'VH'] = df.loc[case1, 'VB']
+@@ -361,7 +364,7 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50):
+         df.loc[case1, 'fVB'] = func(df.loc[case1, 'VB'], **params)
+         # case 2: fVA <= fVB
+         case2 = ~case1
+-        df.loc[case2, 'VL'] = df.loc[case2, 'VA']
++        df.loc[case2 & ~equal_bounds, 'VL'] = df.loc[case2 & ~equal_bounds, 'VA']
+         df.loc[case2, 'fVL'] = df.loc[case2, 'fVA']
+         df.loc[case2, 'VA'] = df.loc[case2, 'VB']
+         df.loc[case2, 'fVA'] = df.loc[case2, 'fVB']
+@@ -369,7 +372,7 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50):
+         df.loc[case2, 'VB'] = df.loc[case2, 'VL'] + phi * (
+             df.loc[case2, 'VH'] - df.loc[case2, 'VL'])
+         df.loc[case2, 'fVB'] = func(df.loc[case2, 'VB'], **params)
+-        df['n'] -= 1
++        df.loc[~equal_bounds, 'n'] -= 1
+ 
+     # choose the best of VA and VB
+     best = df['fVA'] > df['fVB']

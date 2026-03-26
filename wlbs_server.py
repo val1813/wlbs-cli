@@ -46,7 +46,7 @@ POINTS_PATH = DATA_DIR / "points.json"
 PORT = int(os.environ.get("WLBS_PORT", "8765"))
 RATE_LIMITS: dict[str, list[float]] = {}
 
-app = FastAPI(title="wlbs Experience Hub", version="0.6.2")
+app = FastAPI(title="wlbs Experience Hub", version="0.6.3")
 
 
 def _load_json(path: Path, default):
@@ -359,7 +359,7 @@ def stats():
         "active_keys": len(keys),
         "points_accounts": len(points),
         "shared_crystals": crystals,
-        "version": "0.6.2",
+        "version": "0.6.3",
     }
 
 
@@ -450,8 +450,6 @@ async def admin_genkey(request: Request):
     body = await request.json()
     email = str(body.get("email", "")).strip()
     plan = str(body.get("plan", "pro")).strip()
-    if not email or "@" not in email:
-        raise HTTPException(400, "Valid email required")
     if plan not in ("free", "pro"):
         plan = "pro"
     key = add_key(email, plan)
@@ -520,6 +518,25 @@ async def admin_set_points(request: Request):
     pts[key] = round(pts_val, 1)
     _save_points(pts)
     return {"key": key, "points": pts[key]}
+
+
+@app.post("/admin/setplan")
+async def admin_set_plan(request: Request):
+    _check_admin(request)
+    body = await request.json()
+    key = str(body.get("key", "")).strip()
+    plan = str(body.get("plan", "free")).strip()
+    if plan not in ("free", "pro"):
+        raise HTTPException(400, "plan must be free or pro")
+    keys = _load_keys()
+    if key not in keys:
+        raise HTTPException(404, "Key not found")
+    keys[key]["plan"] = plan
+    # Reset first_used_at so 30-day timer restarts for new pro upgrade
+    if plan == "pro":
+        keys[key]["first_used_at"] = time.time()
+    _save_keys(keys)
+    return {"key": key, "plan": plan}
 
 
 @app.get("/admin/crystals")
@@ -639,7 +656,7 @@ input:focus,select:focus{border-color:#7c6aff}
       <div class="card">
         <h3>生成新 Key</h3>
         <div class="form-row">
-          <input id="newEmail" placeholder="用户邮箱" style="width:220px">
+          <input id="newEmail" placeholder="用户邮箱（可选）" style="width:220px">
           <select id="newPlan"><option value="pro">Pro</option><option value="free">Free</option></select>
           <button class="btn btn-green" onclick="genKey()">生成</button>
         </div>
@@ -699,6 +716,10 @@ function renderUsers(users){
       <td>${created}</td>
       <td>
         <button class="btn btn-blue" style="margin-right:4px" onclick="editPoints('${u.key}',${pts})">积分</button>
+        ${u.plan==='pro'
+          ? `<button class="btn btn-red" style="margin-right:4px" onclick="setPlan('${u.key}','free')">降 Free</button>`
+          : `<button class="btn btn-green" style="margin-right:4px" onclick="setPlan('${u.key}','pro')">升 Pro</button>`
+        }
         <button class="btn btn-red" onclick="deleteKey('${u.key}','${u.email}')">删除</button>
       </td>
     </tr>`;
@@ -709,6 +730,15 @@ function deleteKey(key,email){
   if(!confirm('确认删除 '+email+' 的 key？')) return;
   fetch('/admin/key/'+encodeURIComponent(key)+'?token='+encodeURIComponent(TOKEN),{method:'DELETE'})
     .then(r=>r.json()).then(()=>loadUsers());
+}
+
+function setPlan(key,plan){
+  const label=plan==='pro'?'升级为 Pro':'降级为 Free';
+  if(!confirm(label+'？')) return;
+  fetch('/admin/setplan?token='+encodeURIComponent(TOKEN),{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({key,plan})
+  }).then(r=>r.json()).then(()=>loadUsers());
 }
 
 function editPoints(key,cur){

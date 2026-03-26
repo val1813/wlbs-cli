@@ -1,0 +1,58 @@
+command: python -m pytest test/rules/std_L003_L036_L039_combo_test.py::test__rules__std_L003_L036_L039 -q
+returncode: 1
+stdout:
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______________________ test__rules__std_L003_L036_L039 _______________________
+
+    def test__rules__std_L003_L036_L039():
+        """Verify that double indents don't flag L039."""
+        sql = """
+        WITH example AS (
+            SELECT my_id,
+                other_thing,
+                one_more
+            FROM
+                my_table
+        )
+    
+        SELECT *
+        FROM example\n"""
+        fixed_sql = """
+        WITH example AS (
+            SELECT
+                my_id,
+                other_thing,
+                one_more
+            FROM
+                my_table
+        )
+    
+        SELECT *
+        FROM example\n"""
+        result = sqlfluff.fix(sql)
+>       assert result == fixed_sql
+E       AssertionError: assert '\n    WITH e...ROM example\n' == '\n    WITH e...ROM example\n'
+E         
+E         Skipping 40 identical leading characters in diff, use -v to show
+E         -           my_id,
+E         +            my_id,
+E         ? +
+E                       other_thing,
+E                       one_more...
+E         
+E         ...Full output truncated (6 lines hidden), use '-vv' to show
+
+test\rules\std_L003_L036_L039_combo_test.py:36: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  sqlfluff.linter:linter.py:286 One fix for L003 not applied, it would re-cause the same error.
+============================== warnings summary ===============================
+src\sqlfluff\__init__.py:9
+  D:\wlbs_scan\validation\batch_swebench\runs\sqlfluff__sqlfluff-1733\baseline_repo\src\sqlfluff\__init__.py:9: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test/rules/std_L003_L036_L039_combo_test.py::test__rules__std_L003_L036_L039
+1 failed, 1 warning in 0.27s
+stderr:

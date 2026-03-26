@@ -1,0 +1,135 @@
+diff --git a/src/sqlfluff/rules/L036.py b/src/sqlfluff/rules/L036.py
+--- a/src/sqlfluff/rules/L036.py
++++ b/src/sqlfluff/rules/L036.py
+@@ -1,4 +1,4 @@
+-"""Implementation of Rule L036."""
++"""Implementation of Rule L036."""
+ 
+ from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+@@ -6,7 +6,7 @@ from sqlfluff.utils.functional import sp
+ from sqlfluff.utils.reflow import ReflowSequence
+ 
+ 
+-class Rule_L036(BaseRule):
++class Rule_L036(BaseRule):
+     """Select targets should be on a new line unless there is only one select target.
+ 
+     **Anti-pattern**
+@@ -44,7 +44,7 @@ class Rule_L036(BaseRule):
+     def _eval(self, context: RuleContext) -> LintResult:
+         """Select targets should be on a new line unless there is only one select target."""
+         # Config type hints
+-        self.tab_space_size: int
++        self.tab_space_size: int
+ 
+         assert context.segment.is_type("select_statement")
+         select_clause = context.segment.get_child("select_clause")
+@@ -52,7 +52,7 @@ class Rule_L036(BaseRule):
+         # Exit early if no select_clause.
+         if not select_clause:
+             return LintResult()
+-        
++
+         select_clause_segments = select_clause.get_children("select_clause_element")
+         # Get any select targets that are not wildcards.
+         select_targets = [
+@@ -60,7 +60,7 @@ class Rule_L036(BaseRule):
+             for elem in select_clause_segments
+             if not elem.get_child("wildcard_expression")
+         ]
+-        
++
+         # Exit early if less than two select targets.
+         if len(select_targets) < 2:
+             return LintResult()
+@@ -68,7 +68,7 @@ class Rule_L036(BaseRule):
+         # Get the first select target.
+         first_select = select_targets[0]
+         first_newline = first_select.get_child("newline")
+-        
++
+         # If there's already a newline then we're done.
+         if first_newline:
+             return LintResult()
+@@ -76,7 +76,7 @@ class Rule_L036(BaseRule):
+         # Get the whitespace segment before the first select target.
+         ws_before_first = first_select.get_child("whitespace")
+         indent_segments = []
+-        
++
+         if ws_before_first:
+             # Get the indent from the whitespace before the first select target.
+             indent_segments = [ws_before_first]
+@@ -84,7 +84,7 @@ class Rule_L036(BaseRule):
+             # If there's no whitespace before the first select target,
+             # we need to look for the indent from the select clause.
+             select_keyword = select_clause.get_child("keyword")
+-            
++
+             if select_keyword:
+                 # Get the whitespace after SELECT keyword
+                 ws_after_select = select_keyword.next_segment
+@@ -93,7 +93,7 @@ class Rule_L036(BaseRule):
+                     indent_segments = [ws_after_select]
+                 else:
+                     # No whitespace after SELECT, create default indent
+-                    indent_segments = [] 
++                    indent_segments = []
+ 
+         # Create the indent string
+         if indent_segments:
+@@ -101,7 +101,7 @@ class Rule_L036(BaseRule):
+             indent_str = "".join(seg.raw for seg in indent_segments)
+         else:
+             indent_str = self._make_indent()
+-        
++
+         # Create fixes
+         fixes = []
+         # Add newline after SELECT keyword
+@@ -109,7 +109,7 @@ class Rule_L036(BaseRule):
+         if select_keyword:
+             # Get position after SELECT keyword
+             select_pos = select_keyword.pos_marker
+-            
++
+             # Check if there's already whitespace after SELECT
+             ws_after_select = select_keyword.next_segment
+             if ws_after_select and ws_after_select.is_type("whitespace"):
+@@ -117,7 +117,7 @@ class Rule_L036(BaseRule):
+                 fixes.append(
+                     LintFix.replace(
+                         ws_after_select,
+-                        [ws_after_select, self.make_newline(pos_marker=select_pos)],
++                        [self.make_newline(pos_marker=select_pos), indent_str],
+                     )
+                 )
+             else:
+@@ -125,7 +125,7 @@ class Rule_L036(BaseRule):
+                 fixes.append(
+                     LintFix.create_after(
+                         select_keyword,
+-                        [self.make_newline(pos_marker=select_pos), indent_str],
++                        [self.make_newline(pos_marker=select_pos), indent_str.lstrip()],
+                     )
+                 )
+ 
+@@ -133,7 +133,7 @@ class Rule_L036(BaseRule:
+         if ws_before_first:
+             # Remove the whitespace before the first select target
+             fixes.append(LintFix.delete(ws_before_first))
+-        
++
+         return LintResult(
+             anchor=first_select,
+             fixes=fixes,
+@@ -141,7 +141,7 @@ class Rule_L036(BaseRule):
+ 
+     def _make_indent(self) -> str:
+         """Make an indent string."""
+-        if self.indent_unit == "space":
++        if self.indent_unit == "space":
+             return " " * self.tab_space_size
+         elif self.indent_unit == "tab":
+             return "\t"

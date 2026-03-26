@@ -1,0 +1,11 @@
+--- a/src/sqlfluff/core/parser/helpers.py
++++ b/src/sqlfluff/core/parser/helpers.py
+@@ -27,7 +27,7 @@ def check_still_complete(
+     initial_str = join_segments_raw(segments_in)
+     current_str = join_segments_raw(matched_segments + unmatched_segments)
+     if initial_str != current_str:  # pragma: no cover
+-        raise RuntimeError(
++        raise RuntimeError(  # pragma: no cover
+             "Dropped elements in sequence matching! {!r} != {!r}".format(
+                 initial_str, current_str
+             )

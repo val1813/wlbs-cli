@@ -1,0 +1,98 @@
+diff --git a/src/sqlfluff/rules/L031.py b/src/sqlfluff/rules/L031.py
+--- a/src/sqlfluff/rules/L031.py
++++ b/src/sqlfluff/rules/L031.py
+@@ -1,4 +1,4 @@
+-"""Rule L031."""
++"""Rule L031: Avoid aliases in from clauses and join conditions."""
+ 
+ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+ from sqlfluff.core.rules.functional import sp
+@@ -6,7 +6,7 @@ from sqlfluff.core.rules.functional import sp
+ 
+ 
+ class Rule_L031(BaseRule):
+-    """Avoid using aliases in join condition.
++    """Avoid aliases in from clauses and join conditions.
+ 
+     | **Anti-pattern**
+     | In this example, the alias 'o' is used for the orders table, and 'u' is used for the
+@@ -32,6 +32,7 @@ class Rule_L031(BaseRule):
+     |    JOIN orders on users.id = orders.user_id
+     |    order by orders.user_id desc
+ 
++    Note: This rule only applies to JOIN conditions, not to aliases in FROM clauses.
+     """
+ 
+     def _eval(self, context: RuleContext) -> Optional[LintResult]:
+@@ -39,6 +40,7 @@ class Rule_L031(BaseRule):
+         # We are only interested in FROM clauses.
+         if not context.segment.is_type("from_clause"):
+             return None
++
+         # Get all referenced tables in this FROM clause
+         table_aliases = []
+         from_expression_elements = context.functional.segment.children(
+@@ -46,6 +48,7 @@ class Rule_L031(BaseRule):
+         )
+         for from_expression_element in from_expression_elements:
+             table_expression = from_expression_element.children(
++                sp.is_type("table_expression")
+             )
+             if not table_expression:
+                 continue
+@@ -53,6 +56,7 @@ class Rule_L031(BaseRule):
+             # Get the first non-whitespace segment to find the table reference
+             table_ref = table_expression.children(sp.is_type("table_reference"))
+             if not table_ref:
++                # Could be a function or subquery
+                 continue
+ 
+             # Get the alias if it exists
+@@ -60,6 +64,7 @@ class Rule_L031(BaseRule):
+                 sp.is_type("alias_expression")
+             )
+             if alias_expression:
++                # Get the identifier inside the alias
+                 alias_identifier = alias_expression.children(
+                     sp.is_type("identifier")
+                 )
+@@ -67,6 +72,7 @@ class Rule_L031(BaseRule):
+                     table_aliases.append(alias_identifier[0].raw)
+ 
+         # Now find all column references in the WHERE clause and JOIN conditions
++        # that could be replaced with the table name instead of alias
+         violations = []
+         # Look for column references in the parent segment (which should be the SELECT statement)
+         parent_select = context.functional.parent_stack.until(
+@@ -74,6 +80,7 @@ class Rule_L031(BaseRule):
+         )
+         if not parent_select:
+             return None
++
+         # Find all column references in the SELECT statement
+         column_references = parent_select.children(
+             sp.is_type("column_reference")
+@@ -81,6 +88,7 @@ class Rule_L031(BaseRule):
+ 
+         for col_ref in column_references:
+             col_identifier = col_ref.children(sp.is_type("identifier"))
++            # Skip if no identifier found
+             if not col_identifier:
+                 continue
+ 
+@@ -88,6 +96,7 @@ class Rule_L031(BaseRule):
+             # Check if it's a qualified column reference (has a dot)
+             if "." in col_name:
+                 table_alias, column_name = col_name.split(".", 1)
++                # If the table alias is in our list of table aliases, it's a violation
+                 if table_alias in table_aliases:
+                     # Check if we're in a JOIN condition
+                     # Look for the nearest join clause
+@@ -95,6 +104,7 @@ class Rule_L031(BaseRule):
+                         sp.is_type("join_clause")
+                     )
+                     if join_clause:
++                        # Only report violations in JOIN conditions
+                         violations.append(col_ref[0])
+ 
+         if violations:

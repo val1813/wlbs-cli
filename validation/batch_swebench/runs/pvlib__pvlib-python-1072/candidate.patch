@@ -1,0 +1,13 @@
+diff --git a/pvlib/temperature.py b/pvlib/temperature.py
+index 8d5d6e5..a3d5e6c 100644
+--- a/pvlib/temperature.py
++++ b/pvlib/temperature.py
+@@ -593,7 +593,7 @@ def fuentes(poa_global, temp_air, wind_speed, noct_installed,
+     # calculate the time delta in hours between each data point
+     # TODO: handle irregular time steps
+     # TODO: handle series shorter than 3 elements
+-    timedelta_hours = np.diff(poa_global.index).astype(float) / 1e9 / 60 / 60
++    timedelta_hours = np.diff(poa_global.index.values).astype(float) / 1e9 / 60 / 60
+ 
+     # calculate the cell temperature using the dynamic thermal model
+     # initial cell temperature is assumed to equal ambient temperature

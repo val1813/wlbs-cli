@@ -1,0 +1,992 @@
+You are fixing a SWE-bench Lite instance.
+        Return ONLY a unified git diff patch. No prose.
+
+        Instance: sqlfluff__sqlfluff-1763
+        Repo: sqlfluff/sqlfluff
+        Base commit: a10057635e5b2559293a676486f0b730981f037a
+
+        Problem statement:
+        dbt postgres fix command errors with UnicodeEncodeError and also wipes the .sql file
+_If this is a parsing or linting issue, please include a minimal SQL example which reproduces the issue, along with the `sqlfluff parse` output, `sqlfluff lint` output and `sqlfluff fix` output when relevant._
+
+## Expected Behaviour
+Violation failure notice at a minimum, without wiping the file. Would like a way to ignore the known error at a minimum as --noqa is not getting past this. Actually would expect --noqa to totally ignore this.
+
+## Observed Behaviour
+Reported error: `UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 120: character maps to <undefined>`
+
+## Steps to Reproduce
+SQL file:
+```sql
+SELECT
+    reacted_table_name_right.descendant_id AS category_id,
+    string_agg(redacted_table_name_left.name, ' → ' ORDER BY reacted_table_name_right.generations DESC) AS breadcrumbs -- noqa
+FROM {{ ref2('redacted_schema_name', 'redacted_table_name_left') }} AS redacted_table_name_left
+INNER JOIN {{ ref2('redacted_schema_name', 'reacted_table_name_right') }} AS reacted_table_name_right
+    ON redacted_table_name_left.id = order_issue_category_hierarchies.ancestor_id
+GROUP BY reacted_table_name_right.descendant_id
+```
+Running `sqlfluff fix --ignore templating,parsing,lexing -vvvv` and accepting proposed fixes for linting violations.
+
+## Dialect
+`postgres`, with `dbt` templater
+
+## Version
+`python 3.7.12`
+`sqlfluff 0.7.0`
+`sqlfluff-templater-dbt 0.7.0`
+
+## Configuration
+I've tried a few, here's one:
+```
+[sqlfluff]
+verbose = 2
+dialect = postgres
+templater = dbt
+exclude_rules = None
+output_line_length = 80
+runaway_limit = 10
+ignore_templated_areas = True
+processes = 3
+# Comma separated list of file extensions to lint.
+
+# NB: This config will only apply in the root folder.
+sql_file_exts = .sql
+
+[sqlfluff:indentation]
+indented_joins = False
+indented_using_on = True
+template_blocks_indent = True
+
+[sqlfluff:templater]
+unwrap_wrapped_queries = True
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+
+[sqlfluff:templater:jinja:macros]
+# Macros provided as builtins for dbt projects
+dbt_ref = {% macro ref(model_ref) %}{{model_ref}}{% endmacro %}
+dbt_source = {% macro source(source_name, table) %}{{source_name}}_{{table}}{% endmacro %}
+dbt_config = {% macro config() %}{% for k in kwargs %}{% endfor %}{% endmacro %}
+dbt_var = {% macro var(variable, default='') %}item{% endmacro %}
+dbt_is_incremental = {% macro is_incremental() %}True{% endmacro %}
+
+# Common config across rules
+[sqlfluff:rules]
+tab_space_size = 4
+indent_unit = space
+single_table_references = consistent
+unquoted_identifiers_policy = all
+
+# L001 - Remove trailing whitespace (fix)
+# L002 - Single section of whitespace should not contain both tabs and spaces (fix)
+# L003 - Keep consistent indentation (fix)
+# L004 - We use 4 spaces for indentation just for completeness (fix)
+# L005 - Remove space before commas (fix)
+# L006 - Operators (+, -, *, /) will be wrapped by a single space each side (fix)
+
+# L007 - Operators should not be at the end of a line
+[sqlfluff:rules:L007]  # Keywords
+operator_new_lines = after
+
+# L008 - Always use a single whitespace after a comma (fix)
+# L009 - Files will always end with a trailing newline
+
+# L010 - All keywords will use full upper case (fix)
+[sqlfluff:rules:L010]  # Keywords
+capitalisation_policy = upper
+
+# L011 - Always explicitly alias tables (fix)
+[sqlfluff:rules:L011]  # Aliasing
+aliasing = explicit
+
+# L012 - Do not have to explicitly alias all columns
+[sqlfluff:rules:L012]  # Aliasing
+aliasing = explicit
+
+# L013 - Always explicitly alias a column with an expression in it (fix)
+[sqlfluff:rules:L013]  # Aliasing
+allow_scalar = False
+
+# L014 - Always user full lower case for 'quoted identifiers' -> column refs. without an alias (fix)
+[sqlfluff:rules:L014]  # Unquoted identifiers
+extended_capitalisation_policy = lower
+
+# L015 - Always remove parenthesis when using DISTINCT to be clear that DISTINCT applies to all columns (fix)
+
+# L016 - Lines should be 120 characters of less. Comment lines should not be ignored (fix)
+[sqlfluff:rules:L016]
+ignore_comment_lines = False
+max_line_length = 120
+
+# L017 - There should not be whitespace between function name and brackets (fix)
+# L018 - Always align closing bracket of WITH to the WITH keyword (fix)
+
+# L019 - Always use trailing commas / commas at the end of the line (fix)
+[sqlfluff:rules:L019]
+comma_style = trailing
+
+# L020 - Table aliases will always be unique per statement
+# L021 - Remove any use of ambiguous DISTINCT and GROUP BY combinations. Lean on removing the GROUP BY.
+# L022 - Add blank lines after common table expressions (CTE) / WITH.
+# L023 - Always add a single whitespace after AS in a WITH clause (fix)
+
+[sqlfluff:rules:L026]
+force_enable = False
+
+# L027 - Always add references if more than one referenced table or view is used
+
+[sqlfluff:rules:L028]
+force_enable = False
+
+[sqlfluff:rules:L029]  # Keyword identifiers
+unquoted_identifiers_policy = aliases
+
+[sqlfluff:rules:L030]  # Function names
+capitalisation_policy = upper
+
+# L032 - We prefer use of join keys rather than USING
+# L034 - We prefer ordering of columns in select statements as (fix):
+# 1. wildcards
+# 2. single identifiers
+# 3. calculations and aggregates
+
+# L035 - Omit 'else NULL'; it is redundant (fix)
+# L036 - Move select targets / identifiers onto new lines each (fix)
+# L037 - When using ORDER BY, make the direction explicit (fix)
+
+# L038 - Never use trailing commas at the end of the SELECT clause
+[sqlfluff:rules:L038]
+select_clause_trailing_comma = forbid
+
+# L039 - Remove unnecessary whitespace (fix)
+
+[sqlfluff:rules:L040]  # Null & Boolean Literals
+capitalisation_policy = upper
+
+# L042 - Join clauses should not contain subqueries. Use common tables expressions (CTE) instead.
+[sqlfluff:rules:L042]
+# By default, allow subqueries in from clauses, but not join clauses.
+forbid_subquery_in = join
+
+# L043 - Reduce CASE WHEN conditions to COALESCE (fix)
+# L044 - Prefer a known number of columns along the path to the source data
+# L045 - Remove unused common tables expressions (CTE) / WITH statements (fix)
+# L046 - Jinja tags should have a single whitespace on both sides
+
+# L047 - Use COUNT(*) instead of COUNT(0) or COUNT(1) alternatives (fix)
+[sqlfluff:rules:L047]  # Consistent syntax to count all rows
+prefer_count_1 = False
+prefer_count_0 = False
+
+# L048 - Quoted literals should be surrounded by a single whitespace (fix)
+# L049 - Always use IS or IS NOT for comparisons with NULL (fix)
+```
+
+
+
+        FAIL_TO_PASS:
+        ["test/core/linter_test.py::test_safe_create_replace_file[utf8_create]", "test/core/linter_test.py::test_safe_create_replace_file[utf8_update]", "test/core/linter_test.py::test_safe_create_replace_file[utf8_special_char]"]
+
+        PASS_TO_PASS:
+        ["test/core/linter_test.py::test__linter__path_from_paths__dir", "test/core/linter_test.py::test__linter__path_from_paths__default", "test/core/linter_test.py::test__linter__path_from_paths__exts", "test/core/linter_test.py::test__linter__path_from_paths__file", "test/core/linter_test.py::test__linter__path_from_paths__not_exist", "test/core/linter_test.py::test__linter__path_from_paths__not_exist_ignore", "test/core/linter_test.py::test__linter__path_from_paths__explicit_ignore", "test/core/linter_test.py::test__linter__path_from_paths__dot", "test/core/linter_test.py::test__linter__path_from_paths__ignore[test/fixtures/linter/sqlfluffignore]", "test/core/linter_test.py::test__linter__path_from_paths__ignore[test/fixtures/linter/sqlfluffignore/]", "test/core/linter_test.py::test__linter__path_from_paths__ignore[test/fixtures/linter/sqlfluffignore/.]", "test/core/linter_test.py::test__linter__lint_string_vs_file[test/fixtures/linter/indentation_errors.sql]", "test/core/linter_test.py::test__linter__lint_string_vs_file[test/fixtures/linter/whitespace_errors.sql]", "test/core/linter_test.py::test__linter__get_violations_filter_rules[None-7]", "test/core/linter_test.py::test__linter__get_violations_filter_rules[L010-2]", "test/core/linter_test.py::test__linter__get_violations_filter_rules[rules2-2]", "test/core/linter_test.py::test__linter__linting_result__sum_dicts", "test/core/linter_test.py::test__linter__linting_result__combine_dicts", "test/core/linter_test.py::test__linter__linting_result_check_tuples_by_path[False-list]", "test/core/linter_test.py::test__linter__linting_result_check_tuples_by_path[True-dict]", "test/core/linter_test.py::test__linter__linting_result_get_violations[1]", "test/core/linter_test.py::test__linter__linting_result_get_violations[2]", "test/core/linter_test.py::test__linter__linting_parallel_thread[False]", "test/core/linter_test.py::test__linter__linting_parallel_thread[True]", "test/core/linter_test.py::test_lint_path_parallel_wrapper_exception", "test/core/linter_test.py::test__linter__linting_unexpected_error_handled_gracefully", "test/core/linter_test.py::test__linter__raises_malformed_noqa", "test/core/linter_test.py::test__linter__empty_file", "test/core/linter_test.py::test__linter__mask_templated_violations[True-check_tuples0]", "test/core/linter_test.py::test__linter__mask_templated_violations[False-check_tuples1]", "test/core/linter_test.py::test__linter__encoding[test/fixtures/linter/encoding-utf-8.sql-autodetect-False]", "test/core/linter_test.py::test__linter__encoding[test/fixtures/linter/encoding-utf-8-sig.sql-autodetect-False]", "test/core/linter_test.py::test__linter__encoding[test/fixtures/linter/encoding-utf-8.sql-utf-8-False]", "test/core/linter_test.py::test__linter__encoding[test/fixtures/linter/encoding-utf-8-sig.sql-utf-8-True]", "test/core/linter_test.py::test__linter__encoding[test/fixtures/linter/encoding-utf-8.sql-utf-8-sig-False]", "test/core/linter_test.py::test__linter__encoding[test/fixtures/linter/encoding-utf-8-sig.sql-utf-8-sig-False]", "test/core/linter_test.py::test_parse_noqa[-None]", "test/core/linter_test.py::test_parse_noqa[noqa-expected1]", "test/core/linter_test.py::test_parse_noqa[noqa?-SQLParseError]", "test/core/linter_test.py::test_parse_noqa[noqa:-expected3]", "test/core/linter_test.py::test_parse_noqa[noqa:L001,L002-expected4]", "test/core/linter_test.py::test_parse_noqa[noqa:", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_no_ignore]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_ignore_specific_line]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_ignore_different_specific_line]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_ignore_different_specific_rule]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_ignore_enable_this_range]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_ignore_disable_this_range]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_1_ignore_disable_specific_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_2_ignore_disable_specific_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_3_ignore_disable_specific_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_4_ignore_disable_specific_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_1_ignore_disable_all_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_2_ignore_disable_all_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_3_ignore_disable_all_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[1_violation_line_4_ignore_disable_all_2_3]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[4_violations_two_types_disable_specific_enable_all]", "test/core/linter_test.py::test_linted_file_ignore_masked_violations[4_violations_two_types_disable_all_enable_specific]", "test/core/linter_test.py::test_linter_noqa", "test/core/linter_test.py::test_linter_noqa_with_templating", "test/core/linter_test.py::test_delayed_exception", "test/core/linter_test.py::test__attempt_to_change_templater_warning", "test/core/linter_test.py::test_safe_create_replace_file[incorrect_encoding]"]
+
+        Test patch to satisfy:
+        diff --git a/test/core/linter_test.py b/test/core/linter_test.py
+--- a/test/core/linter_test.py
++++ b/test/core/linter_test.py
+@@ -641,3 +641,56 @@ def test__attempt_to_change_templater_warning(caplog):
+         assert "Attempt to set templater to " in caplog.text
+     finally:
+         logger.propagate = original_propagate_value
++
++
++@pytest.mark.parametrize(
++    "case",
++    [
++        dict(
++            name="utf8_create",
++            fname="test.sql",
++            encoding="utf-8",
++            existing=None,
++            update="def",
++            expected="def",
++        ),
++        dict(
++            name="utf8_update",
++            fname="test.sql",
++            encoding="utf-8",
++            existing="abc",
++            update="def",
++            expected="def",
++        ),
++        dict(
++            name="utf8_special_char",
++            fname="test.sql",
++            encoding="utf-8",
++            existing="abc",
++            update="→",  # Special utf-8 character
++            expected="→",
++        ),
++        dict(
++            name="incorrect_encoding",
++            fname="test.sql",
++            encoding="Windows-1252",
++            existing="abc",
++            update="→",  # Not valid in Windows-1252
++            expected="abc",  # File should be unchanged
++        ),
++    ],
++    ids=lambda case: case["name"],
++)
++def test_safe_create_replace_file(case, tmp_path):
++    """Test creating or updating .sql files, various content and encoding."""
++    p = tmp_path / case["fname"]
++    if case["existing"]:
++        p.write_text(case["existing"])
++    try:
++        linter.LintedFile._safe_create_replace_file(
++            str(p), case["update"], case["encoding"]
++        )
++    except:  # noqa: E722
++        pass
++    actual = p.read_text(encoding=case["encoding"])
++    assert case["expected"] == actual
+
+
+        Constraints:
+        - Minimal patch only.
+        - Preserve behavior outside the failing issue.
+        - Match expected error text exactly if tests require exact descriptions.
+        - Output a valid unified diff patch that can pass `git apply --check`.
+
+        Relevant files:
+        ### FILE: test/test_testing.py
+```python
+"""Test the sqlfluff.testing module."""
+
+from _pytest.outcomes import Failed, Skipped
+import pytest
+from sqlfluff.testing.rules import (
+    assert_rule_fail_in_sql,
+    assert_rule_pass_in_sql,
+    rules__test_helper,
+    RuleTestCase,
+)
+
+
+def test_assert_rule_fail_in_sql_handle_parse_error():
+    """Util assert_rule_fail_in_sql should handle parse errors."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_fail_in_sql(code="L000", sql="select from")
+    failed_test.match("Found the following parse errors in test case:")
+
+
+def test_assert_rule_fail_in_sql_should_fail_queries_that_unexpectedly_pass():
+    """Util assert_rule_fail_in_sql should fail tests when a query passes rules that it violates."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_fail_in_sql(code="L001", sql="select 1")
+    failed_test.match("No L001 failures found in query which should fail")
+
+
+def test_assert_rule_pass_in_sql_should_handle_parse_error():
+    """Util assert_rule_pass_in_sql should handle parse errors."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_pass_in_sql(code="L001", sql="select from")
+    failed_test.match("Found unparsable section:")
+
+
+def test_assert_rule_pass_in_sql_should_fail_when_there_are_violations():
+    """Util assert_rule_pass_in_sql should fail when there are violations."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_pass_in_sql(code="L005", sql="select a , b from t")
+    failed_test.match("Found L005 failures in query which should pass")
+
+
+def test_rules__test_helper_skipped_when_test_case_skipped():
+    """Util rules__test_helper should skip the test when test case is "skipped"."""
+    rule_test_case = RuleTestCase(skip="Skip this one for now")
+    with pytest.raises(Skipped) as skipped_test:
+        rules__test_helper(rule_test_case)
+    skipped_test.match("Skip this one for now")
+
+
+def test_rules__test_helper_has_variable_introspection():
+    """Make sure the helper gives variable introspection information on failure."""
+    rule_test_case = RuleTestCase(
+        rule="L003",
+        fail_str="""
+            select
+                a,
+                    b
+            from table
+        """,
+        # extra comma on purpose
+        fix_str="""
+            select
+                a,
+                b,
+            from table
+        """,
+    )
+    with pytest.raises(AssertionError) as skipped_test:
+        rules__test_helper(rule_test_case)
+    # Enough to check that a query diff is displayed
+    skipped_test.match("select")
+
+```
+### FILE: test/cli/commands_test.py
+```python
+"""The Test file for CLI (General)."""
+
+import configparser
+import tempfile
+import os
+import shutil
+import json
+import oyaml as yaml
+import subprocess
+import chardet
+import sys
+
+# Testing libraries
+import pytest
+from click.testing import CliRunner
+
+# We import the library directly here to get the version
+import sqlfluff
+from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
+
+
+def invoke_assert_code(
+    ret_code=0,
+    args=None,
+    kwargs=None,
+    cli_input=None,
+    mix_stderr=True,
+    output_contains="",
+):
+    """Invoke a command and check return code."""
+    args = args or []
+    kwargs = kwargs or {}
+    if cli_input:
+        kwargs["input"] = cli_input
+    runner = CliRunner(mix_stderr=mix_stderr)
+    result = runner.invoke(*args, **kwargs)
+    # Output the CLI code for debugging
+    print(result.output)
+    # Check return codes
+    if output_contains != "":
+        assert output_contains in result.output
+    if ret_code == 0:
+        if result.exception:
+            raise result.exception
+    assert ret_code == result.exit_code
+    return result
+
+
+expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
+L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
+L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
+L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
+"""
+
+
+def test__cli__command_directed():
+    """Basic checking of lint functionality."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
+    )
+    # We should get a readout of what the error was
+    check_a = "L:   2 | P:   4 | L003"
+    # NB: Skip the number at the end because it's configurable
+    check_b = "Indentation"
+    assert check_a in result.output
+    assert check_b in result.output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not added.
+    # The replace command just accounts for cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_output)
+
+
+def test__cli__command_dialect():
+    """Check the script raises the right exception on an unknown dialect."""
+    # The dialect is unknown should be a non-zero exit code
+    invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "faslkjh",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+
+
+def test__cli__command_dialect_legacy():
+    """Check the script raises the right exception on a legacy dialect."""
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "exasol_fs",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+    assert "Please use the 'exasol' dialect instead." in result.stdout
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        (
+            "-",
+            "-n",
+        ),
+        (
+            "-",
+            "-n",
+            "-v",
+        ),
+        (
+            "-",
+            "-n",
+            "-vv",
+        ),
+        (
+            "-",
+            "-vv",
+        ),
+    ],
+)
+def test__cli__command_lint_stdin(command):
+    """Check basic commands on a simple script using stdin.
+
+    The subprocess command should exit without errors, as no issues should be found.
+    """
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
+        sql = test_file.read()
+    invoke_assert_code(args=[lint, command], cli_input=sql)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        # Test basic linting
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        # Original tests from test__cli__command_lint
+        (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        # Test basic linting with very high verbosity
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        # Test basic linting with specific logger
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvv", "--logger", "parser"]),
+        # Check basic parsing
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        # Test basic parsing with very high verbosity
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        # Check basic parsing, with the code only option
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
+        # Check basic parsing, with the yaml output
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
+        # Check the profiler and benching commands
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        # Check linting works in specifying rules
+        (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
+        # Check linting works in specifying multiple rules
+        (
+            lint,
+            ["-n", "--rules", "L001,L002", "test/fixtures/linter/operator_errors.sql"],
+        ),
+        # Check linting works with both included and excluded rules
+        (
+            lint,
+            [
+                "-n",
+                "--rules",
+                "L001,L006",
+                "--exclude-rules",
+                "L006,L031",
+                "test/fixtures/linter/operator_errors.sql",
+            ],
+        ),
+        # Check linting works with just excl
+```
+### FILE: test/rules/std_roundtrip_test.py
+```python
+"""Round trip tests for rules with a fix method."""
+
+import tempfile
+import os
+import shutil
+import re
+import pytest
+from io import StringIO
+
+from click.testing import CliRunner
+
+from sqlfluff.cli.commands import lint, fix
+
+
+def generic_roundtrip_test(source_file, rulestring):
+    """Run a roundtrip test given a sql file and a rule.
+
+    We take a file buffer, lint, fix and lint, finally checking that
+    the file fails initially but not after fixing.
+    """
+    if isinstance(source_file, str):
+        # If it's a string, treat it as a path so lets load it.
+        with open(source_file) as f:
+            source_file = StringIO(f.read())
+
+    filename = "tesing.sql"
+    # Lets get the path of a file to use
+    tempdir_path = tempfile.mkdtemp()
+    filepath = os.path.join(tempdir_path, filename)
+    # Open the example file and write the content to it
+    with open(filepath, mode="w") as dest_file:
+        for line in source_file:
+            dest_file.write(line)
+    runner = CliRunner()
+    # Check that we first detect the issue
+    result = runner.invoke(lint, ["--rules", rulestring, filepath])
+    assert result.exit_code == 65
+    # Fix the file (in force mode)
+    result = runner.invoke(fix, ["--rules", rulestring, "-f", filepath])
+    assert result.exit_code == 0
+    # Now lint the file and check for exceptions
+    result = runner.invoke(lint, ["--rules", rulestring, filepath])
+    assert result.exit_code == 0
+    shutil.rmtree(tempdir_path)
+
+
+def jinja_roundtrip_test(
+    source_path, rulestring, sqlfile="test.sql", cfgfile=".sqlfluff"
+):
+    """Run a roundtrip test path and rule.
+
+    We take a file buffer, lint, fix and lint, finally checking that
+    the file fails initially but not after fixing. Additionally
+    we also check that we haven't messed up the templating tags
+    in the process.
+    """
+    tempdir_path = tempfile.mkdtemp()
+    sql_filepath = os.path.join(tempdir_path, sqlfile)
+    cfg_filepath = os.path.join(tempdir_path, cfgfile)
+
+    # Copy the SQL file
+    with open(sql_filepath, mode="w") as dest_file:
+        with open(os.path.join(source_path, sqlfile)) as source_file:
+            for line in source_file:
+                dest_file.write(line)
+    # Copy the Config file
+    with open(cfg_filepath, mode="w") as dest_file:
+        with open(os.path.join(source_path, cfgfile)) as source_file:
+            for line in source_file:
+                dest_file.write(line)
+
+    with open(sql_filepath) as f:
+        # Get a record of the pre-existing jinja tags
+        tags = re.findall(r"{{[^}]*}}|{%[^}%]*%}", f.read(), flags=0)
+
+    runner = CliRunner()
+    # Check that we first detect the issue
+    result = runner.invoke(lint, ["--rules", rulestring, sql_filepath])
+    assert result.exit_code == 65
+    # Fix the file (in force mode)
+    result = runner.invoke(fix, ["--rules", rulestring, "-f", sql_filepath])
+    assert result.exit_code == 0
+    # Now lint the file and check for exceptions
+    result = runner.invoke(lint, ["--rules", rulestring, sql_filepath])
+    if result.exit_code != 0:
+        # Output the file content for debugging
+        print("File content:")
+        with open(sql_filepath) as f:
+            print(repr(f.read()))
+        print("Command output:")
+        print(result.output)
+    assert result.exit_code == 0
+
+    with open(sql_filepath) as f:
+        # Check that the tags are all still there!
+        new_tags = re.findall(r"{{[^}]*}}|{%[^}%]*%}", f.read(), flags=0)
+
+    # Clear up the temp dir
+    shutil.rmtree(tempdir_path)
+
+    # Assert that the tags are the same
+    assert tags == new_tags
+
+
+@pytest.mark.parametrize(
+    "rule,path",
+    [
+        ("L001", "test/fixtures/linter/indentation_errors.sql"),
+        ("L008", "test/fixtures/linter/whitespace_errors.sql"),
+        ("L008", "test/fixtures/linter/indentation_errors.sql"),
+        ("L010", "test/fixtures/linter/whitespace_errors.sql"),
+        ("L011", "test/fixtures/dialects/ansi/select_simple_i.sql"),
+        ("L012", "test/fixtures/dialects/ansi/select_simple_i.sql"),
+    ],
+)
+def test__cli__command__fix(rule, path):
+    """Test the round trip of detecting, fixing and then not detecting given rule."""
+    generic_roundtrip_test(path, rule)
+
+
+@pytest.mark.parametrize("rule", ["L010", "L001"])
+def test__cli__command__fix_templated(rule):
+    """Roundtrip test, making sure that we don't drop tags while templating."""
+    jinja_roundtrip_test("test/fixtures/templater/jinja_d_roundtrip", rule)
+
+```
+### FILE: test/rules/std_test.py
+```python
+"""Tests for the standard set of rules."""
+import pytest
+
+from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
+
+
+@pytest.mark.parametrize(
+    "rule,path,violations",
+    [
+        ("L001", "indentation_errors.sql", [(4, 24)]),
+        ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
+        (
+            "L003",
+            "indentation_errors.sql",
+            [(2, 4), (3, 4), (4, 6)],
+        ),
+        (
+            "L004",
+            "indentation_errors.sql",
+            [(3, 1), (4, 1), (5, 1)],
+        ),
+        # Check we get comma (with leading space/newline) whitespace errors
+        # NB The newline before the comma, should report on the comma, not the newline for clarity.
+        ("L005", "whitespace_errors.sql", [(2, 9)]),
+        ("L019", "whitespace_errors.sql", [(4, 1)]),
+        # Check we get comma (with incorrect trailing space) whitespace errors,
+        # but also no false positives on line 4 or 5.
+        ("L008", "whitespace_errors.sql", [(3, 12)]),
+        # Check we get operator whitespace errors and it works with brackets
+        (
+            "L006",
+            "operator_errors.sql",
+            [(7, 6), (7, 9), (7, 12)],
+        ),
+        (
+            "L039",
+            "operator_errors.sql",
+            [(3, 8), (4, 10)],
+        ),
+        ("L007", "operator_errors.sql", [(5, 9)]),
+        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & L039)
+        (
+            "L006",
+            "operator_errors_negative.sql",
+            [(5, 6)],
+        ),
+        (
+            "L039",
+            "operator_errors_negative.sql",
+            [(2, 6), (2, 9)],
+        ),
+        # Hard indentation errors
+        (
+            "L003",
+            "indentation_error_hard.sql",
+            [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)],
+        ),
+        # Check bracket handling with closing brackets and contained indents works.
+        ("L003", "indentation_error_contained.sql", []),
+        # Check we handle block comments as expect. Github #236
+        (
+            "L016",
+            "block_comment_errors.sql",
+            [(1, 121), (2, 99), (4, 88)],
+        ),
+        ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
+        # Column references
+        ("L027", "column_references.sql", [(1, 8)]),
+        ("L027", "column_references_bare_function.sql", []),
+        ("L026", "column_references.sql", [(1, 11)]),
+        ("L025", "column_references.sql", [(2, 11)]),
+        # Distinct and Group by
+        ("L021", "select_distinct_group_by.sql", [(1, 8)]),
+        # Make sure that ignoring works as expected
+        ("L006", "operator_errors_ignore.sql", [(10, 8)]),
+        (
+            "L031",
+            "aliases_in_join_error.sql",
+            [(6, 15), (7, 19), (8, 16)],
+        ),
+        (
+            "L046",
+            "heavy_templating.sql",
+            [(12, 13), (12, 25)],
+        ),
+    ],
+)
+def test__rules__std_file(rule, path, violations):
+    """Test the linter finds the given errors in (and only in) the right places."""
+    assert_rule_raises_violations_in_file(
+        rule=rule,
+        fpath="test/fixtures/linter/" + path,
+        violations=violations,
+        fluff_config=FluffConfig(overrides=dict(rules=rule)),
+    )
+
+
+@pytest.mark.parametrize(
+    "rule_config_dict",
+    [
+        {"tab_space_size": "blah"},
+        {"max_line_length": "blah"},
+        {"indent_unit": "blah"},
+        {"comma_style": "blah"},
+        {"allow_scalar": "blah"},
+        {"single_table_references": "blah"},
+        {"unquoted_identifiers_policy": "blah"},
+        {"L010": {"capitalisation_policy": "blah"}},
+        {"L011": {"aliasing": "blah"}},
+        {"L012": {"aliasing": "blah"}},
+        {"L014": {"extended_capitalisation_policy": "blah"}},
+        {"L030": {"capitalisation_policy": "blah"}},
+    ],
+)
+def test_improper_configs_are_rejected(rule_config_dict):
+    """Ensure that unsupported configs raise a ValueError."""
+    config = FluffConfig(configs={"rules": rule_config_dict})
+    with pytest.raises(ValueError):
+        get_ruleset().get_rulelist(config)
+
+```
+### FILE: test/api/info_test.py
+```python
+"""Test using sqlfluff to extract elements of queries."""
+
+import sqlfluff
+
+
+def test__api__info_dialects():
+    """Basic linting of dialects."""
+    dialects = sqlfluff.list_dialects()
+    assert isinstance(dialects, list)
+    assert ("ansi", "ansi", "nothing") in dialects
+
+
+def test__api__info_rules():
+    """Basic linting of dialects."""
+    rules = sqlfluff.list_rules()
+    assert isinstance(rules, list)
+    assert ("L001", "Unnecessary trailing whitespace.") in rules
+
+```
+### FILE: src/sqlfluff/cli/commands.py
+```python
+"""Contains the CLI."""
+
+import sys
+import json
+import logging
+import time
+from typing import (
+    Callable,
+    Tuple,
+    NoReturn,
+    Optional,
+    List,
+)
+
+import oyaml as yaml
+
+import click
+
+# For the profiler
+import pstats
+from io import StringIO
+
+# To enable colour cross platform
+import colorama
+
+from sqlfluff.cli.formatters import (
+    format_rules,
+    format_violation,
+    format_linting_result_header,
+    format_linting_stats,
+    colorize,
+    format_dialect_warning,
+    format_dialects,
+    CallbackFormatter,
+)
+from sqlfluff.cli.helpers import cli_table, get_package_version
+
+# Import from sqlfluff core.
+from sqlfluff.core import (
+    Linter,
+    FluffConfig,
+    SQLLintError,
+    SQLTemplaterError,
+    SQLFluffUserError,
+    dialect_selector,
+    dialect_readout,
+    TimingSummary,
+)
+
+from sqlfluff.core.enums import FormatType, Color
+from sqlfluff.core.linter import ParsedString
+
+
+class RedWarningsFilter(logging.Filter):
+    """This filter makes all warnings or above red."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Filter any warnings (or above) to turn them red."""
+        if record.levelno >= logging.WARNING:
+            record.msg = f"{colorize(record.msg, Color.red)} "
+        return True
+
+
+def set_logging_level(
+    verbosity: int, logger: Optional[logging.Logger] = None, stderr_output: bool = False
+) -> None:
+    """Set up logging for the CLI.
+
+    We either set up global logging based on the verbosity
+    or, if `logger` is specified, we only limit to a single
+    sqlfluff logger. Verbosity is applied in the same way.
+
+    Implementation: If `logger` is not specified, the handler
+    is attached to the `sqlfluff` logger. If it is specified
+    then it attaches the the logger in question. In addition
+    if `logger` is specified, then that logger will also
+    not propagate.
+    """
+    fluff_logger = logging.getLogger("sqlfluff")
+    # Don't propagate logging
+    fluff_logger.propagate = False
+
+    # Enable colorama
+    colorama.init()
+
+    # Set up the log handler to log to stdout
+    handler = logging.StreamHandler(stream=sys.stderr if stderr_output else sys.stdout)
+    # NB: the unicode character at the beginning is to squash any badly
+    # tamed ANSI colour statements, and return us to normality.
+    handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
+    # Set up a handler to colour warnings red.
+    handler.addFilter(RedWarningsFilter())
+    if logger:
+        focus_logger = logging.getLogger(f"sqlfluff.{logger}")
+        focus_logger.addHandler(handler)
+    else:
+        fluff_logger.addHandler(handler)
+
+    # NB: We treat the parser logger slightly differently because it's noisier.
+    # It's important that we set levels for all each time so
+    # that we don't break tests by changing the granularity
+    # between tests.
+    parser_logger = logging.getLogger("sqlfluff.parser")
+    if verbosity < 3:
+        fluff_logger.setLevel(logging.WARNING)
+        parser_logger.setLevel(logging.NOTSET)
+    elif verbosity == 3:
+        fluff_logger.setLevel(logging.INFO)
+        parser_logger.setLevel(logging.WARNING)
+    elif verbosity == 4:
+        fluff_logger.setLevel(logging.DEBUG)
+        parser_logger.setLevel(logging.INFO)
+    elif verbosity > 4:
+        fluff_logger.setLevel(logging.DEBUG)
+        parser_logger.setLevel(logging.DEBUG)
+
+
+def common_options(f: Callable) -> Callable:
+    """Add common options to commands via a decorator.
+
+    These are applied to all of the cli commands.
+    """
+    f = click.version_option()(f)
+    f = click.option(
+        "-v",
+        "--verbose",
+        count=True,
+        help=(
+            "Verbosity, how detailed should the output be. This is *stackable*, so `-vv`"
+            " is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`."
+        ),
+    )(f)
+    f = click.option(
+        "-n",
+        "--nocolor",
+        is_flag=True,
+        help="No color - if this is set then the output will be without ANSI color codes.",
+    )(f)
+
+    return f
+
+
+def core_options(f: Callable) -> Callable:
+    """Add core operation options to commands via a decorator.
+
+    These are applied to the main (but not all) cli commands like
+    `parse`, `lint` and `fix`.
+    """
+    f = click.option(
+        "--dialect", default=None, help="The dialect of SQL to lint (default=ansi)"
+    )(f)
+    f = click.option(
+        "--templater", default=None, help="The templater to use (default=jinja)"
+    )(f)
+    f = click.option(
+        "--rules",
+        default=None,
+        # short_help='Specify a particular rule, or comma separated rules, to check',
+        help=(
+            "Narrow the search to only specific rules. For example "
+            "specifying `--rules L001` will only search for rule `L001` (Unnecessary "
+            "trailing whitespace). Multiple rules can be specified with commas e.g. "
+            "`--rules L001,L002` will specify only looking for violations of rule "
+            "`L001` and rule `L002`."
+        ),
+    )(f)
+    f = click.option(
+        "--exclude-rules",
+        default=None,
+        # short_help='Specify a particular rule, or comma separated rules to exclude',
+        help=(
+            "Exclude specific rules. For example "
+            "specifying `--exclude-rules L001` will remove rule `L001` (Unnecessary "
+            "trailing whitespace) from the set of considered rules. This could either "
+            "be the whitelist, or the general set if there is no specific whitelist. "
+            "Multiple rules can be specified with commas e.g. "
+            "`--exclude-rules L001,L002` will exclude violations of rule "
+            "`L001` and rule `L002`."
+        ),
+    )(f)
+    f = click.option(
+        "--ignore",
+        default=None,
+        help=(
+            "Ignore particular families of errors so that they don't cause a failed "
+            "run. For example `--ignore parsing` would mean that any parsing errors "
+
+```

@@ -1,0 +1,40 @@
+--- a/src/sqlfluff/core/parser/helpers.py
++++ b/src/sqlfluff/core/parser/helpers.py
+@@ -24,16 +24,16 @@ def check_still_complete(
+     segments_in: Tuple["BaseSegment", ...],
+     matched_segments: Tuple["BaseSegment", ...],
+     unmatched_segments: Tuple["BaseSegment", ...],
+-) -> bool:
++) -> Tuple[bool, str]:
+     """Check that the segments in are the same as the segments out."""
+     initial_str = join_segments_raw(segments_in)
+     current_str = join_segments_raw(matched_segments + unmatched_segments)
+     if initial_str != current_str:  # pragma: no cover
+-        raise RuntimeError(
+-            "Dropped elements in sequence matching! {!r} != {!r}".format(
+-                initial_str, current_str
+-            )
++        return False, "Dropped elements in sequence matching! {!r} != {!r}".format(
++            initial_str, current_str
+         )
+-    return True
++    return True, ""
+ 
+ 
+ def trim_non_code_segments(
+--- a/src/sqlfluff/core/parser/segments/base.py
++++ b/src/sqlfluff/core/parser/segments/base.py
+@@ -818,7 +818,12 @@ class BaseSegment:
+                 # Check we haven't dropped anything.
+                 # TODO: This check is expensive, but worth it for now.
+                 # Maybe make it a debug check later?
+-                check_still_complete(segments, m.matched_segments, m.unmatched_segments)
++                still_complete, msg = check_still_complete(segments, m.matched_segments, m.unmatched_segments)
++                if not still_complete:
++                    # If we dropped elements, then we have an unparsable section.
++                    # Create an unparsable segment and return it.
++                    unparsable = UnparsableSegment(segments, msg)
++                    return MatchResult.from_matched(unparsable), parse_context
+ 
+                 # Return the matched segment
+                 return MatchResult.from_matched(matched_segment), parse_context

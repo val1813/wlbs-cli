@@ -1,0 +1,41 @@
+{
+  "instance_id": "marshmallow-code__marshmallow-1343",
+  "repo": "marshmallow-code/marshmallow",
+  "base_commit": "2be2d83a1a9a6d3d9b85804f3ab545cecc409bb0",
+  "model_name": "deepseek-chat",
+  "candidate_files": [],
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: marshmallow/schema.py: No such file or directory",
+      "patch_bytes": 608
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: marshmallow/schema.py: No such file or directory",
+      "patch_bytes": 662
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: marshmallow/schema.py: No such file or directory",
+      "patch_bytes": 649
+    }
+  ],
+  "official_patch_ok": true,
+  "official_patch_mode": "strict",
+  "official_patch_detail": "",
+  "patch_apply_ok": false,
+  "patch_apply_mode": "failed",
+  "patch_apply_detail": "error: marshmallow/schema.py: No such file or directory\n\n--- relaxed ---\n\nerror: marshmallow/schema.py: No such file or directory",
+  "fail_to_pass_count": 1,
+  "pass_to_pass_count": 24,
+  "baseline_fail_to_pass_rc": 4,
+  "patched_fail_to_pass_rc": 999,
+  "baseline_pass_to_pass_rc": 998,
+  "patched_pass_to_pass_rc": 998,
+  "run_pass_to_pass": false,
+  "target_improved": false
+}

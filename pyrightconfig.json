@@ -1,0 +1,17 @@
+{
+  "include": [
+    "wlbs_scan",
+    "tests",
+    "validation"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "dist",
+    "build",
+    "*.egg-info"
+  ],
+  "pythonVersion": "3.8",
+  "reportMissingImports": false,
+  "venvPath": ".",
+  "venv": ".venv"
+}

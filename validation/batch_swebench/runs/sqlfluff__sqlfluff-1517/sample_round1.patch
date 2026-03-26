@@ -1,0 +1,15 @@
+--- a/src/sqlfluff/core/parser/helpers.py
++++ b/src/sqlfluff/core/parser/helpers.py
+@@ -27,6 +27,12 @@ def check_still_complete(
+     initial_str = join_segments_raw(segments_in)
+     current_str = join_segments_raw(matched_segments + unmatched_segments)
+     if initial_str != current_str:  # pragma: no cover
++        # If the only difference is a single semicolon, it might be an extra
++        # statement terminator that should be reported as a parse error.
++        # This is a workaround for issues like sqlfluff/sqlfluff#1517.
++        if initial_str.endswith(';') and current_str == '':
++            # This case is handled by the parser producing a parse error.
++            return True
+         raise RuntimeError(
+             "Dropped elements in sequence matching! {!r} != {!r}".format(
+                 initial_str, current_str

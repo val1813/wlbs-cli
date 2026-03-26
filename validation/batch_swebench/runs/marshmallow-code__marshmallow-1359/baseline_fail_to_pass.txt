@@ -1,0 +1,11 @@
+command: python -m pytest tests/test_fields.py::TestParentAndName::test_datetime_list_inner_format -q
+returncode: 4
+stdout:
+
+stderr:
+ImportError while loading conftest 'D:\wlbs_scan\validation\batch_swebench\runs\marshmallow-code__marshmallow-1359\baseline_repo\tests\conftest.py'.
+tests\conftest.py:4: in <module>
+    from tests.base import User, UserSchema, Blog
+tests\base.py:5: in <module>
+    import simplejson
+E   ModuleNotFoundError: No module named 'simplejson'

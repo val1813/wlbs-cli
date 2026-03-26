@@ -1,0 +1,5 @@
+﻿command: python -m pytest test/rules/std_L060_test.py -q
+returncode: 0
+stdout:
+.                                                                        [100%]
+1 passed in 0.14s

@@ -1,0 +1,46 @@
+{
+  "schema": "wlbs-advisory-v1",
+  "generated_at": "2026-03-26T06:03:10.598682+00:00",
+  "symptom": "rbac",
+  "advisory": {
+    "primary_suggestion": {
+      "text": "roles may be worth investigating first",
+      "confidence": 0.911,
+      "tone": "suggestion",
+      "reasoning": [
+        "symptom appears at rbac, but higher-priority upstream candidate roles sits 1 hop(s) away",
+        "roles is a singularity: no direct failures, but downstream failures accumulated behind it",
+        "roles carries historical lift beyond static risk (0.590 -> 1.000)",
+        "rbac has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+        "behavioral distance to symptom: 1 hop(s)",
+        "routing policy confidence for rbac->roles: 0.750",
+        "successful similar-task bonus: +0.000 from 0 matched task(s)"
+      ]
+    },
+    "alternative_suggestions": [
+      {
+        "text": "rbac itself may also deserve a direct check",
+        "confidence": 0.6,
+        "tone": "note",
+        "reasoning": [
+          "rbac has 3 direct failure event(s) recorded"
+        ]
+      }
+    ],
+    "what_to_read_first": [
+      "roles.py",
+      "rbac.py"
+    ],
+    "what_might_be_safe_to_skip": [],
+    "open_questions": [
+      "Is the failure pattern consistent across repeated test runs?",
+      "Does roles show recent ownership or churn worth checking with --blame?"
+    ],
+    "similar_past_tasks": []
+  },
+  "metadata": {
+    "nodes_analyzed": 19,
+    "world_line_events": 3,
+    "scan_ms": 0
+  }
+}

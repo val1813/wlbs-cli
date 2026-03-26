@@ -1,0 +1,573 @@
+You are fixing a SWE-bench Lite instance.
+        Return ONLY a unified git diff patch. No prose.
+
+        Instance: sqlfluff__sqlfluff-1733
+        Repo: sqlfluff/sqlfluff
+        Base commit: a1579a16b1d8913d9d7c7d12add374a290bcc78c
+
+        Problem statement:
+        Extra space when first field moved to new line in a WITH statement
+Note, the query below uses a `WITH` statement. If I just try to fix the SQL within the CTE, this works fine.
+
+Given the following SQL:
+
+```sql
+WITH example AS (
+    SELECT my_id,
+        other_thing,
+        one_more
+    FROM
+        my_table
+)
+
+SELECT *
+FROM example
+```
+
+## Expected Behaviour
+
+after running `sqlfluff fix` I'd expect (`my_id` gets moved down and indented properly):
+
+```sql
+WITH example AS (
+    SELECT
+        my_id,
+        other_thing,
+        one_more
+    FROM
+        my_table
+)
+
+SELECT *
+FROM example
+```
+
+## Observed Behaviour
+
+after running `sqlfluff fix` we get (notice that `my_id` is indented one extra space)
+
+```sql
+WITH example AS (
+    SELECT
+         my_id,
+        other_thing,
+        one_more
+    FROM
+        my_table
+)
+
+SELECT *
+FROM example
+```
+
+## Steps to Reproduce
+
+Noted above. Create a file with the initial SQL and fun `sqfluff fix` on it.
+
+## Dialect
+
+Running with default config.
+
+## Version
+Include the output of `sqlfluff --version` along with your Python version
+
+sqlfluff, version 0.7.0
+Python 3.7.5
+
+## Configuration
+
+Default config.
+
+
+
+        FAIL_TO_PASS:
+        ["test/rules/std_L003_L036_L039_combo_test.py::test__rules__std_L003_L036_L039"]
+
+        PASS_TO_PASS:
+        ["test/rules/std_L016_L36_combo_test.py::test__rules__std_L016_L036_long_line_lint", "test/rules/std_L016_L36_combo_test.py::test__rules__std_L016_L036_long_line_fix", "test/rules/std_L016_L36_combo_test.py::test__rules__std_L016_L036_long_line_fix2"]
+
+        Test patch to satisfy:
+        diff --git a/test/rules/std_L003_L036_L039_combo_test.py b/test/rules/std_L003_L036_L039_combo_test.py
+new file mode 100644
+--- /dev/null
++++ b/test/rules/std_L003_L036_L039_combo_test.py
+@@ -0,0 +1,36 @@
++"""Tests issue #1373 doesn't reoccur.
++
++The combination of L003 (incorrect indentation), L036 (select targets),
++and L039 (unnecessary white space) can result in incorrect indentation.
++"""
++
++import sqlfluff
++
++
++def test__rules__std_L003_L036_L039():
++    """Verify that double indents don't flag L039."""
++    sql = """
++    WITH example AS (
++        SELECT my_id,
++            other_thing,
++            one_more
++        FROM
++            my_table
++    )
++
++    SELECT *
++    FROM example\n"""
++    fixed_sql = """
++    WITH example AS (
++        SELECT
++            my_id,
++            other_thing,
++            one_more
++        FROM
++            my_table
++    )
++
++    SELECT *
++    FROM example\n"""
++    result = sqlfluff.fix(sql)
++    assert result == fixed_sql
+diff --git a/test/rules/std_L016_L36_combo.py b/test/rules/std_L016_L36_combo_test.py
+similarity index 100%
+rename from test/rules/std_L016_L36_combo.py
+rename to test/rules/std_L016_L36_combo_test.py
+
+
+        Constraints:
+        - Minimal patch only.
+        - Preserve behavior outside the failing issue.
+        - Match expected error text exactly if tests require exact descriptions.
+        - Output a valid unified diff patch that can pass `git apply --check`.
+
+        Relevant files:
+        ### FILE: test/rules/std_L016_L36_combo.py
+```python
+"""Tests the combination of L016 (no long lines) and L036 (single selects should eb on SELECT line)."""
+
+import sqlfluff
+
+
+def test__rules__std_L016_L036_long_line_lint():
+    """Verify that a long line that causes a clash between L016 and L036 is not changed."""
+    sql = "SELECT\n1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n"
+    result = sqlfluff.lint(sql)
+    assert "L016" in [r["code"] for r in result]
+    assert "L036" in [r["code"] for r in result]
+
+
+def test__rules__std_L016_L036_long_line_fix():
+    """Verify that a long line that causes a clash between L016 and L036 does not add multiple newlines (see #1424)."""
+    sql = "SELECT 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n"
+    result = sqlfluff.fix(sql)
+    assert (
+        result
+        == "SELECT\n    1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n"
+    )
+
+
+def test__rules__std_L016_L036_long_line_fix2():
+    """Verify that a long line that causes a clash between L016 and L036 does not add multiple newlines (see #1424)."""
+    sql = "SELECT\n    1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n"
+    result = sqlfluff.fix(sql)
+    assert (
+        result
+        == "SELECT 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n"
+    )
+
+```
+### FILE: test/cli/commands_test.py
+```python
+"""The Test file for CLI (General)."""
+
+import configparser
+import tempfile
+import os
+import shutil
+import json
+import oyaml as yaml
+import subprocess
+import chardet
+import sys
+
+# Testing libraries
+import pytest
+from click.testing import CliRunner
+
+# We import the library directly here to get the version
+import sqlfluff
+from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
+
+
+def invoke_assert_code(
+    ret_code=0,
+    args=None,
+    kwargs=None,
+    cli_input=None,
+    mix_stderr=True,
+    output_contains="",
+):
+    """Invoke a command and check return code."""
+    args = args or []
+    kwargs = kwargs or {}
+    if cli_input:
+        kwargs["input"] = cli_input
+    runner = CliRunner(mix_stderr=mix_stderr)
+    result = runner.invoke(*args, **kwargs)
+    # Output the CLI code for debugging
+    print(result.output)
+    # Check return codes
+    if output_contains != "":
+        assert output_contains in result.output
+    if ret_code == 0:
+        if result.exception:
+            raise result.exception
+    assert ret_code == result.exit_code
+    return result
+
+
+expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
+L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
+L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
+L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
+"""
+
+
+def test__cli__command_directed():
+    """Basic checking of lint functionality."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
+    )
+    # We should get a readout of what the error was
+    check_a = "L:   2 | P:   4 | L003"
+    # NB: Skip the number at the end because it's configurable
+    check_b = "Indentation"
+    assert check_a in result.output
+    assert check_b in result.output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not added.
+    # The replace command just accounts for cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_output)
+
+
+def test__cli__command_dialect():
+    """Check the script raises the right exception on an unknown dialect."""
+    # The dialect is unknown should be a non-zero exit code
+    invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "faslkjh",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+
+
+def test__cli__command_dialect_legacy():
+    """Check the script raises the right exception on a legacy dialect."""
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "exasol_fs",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+    assert "Please use the 'exasol' dialect instead." in result.stdout
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        (
+            "-",
+            "-n",
+        ),
+        (
+            "-",
+            "-n",
+            "-v",
+        ),
+        (
+            "-",
+            "-n",
+            "-vv",
+        ),
+        (
+            "-",
+            "-vv",
+        ),
+    ],
+)
+def test__cli__command_lint_stdin(command):
+    """Check basic commands on a simple script using stdin.
+
+    The subprocess command should exit without errors, as no issues should be found.
+    """
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
+        sql = test_file.read()
+    invoke_assert_code(args=[lint, command], cli_input=sql)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        # Test basic linting
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        # Original tests from test__cli__command_lint
+        (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        # Test basic linting with very high verbosity
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        # Test basic linting with specific logger
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvv", "--logger", "parser"]),
+        # Check basic parsing
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        # Test basic parsing with very high verbosity
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        # Check basic parsing, with the code only option
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
+        # Check basic parsing, with the yaml output
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
+        # Check the profiler and benching commands
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        # Check linting works in specifying rules
+        (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
+        # Check linting works in specifying multiple rules
+        (
+            lint,
+            ["-n", "--rules", "L001,L002", "test/fixtures/linter/operator_errors.sql"],
+        ),
+        # Check linting works with both included and excluded rules
+        (
+            lint,
+            [
+                "-n",
+                "--rules",
+                "L001,L006",
+                "--exclude-rules",
+                "L006,L031",
+                "test/fixtures/linter/operator_errors.sql",
+            ],
+        ),
+        # Check linting works with just excl
+```
+### FILE: test/fixtures/linter/autofix/bigquery/005_unnest_spacing/test-config.yml
+```python
+test-config:
+  rules:
+    - L003
+    - L025
+
+```
+### FILE: test/fixtures/linter/autofix/bigquery/004_templating/test-config.yml
+```python
+test-config:
+  rules:
+    - L001
+    - L003
+    - L006
+    - L008
+    - L009
+
+```
+### FILE: test/fixtures/linter/autofix/bigquery/004_templating/before.sql
+```python
+
+/*
+A nice hairy templated query to really stretch and test templating and fixing.
+
+This file should fail the safety checks, and so the position of the templated
+tokens shouldn't move.
+*/
+WITH
+  raw_effect_sizes AS (
+  SELECT
+    COUNT(1) AS campaign_count,
+    {{corr_states}}
+    {% for action in considered_actions %}
+    ,SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)), STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+    {% endfor %}
+  FROM
+    `{{gcp_project}}.{{dataset}}.global_actions_states`
+  GROUP BY
+    {{corr_states}}
+  ),
+
+  {% for action in considered_actions %}
+  {{action}}_raw_effect_sizes AS (
+  SELECT
+    COUNT(1) AS campaign_count_{{action}},
+    {{corr_states}}
+    -- NOTE: The L003 fix routine behaves a little strangely here around the templated
+    -- code, specifically the indentation of STDDEV_POP and preceding comments. This
+    -- is a bug currently with no obvious solution.
+    ,SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
+      STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+  FROM
+    `{{gcp_project}}.{{dataset}}.global_actions_states`
+  WHERE
+    {{action}} != -1
+  GROUP BY
+    {{corr_states}}
+  ),
+  {% endfor %}
+
+  new_raw_effect_sizes AS (
+  SELECT
+    {{corr_states}}
+    {% for action in considered_actions %}
+    ,{{metric}}_{{action}}
+    ,campaign_count_{{action}}
+    {% endfor %}
+  FROM
+    {% for action in considered_actions %}
+    {% if loop.first %}
+    {{action}}_raw_effect_sizes
+    {% else %}
+  JOIN
+    {{action}}_raw_effect_sizes
+  USING
+    ({{corr_states}})
+    {% endif %}
+    {% endfor %}
+  ),
+
+  imputed_effect_sizes AS (
+  SELECT
+    {{corr_states}}
+    ,o.campaign_count AS campaign_count
+    {% for action in considered_actions %}
+    ,COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
+    ,COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
+    ,n.campaign_count_{{action}}
+    {% endfor %}
+  FROM
+    raw_effect_sizes o
+  JOIN
+    new_raw_effect_sizes n
+  USING
+    ({{corr_states}})
+  ),
+
+  action_states AS (
+  SELECT 
+    {{action_states}}
+  FROM `{{gcp_project}}.{{dataset}}.global_state_space`
+  GROUP BY {{action_states}})
+
+SELECT
+  imputed_effect_sizes.*,
+  {{action_states}}
+FROM
+  imputed_effect_sizes
+CROSS JOIN action_states
+
+```
+### FILE: test/fixtures/linter/autofix/bigquery/004_templating/after.sql
+```python
+
+/*
+A nice hairy templated query to really stretch and test templating and fixing.
+
+This file should fail the safety checks, and so the position of the templated
+tokens shouldn't move.
+*/
+WITH
+raw_effect_sizes AS (
+    SELECT
+        COUNT(1) AS campaign_count,
+        {{corr_states}}
+        {% for action in considered_actions %}
+        , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)), STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+        {% endfor %}
+    FROM
+        `{{gcp_project}}.{{dataset}}.global_actions_states`
+    GROUP BY
+        {{corr_states}}
+),
+
+{% for action in considered_actions %}
+{{action}}_raw_effect_sizes AS (
+    SELECT
+        COUNT(1) AS campaign_count_{{action}},
+        {{corr_states}}
+        -- NOTE: The L003 fix routine behaves a little strangely here around the templated
+        -- code, specifically the indentation of STDDEV_POP and preceding comments. This
+        -- is a bug currently with no obvious solution.
+        , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
+                        STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+    FROM
+        `{{gcp_project}}.{{dataset}}.global_actions_states`
+    WHERE
+        {{action}} != -1
+    GROUP BY
+        {{corr_states}}
+  ),
+  {% endfor %}
+
+new_raw_effect_sizes AS (
+    SELECT
+        {{corr_states}}
+        {% for action in considered_actions %}
+        , {{metric}}_{{action}}
+        , campaign_count_{{action}}
+        {% endfor %}
+    FROM
+    {% for action in considered_actions %}
+    {% if loop.first %}
+    {{action}}_raw_effect_sizes
+    {% else %}
+    JOIN
+        {{action}}_raw_effect_sizes
+        USING
+            ({{corr_states}})
+    {% endif %}
+    {% endfor %}
+),
+
+imputed_effect_sizes AS (
+    SELECT
+        {{corr_states}}
+        , o.campaign_count AS campaign_count
+        {% for action in considered_actions %}
+        , COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
+        , COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
+        , n.campaign_count_{{action}}
+        {% endfor %}
+    FROM
+        raw_effect_sizes o
+    JOIN
+        new_raw_effect_sizes n
+        USING
+            ({{corr_states}})
+),
+
+action_states AS (
+    SELECT
+        {{action_states}}
+    FROM `{{gcp_project}}.{{dataset}}.global_state_space`
+    GROUP BY {{action_states}})
+
+SELECT
+    imputed_effect_sizes.*,
+    {{action_states}}
+FROM
+    imputed_effect_sizes
+CROSS JOIN action_states
+
+```

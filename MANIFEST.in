@@ -1,0 +1,12 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include HARNESS_ROADMAP.md
+recursive-include tests *.py
+recursive-include validation *.py *.md *.json
+recursive-include demo *.py *.json
+recursive-include docs *.png
+recursive-include .vscode *.json
+include pyrightconfig.json
+include .editorconfig

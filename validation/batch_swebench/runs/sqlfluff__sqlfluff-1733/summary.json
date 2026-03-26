@@ -1,0 +1,48 @@
+{
+  "instance_id": "sqlfluff__sqlfluff-1733",
+  "repo": "sqlfluff/sqlfluff",
+  "base_commit": "a1579a16b1d8913d9d7c7d12add374a290bcc78c",
+  "model_name": "deepseek-chat",
+  "candidate_files": [
+    "test/rules/std_L016_L36_combo.py",
+    "test/cli/commands_test.py",
+    "test/fixtures/linter/autofix/bigquery/005_unnest_spacing/test-config.yml",
+    "test/fixtures/linter/autofix/bigquery/004_templating/test-config.yml",
+    "test/fixtures/linter/autofix/bigquery/004_templating/before.sql",
+    "test/fixtures/linter/autofix/bigquery/004_templating/after.sql"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: src/sqlfluff/rules/layout.py: No such file or directory",
+      "patch_bytes": 594
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: corrupt patch at line 20",
+      "patch_bytes": 935
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L036.py:1\nerror: src/sqlfluff/rules/L036.py: patch does not apply",
+      "patch_bytes": 1505
+    }
+  ],
+  "official_patch_ok": true,
+  "official_patch_mode": "strict",
+  "official_patch_detail": "",
+  "patch_apply_ok": false,
+  "patch_apply_mode": "failed",
+  "patch_apply_detail": "error: patch failed: src/sqlfluff/rules/L036.py:1\nerror: src/sqlfluff/rules/L036.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: src/sqlfluff/rules/L036.py:1\nerror: src/sqlfluff/rules/L036.py: patch does not apply",
+  "fail_to_pass_count": 1,
+  "pass_to_pass_count": 3,
+  "baseline_fail_to_pass_rc": 1,
+  "patched_fail_to_pass_rc": 999,
+  "baseline_pass_to_pass_rc": 0,
+  "patched_pass_to_pass_rc": 999,
+  "run_pass_to_pass": true,
+  "target_improved": false
+}

@@ -1,0 +1,1123 @@
+{
+  "generated_at": "2026-03-26T06:03:11.082999+00:00",
+  "experiment": "wlbs_product_evidence_v1",
+  "task_count": 6,
+  "tasks": [
+    {
+      "name": "train_roles_rbac",
+      "split": "train",
+      "family": "missing_registry_key",
+      "symptom": "rbac",
+      "true_target": "roles",
+      "expected_mode": "cross_file",
+      "confidence_threshold": 0.85
+    },
+    {
+      "name": "train_registry_handler",
+      "split": "train",
+      "family": "missing_registry_key",
+      "symptom": "payment_handler",
+      "true_target": "registry",
+      "expected_mode": "cross_file",
+      "confidence_threshold": 0.85
+    },
+    {
+      "name": "train_defaults_api",
+      "split": "train",
+      "family": "missing_registry_key",
+      "symptom": "api_auth",
+      "true_target": "defaults",
+      "expected_mode": "cross_file",
+      "confidence_threshold": 0.85
+    },
+    {
+      "name": "heldout_catalog_dashboard",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "symptom": "dashboard_view",
+      "true_target": "catalog",
+      "expected_mode": "cross_file",
+      "confidence_threshold": 0.9
+    },
+    {
+      "name": "heldout_policy_screen",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "symptom": "screen_gate",
+      "true_target": "policy_book",
+      "expected_mode": "cross_file",
+      "confidence_threshold": 0.9
+    },
+    {
+      "name": "heldout_direct_math",
+      "split": "heldout",
+      "family": "direct_symptom_logic",
+      "symptom": "math_panel",
+      "true_target": "math_panel",
+      "expected_mode": "direct",
+      "confidence_threshold": 0.85
+    }
+  ],
+  "results": [
+    {
+      "task": "train_roles_rbac",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "roles",
+      "mode": "symptom_first",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "rbac",
+      "chosen_targets": [
+        "rbac",
+        "rbac",
+        "rbac"
+      ],
+      "confidences": [],
+      "advisory": null,
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert rbac.can_delete() is True\n               ^^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:5: in can_delete\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert rbac.can_write() is True\n               ^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:9: in can_write\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_rbac.py::test_admin_like_role_can_delete - KeyError: 'admin'\nFAILED tests/test_rbac.py::test_admin_like_role_can_write - KeyError: 'admin'\n2 failed in 0.05s\n\n[attempt 1] target=rbac patch=catch symptom exception and continue confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert rbac.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002163BE89A80>()\nE        +    where <function can_delete at 0x000002163BE89A80> = rbac.can_delete\n\ntests\\test_rbac.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert rbac.can_write() is True\n               ^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:11: in can_write\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_rbac.py::test_admin_like_role_can_delete - assert False is ...\nFAILED tests/test_rbac.py::test_admin_like_role_can_write - KeyError: 'admin'\n2 failed in 0.04s\n\n[attempt 2] target=rbac patch=add downstream fallback without delete permission confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert rbac.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002E7D1E0DA80>()\nE        +    where <function can_delete at 0x000002E7D1E0DA80> = rbac.can_delete\n\ntests\\test_rbac.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert rbac.can_write() is True\n               ^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:11: in can_write\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_rbac.py::test_admin_like_role_can_delete - assert False is ...\nFAILED tests/test_rbac.py::test_admin_like_role_can_write - KeyError: 'admin'\n2 failed in 0.04s\n\n[attempt 3] target=rbac patch=change downstream predicate instead of upstream data confidence=0.000\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert rbac.can_write() is True\n               ^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:11: in can_write\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_rbac.py::test_admin_like_role_can_write - KeyError: 'admin'\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "train_roles_rbac",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "roles",
+      "mode": "wlbs_fresh",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "roles",
+      "chosen_targets": [
+        "roles"
+      ],
+      "confidences": [
+        0.876
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:02:49.204606+00:00",
+        "symptom": "rbac",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "roles may be worth investigating first",
+            "confidence": 0.876,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at rbac, but higher-priority upstream candidate roles sits 1 hop(s) away",
+              "roles carries historical lift beyond static risk (0.660 -> 1.000)",
+              "rbac has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for rbac->roles: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "rbac itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "rbac has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "roles.py",
+            "rbac.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does roles show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert rbac.can_delete() is True\n               ^^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:5: in can_delete\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert rbac.can_write() is True\n               ^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:9: in can_write\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_rbac.py::test_admin_like_role_can_delete - KeyError: 'admin'\nFAILED tests/test_rbac.py::test_admin_like_role_can_write - KeyError: 'admin'\n2 failed in 0.05s\n\n[attempt 1] target=roles patch=add missing upstream rule confidence=0.876\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "train_roles_rbac",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "roles",
+      "mode": "wlbs_continual",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "roles",
+      "chosen_targets": [
+        "roles"
+      ],
+      "confidences": [
+        0.876
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:02:50.154922+00:00",
+        "symptom": "rbac",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "roles may be worth investigating first",
+            "confidence": 0.876,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at rbac, but higher-priority upstream candidate roles sits 1 hop(s) away",
+              "roles carries historical lift beyond static risk (0.660 -> 1.000)",
+              "rbac has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for rbac->roles: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "rbac itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "rbac has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "roles.py",
+            "rbac.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does roles show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert rbac.can_delete() is True\n               ^^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:5: in can_delete\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert rbac.can_write() is True\n               ^^^^^^^^^^^^^^^^\n\ntests\\test_rbac.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nrbac.py:9: in can_write\n    rules = roles.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'admin'\n\nroles.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_rbac.py::test_admin_like_role_can_delete - KeyError: 'admin'\nFAILED tests/test_rbac.py::test_admin_like_role_can_write - KeyError: 'admin'\n2 failed in 0.05s\n\n[attempt 1] target=roles patch=add missing upstream rule confidence=0.876\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "train_registry_handler",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "registry",
+      "mode": "symptom_first",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "payment_handler",
+      "chosen_targets": [
+        "payment_handler",
+        "payment_handler",
+        "payment_handler"
+      ],
+      "confidences": [],
+      "advisory": null,
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert payment_handler.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:5: in can_delete\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert payment_handler.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:9: in can_write\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_delete - KeyEr...\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_write - KeyErr...\n2 failed in 0.05s\n\n[attempt 1] target=payment_handler patch=catch symptom exception and continue confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert payment_handler.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x0000025D4D65DE40>()\nE        +    where <function can_delete at 0x0000025D4D65DE40> = payment_handler.can_delete\n\ntests\\test_payment_handler.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert payment_handler.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:11: in can_write\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_delete - asser...\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_write - KeyErr...\n2 failed in 0.04s\n\n[attempt 2] target=payment_handler patch=add downstream fallback without delete permission confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert payment_handler.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000001AA4BDBDE40>()\nE        +    where <function can_delete at 0x000001AA4BDBDE40> = payment_handler.can_delete\n\ntests\\test_payment_handler.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert payment_handler.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:11: in can_write\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_delete - asser...\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_write - KeyErr...\n2 failed in 0.04s\n\n[attempt 3] target=payment_handler patch=change downstream predicate instead of upstream data confidence=0.000\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert payment_handler.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:11: in can_write\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_write - KeyErr...\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "train_registry_handler",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "registry",
+      "mode": "wlbs_fresh",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "registry",
+      "chosen_targets": [
+        "registry"
+      ],
+      "confidences": [
+        0.876
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:02:53.022554+00:00",
+        "symptom": "payment_handler",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "registry may be worth investigating first",
+            "confidence": 0.876,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at payment_handler, but higher-priority upstream candidate registry sits 1 hop(s) away",
+              "registry carries historical lift beyond static risk (0.660 -> 1.000)",
+              "payment_handler has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for payment_handler->registry: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "payment_handler itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "payment_handler has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "registry.py",
+            "payment_handler.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does registry show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert payment_handler.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:5: in can_delete\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert payment_handler.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:9: in can_write\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_delete - KeyEr...\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_write - KeyErr...\n2 failed in 0.04s\n\n[attempt 1] target=registry patch=add missing upstream rule confidence=0.876\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "train_registry_handler",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "registry",
+      "mode": "wlbs_continual",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "registry",
+      "chosen_targets": [
+        "registry"
+      ],
+      "confidences": [
+        0.916
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:02:53.973010+00:00",
+        "symptom": "payment_handler",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "registry may be worth investigating first",
+            "confidence": 0.916,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at payment_handler, but higher-priority upstream candidate registry sits 1 hop(s) away",
+              "registry carries historical lift beyond static risk (0.660 -> 1.000)",
+              "payment_handler has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for payment_handler->registry: 0.750",
+              "successful similar-task bonus: +0.040 from 1 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "payment_handler itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "payment_handler has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "registry.py",
+            "payment_handler.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does registry show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": [
+            {
+              "task_id": "Td2b4b4f12d4d4a07",
+              "similarity": 1.0,
+              "symptom": "rbac",
+              "final_target": "roles",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            }
+          ]
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert payment_handler.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:5: in can_delete\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert payment_handler.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_payment_handler.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\npayment_handler.py:9: in can_write\n    rules = registry.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'owner'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'owner'\n\nregistry.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_delete - KeyEr...\nFAILED tests/test_payment_handler.py::test_admin_like_role_can_write - KeyErr...\n2 failed in 0.04s\n\n[attempt 1] target=registry patch=add missing upstream rule confidence=0.916\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "train_defaults_api",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "defaults",
+      "mode": "symptom_first",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "api_auth",
+      "chosen_targets": [
+        "api_auth",
+        "api_auth",
+        "api_auth"
+      ],
+      "confidences": [],
+      "advisory": null,
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert api_auth.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:5: in can_delete\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert api_auth.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:9: in can_write\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_api_auth.py::test_admin_like_role_can_delete - KeyError: 'a...\nFAILED tests/test_api_auth.py::test_admin_like_role_can_write - KeyError: 'au...\n2 failed in 0.05s\n\n[attempt 1] target=api_auth patch=catch symptom exception and continue confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert api_auth.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000001EAE9D0D8A0>()\nE        +    where <function can_delete at 0x000001EAE9D0D8A0> = api_auth.can_delete\n\ntests\\test_api_auth.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert api_auth.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:11: in can_write\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_api_auth.py::test_admin_like_role_can_delete - assert False...\nFAILED tests/test_api_auth.py::test_admin_like_role_can_write - KeyError: 'au...\n2 failed in 0.04s\n\n[attempt 2] target=api_auth patch=add downstream fallback without delete permission confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert api_auth.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002A3675ED8A0>()\nE        +    where <function can_delete at 0x000002A3675ED8A0> = api_auth.can_delete\n\ntests\\test_api_auth.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert api_auth.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:11: in can_write\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_api_auth.py::test_admin_like_role_can_delete - assert False...\nFAILED tests/test_api_auth.py::test_admin_like_role_can_write - KeyError: 'au...\n2 failed in 0.04s\n\n[attempt 3] target=api_auth patch=change downstream predicate instead of upstream data confidence=0.000\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert api_auth.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:11: in can_write\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_api_auth.py::test_admin_like_role_can_write - KeyError: 'au...\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "train_defaults_api",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "defaults",
+      "mode": "wlbs_fresh",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "defaults",
+      "chosen_targets": [
+        "defaults"
+      ],
+      "confidences": [
+        0.876
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:02:56.806001+00:00",
+        "symptom": "api_auth",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "defaults may be worth investigating first",
+            "confidence": 0.876,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at api_auth, but higher-priority upstream candidate defaults sits 1 hop(s) away",
+              "defaults carries historical lift beyond static risk (0.660 -> 1.000)",
+              "api_auth has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for api_auth->defaults: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "api_auth itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "api_auth has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "defaults.py",
+            "api_auth.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does defaults show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert api_auth.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:5: in can_delete\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert api_auth.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:9: in can_write\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_api_auth.py::test_admin_like_role_can_delete - KeyError: 'a...\nFAILED tests/test_api_auth.py::test_admin_like_role_can_write - KeyError: 'au...\n2 failed in 0.05s\n\n[attempt 1] target=defaults patch=add missing upstream rule confidence=0.876\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "train_defaults_api",
+      "split": "train",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "defaults",
+      "mode": "wlbs_continual",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "defaults",
+      "chosen_targets": [
+        "defaults"
+      ],
+      "confidences": [
+        0.956
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:02:57.763473+00:00",
+        "symptom": "api_auth",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "defaults may be worth investigating first",
+            "confidence": 0.956,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at api_auth, but higher-priority upstream candidate defaults sits 1 hop(s) away",
+              "defaults carries historical lift beyond static risk (0.660 -> 1.000)",
+              "api_auth has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for api_auth->defaults: 0.750",
+              "successful similar-task bonus: +0.080 from 2 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "api_auth itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "api_auth has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "defaults.py",
+            "api_auth.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does defaults show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": [
+            {
+              "task_id": "Td2b4b4f12d4d4a07",
+              "similarity": 1.0,
+              "symptom": "rbac",
+              "final_target": "roles",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "T84b583b033b14e04",
+              "similarity": 1.0,
+              "symptom": "payment_handler",
+              "final_target": "registry",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            }
+          ]
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert api_auth.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:5: in can_delete\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert api_auth.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_api_auth.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\napi_auth.py:9: in can_write\n    rules = defaults.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'auditor'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'auditor'\n\ndefaults.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_api_auth.py::test_admin_like_role_can_delete - KeyError: 'a...\nFAILED tests/test_api_auth.py::test_admin_like_role_can_write - KeyError: 'au...\n2 failed in 0.05s\n\n[attempt 1] target=defaults patch=add missing upstream rule confidence=0.956\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "heldout_catalog_dashboard",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "catalog",
+      "mode": "symptom_first",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "dashboard_view",
+      "chosen_targets": [
+        "dashboard_view",
+        "dashboard_view",
+        "dashboard_view"
+      ],
+      "confidences": [],
+      "advisory": null,
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:5: in can_delete\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:9: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - KeyErr...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.05s\n\n[attempt 1] target=dashboard_view patch=catch symptom exception and continue confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000001EC4C1DDE40>()\nE        +    where <function can_delete at 0x000001EC4C1DDE40> = dashboard_view.can_delete\n\ntests\\test_dashboard_view.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:11: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - assert...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.04s\n\n[attempt 2] target=dashboard_view patch=add downstream fallback without delete permission confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x0000022214E3DE40>()\nE        +    where <function can_delete at 0x0000022214E3DE40> = dashboard_view.can_delete\n\ntests\\test_dashboard_view.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:11: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - assert...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.04s\n\n[attempt 3] target=dashboard_view patch=change downstream predicate instead of upstream data confidence=0.000\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:11: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "heldout_catalog_dashboard",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "catalog",
+      "mode": "wlbs_fresh",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "dashboard_view",
+      "chosen_targets": [
+        "dashboard_view",
+        "dashboard_view",
+        "dashboard_view"
+      ],
+      "confidences": [
+        0.876,
+        0.715,
+        0.715
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:03:01.505779+00:00",
+        "symptom": "dashboard_view",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "dashboard_view may be worth investigating first",
+            "confidence": 0.715,
+            "tone": "suggestion",
+            "reasoning": [
+              "dashboard_view carries historical lift beyond static risk (0.700 -> 1.000)",
+              "dashboard_view has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 0 hop(s)",
+              "routing policy confidence for dashboard_view->dashboard_view: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [],
+          "what_to_read_first": [
+            "dashboard_view.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does dashboard_view show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:5: in can_delete\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:9: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - KeyErr...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.04s\n\n[attempt 1] target=dashboard_view patch=catch symptom exception and continue confidence=0.876\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002E31584DE40>()\nE        +    where <function can_delete at 0x000002E31584DE40> = dashboard_view.can_delete\n\ntests\\test_dashboard_view.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:11: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - assert...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.04s\n\n[attempt 2] target=dashboard_view patch=add downstream fallback without delete permission confidence=0.715\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000001D0D0FBDE40>()\nE        +    where <function can_delete at 0x000001D0D0FBDE40> = dashboard_view.can_delete\n\ntests\\test_dashboard_view.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:11: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - assert...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.04s\n\n[attempt 3] target=dashboard_view patch=change downstream predicate instead of upstream data confidence=0.715\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:11: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "heldout_catalog_dashboard",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "catalog",
+      "mode": "wlbs_continual",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "catalog",
+      "chosen_targets": [
+        "catalog"
+      ],
+      "confidences": [
+        0.98
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:03:02.459631+00:00",
+        "symptom": "dashboard_view",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "catalog may be worth investigating first",
+            "confidence": 0.98,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at dashboard_view, but higher-priority upstream candidate catalog sits 1 hop(s) away",
+              "catalog carries historical lift beyond static risk (0.660 -> 1.000)",
+              "dashboard_view has 1 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for dashboard_view->catalog: 0.750",
+              "successful similar-task bonus: +0.120 from 3 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "dashboard_view itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "dashboard_view has 1 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "catalog.py",
+            "dashboard_view.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does catalog show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": [
+            {
+              "task_id": "Td2b4b4f12d4d4a07",
+              "similarity": 0.968,
+              "symptom": "rbac",
+              "final_target": "roles",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "T84b583b033b14e04",
+              "similarity": 0.968,
+              "symptom": "payment_handler",
+              "final_target": "registry",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "Tc1cbbb8f91ab41e1",
+              "similarity": 0.968,
+              "symptom": "api_auth",
+              "final_target": "defaults",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            }
+          ]
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 1,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert dashboard_view.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:5: in can_delete\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert dashboard_view.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_dashboard_view.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndashboard_view.py:9: in can_write\n    rules = catalog.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'manager'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'manager'\n\ncatalog.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_delete - KeyErr...\nFAILED tests/test_dashboard_view.py::test_admin_like_role_can_write - KeyErro...\n2 failed in 0.05s\n\n[attempt 1] target=catalog patch=add missing upstream rule confidence=0.980\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "heldout_policy_screen",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "policy_book",
+      "mode": "symptom_first",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "screen_gate",
+      "chosen_targets": [
+        "screen_gate",
+        "screen_gate",
+        "screen_gate"
+      ],
+      "confidences": [],
+      "advisory": null,
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:5: in can_delete\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:9: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - KeyError:...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.07s\n\n[attempt 1] target=screen_gate patch=catch symptom exception and continue confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002AEFABE9DA0>()\nE        +    where <function can_delete at 0x000002AEFABE9DA0> = screen_gate.can_delete\n\ntests\\test_screen_gate.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:11: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - assert Fa...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.04s\n\n[attempt 2] target=screen_gate patch=add downstream fallback without delete permission confidence=0.000\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x0000020E1E61DDA0>()\nE        +    where <function can_delete at 0x0000020E1E61DDA0> = screen_gate.can_delete\n\ntests\\test_screen_gate.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:11: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - assert Fa...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.06s\n\n[attempt 3] target=screen_gate patch=change downstream predicate instead of upstream data confidence=0.000\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:11: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "heldout_policy_screen",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "policy_book",
+      "mode": "wlbs_fresh",
+      "success": false,
+      "attempts_used": 3,
+      "root_found_at": null,
+      "first_target": "screen_gate",
+      "chosen_targets": [
+        "screen_gate",
+        "screen_gate",
+        "screen_gate"
+      ],
+      "confidences": [
+        0.876,
+        0.715,
+        0.715
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:03:06.252355+00:00",
+        "symptom": "screen_gate",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "screen_gate may be worth investigating first",
+            "confidence": 0.715,
+            "tone": "suggestion",
+            "reasoning": [
+              "screen_gate carries historical lift beyond static risk (0.700 -> 1.000)",
+              "screen_gate has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 0 hop(s)",
+              "routing policy confidence for screen_gate->screen_gate: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [],
+          "what_to_read_first": [
+            "screen_gate.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does screen_gate show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:5: in can_delete\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:9: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - KeyError:...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.04s\n\n[attempt 1] target=screen_gate patch=catch symptom exception and continue confidence=0.876\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002677DA2DDA0>()\nE        +    where <function can_delete at 0x000002677DA2DDA0> = screen_gate.can_delete\n\ntests\\test_screen_gate.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:11: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - assert Fa...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.04s\n\n[attempt 2] target=screen_gate patch=add downstream fallback without delete permission confidence=0.715\npassed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\nE       assert False is True\nE        +  where False = <function can_delete at 0x000002112484DDA0>()\nE        +    where <function can_delete at 0x000002112484DDA0> = screen_gate.can_delete\n\ntests\\test_screen_gate.py:4: AssertionError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:11: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - assert Fa...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.04s\n\n[attempt 3] target=screen_gate patch=change downstream predicate instead of upstream data confidence=0.715\npassed=1 failed=1 ok=False\n.F                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:11: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n1 failed, 1 passed in 0.04s"
+    },
+    {
+      "task": "heldout_policy_screen",
+      "split": "heldout",
+      "family": "missing_registry_key",
+      "expected_mode": "cross_file",
+      "true_target": "policy_book",
+      "mode": "wlbs_continual",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "policy_book",
+      "chosen_targets": [
+        "policy_book"
+      ],
+      "confidences": [
+        0.98
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:03:07.210077+00:00",
+        "symptom": "screen_gate",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "policy_book may be worth investigating first",
+            "confidence": 0.98,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at screen_gate, but higher-priority upstream candidate policy_book sits 1 hop(s) away",
+              "policy_book carries historical lift beyond static risk (0.660 -> 1.000)",
+              "screen_gate has 1 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for screen_gate->policy_book: 0.750",
+              "successful similar-task bonus: +0.120 from 3 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "screen_gate itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "screen_gate has 1 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "policy_book.py",
+            "screen_gate.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does policy_book show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": [
+            {
+              "task_id": "Tb550774f9424446f",
+              "similarity": 1.0,
+              "symptom": "dashboard_view",
+              "final_target": "catalog",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "Td2b4b4f12d4d4a07",
+              "similarity": 0.968,
+              "symptom": "rbac",
+              "final_target": "roles",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "T84b583b033b14e04",
+              "similarity": 0.968,
+              "symptom": "payment_handler",
+              "final_target": "registry",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            }
+          ]
+        },
+        "metadata": {
+          "nodes_analyzed": 8,
+          "world_line_events": 1,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=2 ok=False\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_______________________ test_admin_like_role_can_delete _______________________\n\n    def test_admin_like_role_can_delete():\n>       assert screen_gate.can_delete() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:4: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:5: in can_delete\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n_______________________ test_admin_like_role_can_write ________________________\n\n    def test_admin_like_role_can_write():\n>       assert screen_gate.can_write() is True\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\test_screen_gate.py:7: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nscreen_gate.py:9: in can_write\n    rules = policy_book.get_rules(role)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'operator'\n\n    def get_rules(role):\n>       return TABLE[role]\n               ^^^^^^^^^^^\nE       KeyError: 'operator'\n\npolicy_book.py:6: KeyError\n=========================== short test summary info ===========================\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_delete - KeyError:...\nFAILED tests/test_screen_gate.py::test_admin_like_role_can_write - KeyError: ...\n2 failed in 0.04s\n\n[attempt 1] target=policy_book patch=add missing upstream rule confidence=0.980\npassed=2 failed=0 ok=True\n..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "task": "heldout_direct_math",
+      "split": "heldout",
+      "family": "direct_symptom_logic",
+      "expected_mode": "direct",
+      "true_target": "math_panel",
+      "mode": "symptom_first",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "math_panel",
+      "chosen_targets": [
+        "math_panel"
+      ],
+      "confidences": [],
+      "advisory": null,
+      "log": "[initial] passed=0 failed=1 ok=False\nF                                                                        [100%]\n================================== FAILURES ===================================\n_______________________________ test_normalize ________________________________\n\n    def test_normalize():\n>       assert math_panel.normalize(4) == 8\nE       assert 9 == 8\nE        +  where 9 = <function normalize at 0x0000021137DC99E0>(4)\nE        +    where <function normalize at 0x0000021137DC99E0> = math_panel.normalize\n\ntests\\test_math.py:4: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_math.py::test_normalize - assert 9 == 8\n1 failed in 0.04s\n\n[attempt 1] target=math_panel patch=fix local arithmetic bug confidence=0.000\npassed=1 failed=0 ok=True\n.                                                                        [100%]\n1 passed in 0.01s"
+    },
+    {
+      "task": "heldout_direct_math",
+      "split": "heldout",
+      "family": "direct_symptom_logic",
+      "expected_mode": "direct",
+      "true_target": "math_panel",
+      "mode": "wlbs_fresh",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "math_panel",
+      "chosen_targets": [
+        "math_panel"
+      ],
+      "confidences": [
+        0.709
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:03:09.029258+00:00",
+        "symptom": "math_panel",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "math_panel may be worth investigating first",
+            "confidence": 0.709,
+            "tone": "suggestion",
+            "reasoning": [
+              "math_panel carries historical lift beyond static risk (0.650 -> 0.974)",
+              "math_panel has 1 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 0 hop(s)",
+              "routing policy confidence for math_panel->math_panel: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [],
+          "what_to_read_first": [
+            "math_panel.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does math_panel show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 4,
+          "world_line_events": 1,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=1 ok=False\nF                                                                        [100%]\n================================== FAILURES ===================================\n_______________________________ test_normalize ________________________________\n\n    def test_normalize():\n>       assert math_panel.normalize(4) == 8\nE       assert 9 == 8\nE        +  where 9 = <function normalize at 0x0000018E4D98D9E0>(4)\nE        +    where <function normalize at 0x0000018E4D98D9E0> = math_panel.normalize\n\ntests\\test_math.py:4: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_math.py::test_normalize - assert 9 == 8\n1 failed in 0.04s\n\n[attempt 1] target=math_panel patch=fix local arithmetic bug confidence=0.709\npassed=1 failed=0 ok=True\n.                                                                        [100%]\n1 passed in 0.01s"
+    },
+    {
+      "task": "heldout_direct_math",
+      "split": "heldout",
+      "family": "direct_symptom_logic",
+      "expected_mode": "direct",
+      "true_target": "math_panel",
+      "mode": "wlbs_continual",
+      "success": true,
+      "attempts_used": 1,
+      "root_found_at": 1,
+      "first_target": "math_panel",
+      "chosen_targets": [
+        "math_panel"
+      ],
+      "confidences": [
+        0.829
+      ],
+      "advisory": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:03:09.950187+00:00",
+        "symptom": "math_panel",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "math_panel may be worth investigating first",
+            "confidence": 0.829,
+            "tone": "suggestion",
+            "reasoning": [
+              "math_panel carries historical lift beyond static risk (0.650 -> 0.974)",
+              "math_panel has 1 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 0 hop(s)",
+              "routing policy confidence for math_panel->math_panel: 0.750",
+              "successful similar-task bonus: +0.120 from 3 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [],
+          "what_to_read_first": [
+            "math_panel.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does math_panel show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": [
+            {
+              "task_id": "Tb550774f9424446f",
+              "similarity": 1.0,
+              "symptom": "dashboard_view",
+              "final_target": "catalog",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "T4b21e0046dac450c",
+              "similarity": 1.0,
+              "symptom": "screen_gate",
+              "final_target": "policy_book",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            },
+            {
+              "task_id": "Td2b4b4f12d4d4a07",
+              "similarity": 0.97,
+              "symptom": "rbac",
+              "final_target": "roles",
+              "result": "pass",
+              "detail": "missing_registry_key"
+            }
+          ]
+        },
+        "metadata": {
+          "nodes_analyzed": 4,
+          "world_line_events": 1,
+          "scan_ms": 0
+        }
+      },
+      "log": "[initial] passed=0 failed=1 ok=False\nF                                                                        [100%]\n================================== FAILURES ===================================\n_______________________________ test_normalize ________________________________\n\n    def test_normalize():\n>       assert math_panel.normalize(4) == 8\nE       assert 9 == 8\nE        +  where 9 = <function normalize at 0x000001F7D24AD9E0>(4)\nE        +    where <function normalize at 0x000001F7D24AD9E0> = math_panel.normalize\n\ntests\\test_math.py:4: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_math.py::test_normalize - assert 9 == 8\n1 failed in 0.04s\n\n[attempt 1] target=math_panel patch=fix local arithmetic bug confidence=0.829\npassed=1 failed=0 ok=True\n.                                                                        [100%]\n1 passed in 0.01s"
+    }
+  ],
+  "train_summary": {
+    "symptom_first": {
+      "count": 3,
+      "success_rate": 0.0,
+      "route_top1": 0.0,
+      "mean_attempts": 3,
+      "mean_root_found_at": 4
+    },
+    "wlbs_continual": {
+      "count": 3,
+      "success_rate": 1.0,
+      "route_top1": 1.0,
+      "mean_attempts": 1,
+      "mean_root_found_at": 1
+    },
+    "wlbs_fresh": {
+      "count": 3,
+      "success_rate": 1.0,
+      "route_top1": 1.0,
+      "mean_attempts": 1,
+      "mean_root_found_at": 1
+    }
+  },
+  "heldout_summary": {
+    "symptom_first": {
+      "count": 3,
+      "success_rate": 0.333,
+      "route_top1": 0.333,
+      "mean_attempts": 2.333,
+      "mean_root_found_at": 3
+    },
+    "wlbs_continual": {
+      "count": 3,
+      "success_rate": 1.0,
+      "route_top1": 1.0,
+      "mean_attempts": 1,
+      "mean_root_found_at": 1
+    },
+    "wlbs_fresh": {
+      "count": 3,
+      "success_rate": 0.333,
+      "route_top1": 0.333,
+      "mean_attempts": 2.333,
+      "mean_root_found_at": 3
+    }
+  },
+  "mode_metrics": {
+    "symptom_first": {
+      "heldout_success_rate": 0.333,
+      "heldout_mean_attempts": 2.333,
+      "heldout_route_top1": 0.333
+    },
+    "wlbs_continual": {
+      "heldout_success_rate": 1.0,
+      "heldout_mean_attempts": 1,
+      "heldout_route_top1": 1.0
+    },
+    "wlbs_fresh": {
+      "heldout_success_rate": 0.333,
+      "heldout_mean_attempts": 2.333,
+      "heldout_route_top1": 0.333
+    }
+  },
+  "novelty_guardrail": {
+    "train_file_stems": [
+      "api_auth",
+      "defaults",
+      "payment_handler",
+      "rbac",
+      "registry",
+      "roles",
+      "test_api_auth",
+      "test_payment_handler",
+      "test_rbac"
+    ],
+    "heldout_file_stems": [
+      "catalog",
+      "dashboard_view",
+      "math_panel",
+      "policy_book",
+      "screen_gate",
+      "test_dashboard_view",
+      "test_math",
+      "test_screen_gate"
+    ],
+    "exact_overlap": [],
+    "overlap_count": 0
+  },
+  "artifacts": {
+    "report_md": "D:\\wlbs_scan\\validation\\PRODUCT_EVIDENCE.md",
+    "results_json": "D:\\wlbs_scan\\validation\\product_evidence.json",
+    "counterfactual_timeline_png": "D:\\wlbs_scan\\validation\\evidence\\figures\\counterfactual_debugging_timeline.png",
+    "heldout_summary_png": "D:\\wlbs_scan\\validation\\evidence\\figures\\heldout_summary.png",
+    "growth_curve_png": "D:\\wlbs_scan\\validation\\evidence\\figures\\growth_curve.png",
+    "counterfactual_terminal_png": "D:\\wlbs_scan\\validation\\evidence\\figures\\counterfactual_terminal.png",
+    "status_screenshot_png": "D:\\wlbs_scan\\validation\\evidence\\figures\\screenshot_status.png",
+    "advise_screenshot_png": "D:\\wlbs_scan\\validation\\evidence\\figures\\screenshot_advise.png"
+  },
+  "claim_boundary": {
+    "supported": [
+      "WLBS improves root-cause routing over a symptom-fixated debugging policy in controlled cross-file tasks.",
+      "WLBS continual memory improves held-out routing behavior on renamed tasks with zero exact file-name overlap.",
+      "The repository can auto-generate paper-ready figures, logs, and reproducible evidence artifacts."
+    ],
+    "not_supported_yet": [
+      "This script is not an official end-to-end SWE-bench pass-rate claim.",
+      "This script does not call a real hosted DeepSeek model; it isolates routing and memory effects with a controlled repair simulator."
+    ]
+  }
+}

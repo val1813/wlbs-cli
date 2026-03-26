@@ -1,0 +1,908 @@
+You are fixing a SWE-bench Lite instance.
+        Return ONLY a unified git diff patch. No prose.
+
+        Instance: sqlfluff__sqlfluff-1517
+        Repo: sqlfluff/sqlfluff
+        Base commit: 304a197829f98e7425a46d872ada73176137e5ae
+
+        Problem statement:
+        "Dropped elements in sequence matching" when doubled semicolon
+## Expected Behaviour
+Frankly, I'm not sure whether it (doubled `;`) should be just ignored or rather some specific rule should be triggered.
+## Observed Behaviour
+```console
+(.venv) ?master ~/prod/_inne/sqlfluff> echo "select id from tbl;;" | sqlfluff lint -
+Traceback (most recent call last):
+  File "/home/adam/prod/_inne/sqlfluff/.venv/bin/sqlfluff", line 11, in <module>
+    load_entry_point('sqlfluff', 'console_scripts', 'sqlfluff')()
+  File "/home/adam/prod/_inne/sqlfluff/.venv/lib/python3.9/site-packages/click/core.py", line 1137, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/adam/prod/_inne/sqlfluff/.venv/lib/python3.9/site-packages/click/core.py", line 1062, in main
+    rv = self.invoke(ctx)
+  File "/home/adam/prod/_inne/sqlfluff/.venv/lib/python3.9/site-packages/click/core.py", line 1668, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/adam/prod/_inne/sqlfluff/.venv/lib/python3.9/site-packages/click/core.py", line 1404, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/adam/prod/_inne/sqlfluff/.venv/lib/python3.9/site-packages/click/core.py", line 763, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/cli/commands.py", line 347, in lint
+    result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/linter/linter.py", line 789, in lint_string_wrapped
+    linted_path.add(self.lint_string(string, fname=fname, fix=fix))
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/linter/linter.py", line 668, in lint_string
+    parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/linter/linter.py", line 607, in parse_string
+    return self.parse_rendered(rendered, recurse=recurse)
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/linter/linter.py", line 313, in parse_rendered
+    parsed, pvs = cls._parse_tokens(
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/linter/linter.py", line 190, in _parse_tokens
+    parsed: Optional[BaseSegment] = parser.parse(
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/parser/parser.py", line 32, in parse
+    parsed = root_segment.parse(parse_context=ctx)
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/parser/segments/base.py", line 821, in parse
+    check_still_complete(segments, m.matched_segments, m.unmatched_segments)
+  File "/home/adam/prod/_inne/sqlfluff/src/sqlfluff/core/parser/helpers.py", line 30, in check_still_complete
+    raise RuntimeError(
+RuntimeError: Dropped elements in sequence matching! 'select id from tbl;;' != ';'
+
+```
+## Steps to Reproduce
+Run 
+```console
+echo "select id from tbl;;" | sqlfluff lint -
+```
+## Dialect
+default (ansi)
+## Version
+```
+sqlfluff, version 0.6.6
+Python 3.9.5
+```
+## Configuration
+None
+
+
+
+        FAIL_TO_PASS:
+        ["test/dialects/ansi_test.py::test__dialect__ansi_multiple_semicolons[select"]
+
+        PASS_TO_PASS:
+        ["test/dialects/ansi_test.py::test__dialect__ansi__file_lex[a", "test/dialects/ansi_test.py::test__dialect__ansi__file_lex[b.c-res1]", "test/dialects/ansi_test.py::test__dialect__ansi__file_lex[abc", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectKeywordSegment-select]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[NakedIdentifierSegment-online_sales]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[BareFunctionSegment-current_timestamp]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[FunctionSegment-current_timestamp()]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[NumericLiteralSegment-1000.0]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-online_sales", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[IntervalExpressionSegment-INTERVAL", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-CASE", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-CAST(ROUND(online_sales", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-name", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-MIN", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-DATE_ADD(CURRENT_DATE('America/New_York'),", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-my_array[1]]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-my_array[OFFSET(1)]]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-my_array[5:8]]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-4", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-bits[OFFSET(0)]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-(count_18_24", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-count_18_24", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectStatementSegment-SELECT", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-t.val/t.id]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-CAST(num", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-a.*]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-a.b.*]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-a.b.c.*]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ObjectReferenceSegment-a..c.*]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment--some_variable]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment--", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-concat(left(uaid,", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-c", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-c", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[ExpressionSegment-NULL::INT]", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[SelectClauseElementSegment-NULL::INT", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_parses[TruncateStatementSegment-TRUNCATE", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_not_match[ObjectReferenceSegment-\\n", "test/dialects/ansi_test.py::test__dialect__ansi_specific_segment_not_parse[SELECT", "test/dialects/ansi_test.py::test__dialect__ansi_is_whitespace", "test/dialects/ansi_test.py::test__dialect__ansi_parse_indented_joins[select", "test/dialects/ansi_test.py::test__dialect__ansi_multiple_semicolons[;;-Line"]
+
+        Test patch to satisfy:
+        diff --git a/test/dialects/ansi_test.py b/test/dialects/ansi_test.py
+--- a/test/dialects/ansi_test.py
++++ b/test/dialects/ansi_test.py
+@@ -3,7 +3,7 @@
+ import pytest
+ import logging
+
+-from sqlfluff.core import FluffConfig, Linter
++from sqlfluff.core import FluffConfig, Linter, SQLParseError
+ from sqlfluff.core.parser import Lexer
+
+
+@@ -214,3 +214,29 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
+         idx for idx, raw_seg in enumerate(parsed.tree.iter_raw_seg()) if raw_seg.is_meta
+     )
+     assert res_meta_locs == meta_loc
++
++
++@pytest.mark.parametrize(
++    "raw,expected_message",
++    [
++        (";;", "Line 1, Position 1: Found unparsable section: ';;'"),
++        ("select id from tbl;", ""),
++        ("select id from tbl;;", "Could not parse: ;"),
++        ("select id from tbl;;;;;;", "Could not parse: ;;;;;"),
++        ("select id from tbl;select id2 from tbl2;", ""),
++        (
++            "select id from tbl;;select id2 from tbl2;",
++            "Could not parse: ;select id2 from tbl2;",
++        ),
++    ],
++)
++def test__dialect__ansi_multiple_semicolons(raw: str, expected_message: str) -> None:
++    """Multiple semicolons should be properly handled."""
++    lnt = Linter()
++    parsed = lnt.parse_string(raw)
++
++    assert len(parsed.violations) == (1 if expected_message else 0)
++    if expected_message:
++        violation = parsed.violations[0]
++        assert isinstance(violation, SQLParseError)
++        assert violation.desc() == expected_message
+
+
+        Constraints:
+        - Minimal patch only.
+        - Preserve behavior outside the failing issue.
+        - Match expected error text exactly if tests require exact descriptions.
+        - Output a valid unified diff patch that can pass `git apply --check`.
+
+        Relevant files:
+        ### FILE: src/sqlfluff/core/parser/helpers.py
+```python
+"""Helpers for the parser module."""
+
+from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
+
+from sqlfluff.core.string_helpers import curtail_string
+
+if TYPE_CHECKING:
+    from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
+
+
+def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
+    """Make a string from the joined `raw` attributes of an iterable of segments."""
+    return "".join(s.raw for s in segments)
+
+
+def join_segments_raw_curtailed(segments: Tuple["BaseSegment", ...], length=20) -> str:
+    """Make a string up to a certain length from an iterable of segments."""
+    return curtail_string(join_segments_raw(segments), length=length)
+
+
+def check_still_complete(
+    segments_in: Tuple["BaseSegment", ...],
+    matched_segments: Tuple["BaseSegment", ...],
+    unmatched_segments: Tuple["BaseSegment", ...],
+) -> bool:
+    """Check that the segments in are the same as the segments out."""
+    initial_str = join_segments_raw(segments_in)
+    current_str = join_segments_raw(matched_segments + unmatched_segments)
+    if initial_str != current_str:  # pragma: no cover
+        raise RuntimeError(
+            "Dropped elements in sequence matching! {!r} != {!r}".format(
+                initial_str, current_str
+            )
+        )
+    return True
+
+
+def trim_non_code_segments(
+    segments: Tuple["BaseSegment", ...]
+) -> Tuple[
+    Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
+]:
+    """Take segments and split off surrounding non-code segments as appropriate.
+
+    We use slices to avoid creating too many unnecessary tuples.
+    """
+    pre_idx = 0
+    seg_len = len(segments)
+    post_idx = seg_len
+
+    if segments:
+        seg_len = len(segments)
+
+        # Trim the start
+        while pre_idx < seg_len and not segments[pre_idx].is_code:
+            pre_idx += 1
+
+        # Trim the end
+        while post_idx > pre_idx and not segments[post_idx - 1].is_code:
+            post_idx -= 1
+
+    return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
+
+
+def iter_indices(seq: List, val: Any) -> Iterator[int]:
+    """Iterate all indices in a list that val occurs at.
+
+    Args:
+        seq (list): A list to look for indices in.
+        val: What to look for.
+
+    Yields:
+        int: The index of val in seq.
+
+    Examples:
+        The function works like str.index() but iterates all
+        the results rather than returning the first.
+
+        >>> print([i for i in iter_indices([1, 0, 2, 3, 2], 2)])
+        [2, 4]
+    """
+    for idx, el in enumerate(seq):
+        if el == val:
+            yield idx
+
+```
+### FILE: src/sqlfluff/testing/rules.py
+```python
+"""Testing utils for rule plugins."""
+from sqlfluff.core import Linter
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
+from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.config import FluffConfig
+from typing import Tuple, List, NamedTuple, Optional
+from glob import glob
+
+import pytest
+import oyaml as yaml
+
+
+class RuleTestCase(NamedTuple):
+    """Used like a dataclass by rule tests."""
+
+    rule: Optional[str] = None
+    desc: Optional[str] = None
+    pass_str: Optional[str] = None
+    fail_str: Optional[str] = None
+    fix_str: Optional[str] = None
+    configs: Optional[dict] = None
+    skip: Optional[str] = None
+    line_numbers: List[int] = []
+
+
+def load_test_cases(
+    test_cases_path: str,
+) -> Tuple[List[str], List[RuleTestCase]]:
+    """Load rule test cases from YAML files."""
+    ids = []
+    test_cases = []
+
+    for path in sorted(glob(test_cases_path)):
+        with open(path) as f:
+            raw = f.read()
+
+        y = yaml.safe_load(raw)
+
+        rule = y.pop("rule")
+        ids.extend([rule + "_" + t for t in y])
+        test_cases.extend([RuleTestCase(rule=rule, **v) for k, v in y.items()])
+
+    return ids, test_cases
+
+
+def get_rule_from_set(code, config):
+    """Fetch a rule from the rule set."""
+    for r in get_ruleset().get_rulelist(config=config):
+        if r.code == code:
+            return r
+    raise ValueError(f"{code!r} not in {get_ruleset()!r}")
+
+
+def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
+    """Assert that a given rule does fail on the given sql."""
+    # Set up the config to only use the rule we are testing.
+    cfg = FluffConfig(configs=configs, overrides={"rules": code})
+    # Lint it using the current config (while in fix mode)
+    linted = Linter(config=cfg).lint_string(sql, fix=True)
+    lerrs = linted.get_violations()
+    print(f"Errors Found: {lerrs}")
+    for e in lerrs:
+        if e.desc().startswith("Unexpected exception"):
+            pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
+    parse_errors = list(
+        filter(lambda v: isinstance(v, (SQLParseError, SQLTemplaterError)), lerrs)
+    )
+    if parse_errors:
+        pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
+    if not any(v.rule.code == code for v in lerrs):
+        pytest.fail(
+            f"No {code} failures found in query which should fail.",
+            pytrace=False,
+        )
+    if line_numbers:
+        actual_line_numbers = [e.line_no for e in lerrs]
+        if line_numbers != actual_line_numbers:  # pragma: no cover
+            pytest.fail(
+                "Expected errors on lines {}, but got errors on lines {}".format(
+                    line_numbers, actual_line_numbers
+                )
+            )
+    # The query should already have been fixed if possible so just return the raw.
+    if linted.num_violations(fixable=True) > 0:
+        fixed, _ = linted.fix_string()
+        return fixed
+    else:
+        return linted.tree.raw
+
+
+def assert_rule_pass_in_sql(code, sql, configs=None):
+    """Assert that a given rule doesn't fail on the given sql."""
+    # Configs allows overrides if we want to use them.
+    cfg = FluffConfig(configs=configs)
+    r = get_rule_from_set(code, config=cfg)
+    linter = Linter(config=cfg)
+    rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
+    parsed = linter.parse_rendered(rendered, recurse=True)
+    if parsed.violations:
+        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
+    print(f"Parsed:\n {parsed.tree.stringify()}")
+    lerrs, _, _, _ = r.crawl(
+        parsed.tree, [], dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
+    )
+    print(f"Errors Found: {lerrs}")
+    if any(v.rule.code == code for v in lerrs):
+        pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
+
+
+def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):
+    """Assert that a given rule raises given errors in specific positions of a file."""
+    lntr = Linter(config=fluff_config)
+    lnt = lntr.lint_path(fpath)
+    # Reformat the test data to match the format we're expecting. We use
+    # sets because we really don't care about order and if one is missing,
+    # we don't care about the orders of the correct ones.
+    assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
+
+
+def rules__test_helper(test_case):
+    """Test that a rule passes/fails on a set of test_cases.
+
+    Optionally, also test the fixed string if provided in the test case.
+    """
+    if test_case.skip:
+        pytest.skip(test_case.skip)
+
+    if test_case.pass_str:
+        assert_rule_pass_in_sql(
+            test_case.rule,
+            test_case.pass_str,
+            configs=test_case.configs,
+        )
+    if test_case.fail_str:
+        res = assert_rule_fail_in_sql(
+            test_case.rule,
+            test_case.fail_str,
+            configs=test_case.configs,
+            line_numbers=test_case.line_numbers,
+        )
+        # If a `fixed` value is provided then check it matches
+        if test_case.fix_str:
+            assert res == test_case.fix_str
+
+```
+### FILE: src/sqlfluff/core/linter/linter.py
+```python
+"""Defines the linter class."""
+
+import os
+import time
+import logging
+from typing import (
+    Any,
+    Generator,
+    List,
+    Sequence,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+    Iterable,
+)
+
+import pathspec
+
+from sqlfluff.core.errors import (
+    SQLBaseError,
+    SQLLexError,
+    SQLLintError,
+    SQLParseError,
+    SQLTemplaterSkipFile,
+)
+from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.file_helpers import get_encoding
+from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.config import FluffConfig, ConfigLoader
+
+# Classes needed only for type checking
+from sqlfluff.core.linter.runner import get_runner
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.meta import MetaSegment
+from sqlfluff.core.parser.segments.raw import RawSegment
+from sqlfluff.core.rules.base import BaseRule
+
+from sqlfluff.core.linter.common import (
+    RuleTuple,
+    ParsedString,
+    NoQaDirective,
+    RenderedFile,
+)
+from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linting_result import LintingResult
+
+
+WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
+
+# Instantiate the linter logger
+linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+
+class Linter:
+    """The interface class to interact with the linter."""
+
+    # Default to allowing process parallelism
+    allow_process_parallelism = True
+
+    def __init__(
+        self,
+        config: Optional[FluffConfig] = None,
+        formatter: Any = None,
+        dialect: Optional[str] = None,
+        rules: Optional[Union[str, List[str]]] = None,
+        user_rules: Optional[Union[str, List[str]]] = None,
+    ) -> None:
+        # Store the config object
+        self.config = FluffConfig.from_kwargs(
+            config=config, dialect=dialect, rules=rules
+        )
+        # Get the dialect and templater
+        self.dialect = self.config.get("dialect_obj")
+        self.templater = self.config.get("templater_obj")
+        # Store the formatter for output
+        self.formatter = formatter
+        # Store references to user rule classes
+        self.user_rules = user_rules or []
+
+    def get_ruleset(self, config: Optional[FluffConfig] = None) -> List[BaseRule]:
+        """Get hold of a set of rules."""
+        rs = get_ruleset()
+        # Register any user rules
+        for rule in self.user_rules:
+            rs.register(rule)
+        cfg = config or self.config
+        return rs.get_rulelist(config=cfg)
+
+    def rule_tuples(self) -> List[RuleTuple]:
+        """A simple pass through to access the rule tuples of the rule set."""
+        rs = self.get_ruleset()
+        return [RuleTuple(rule.code, rule.description) for rule in rs]
+
+    # #### Static methods
+    # These are the building blocks of the linting process.
+
+    @staticmethod
+    def _load_raw_file_and_config(fname, root_config):
+        """Load a raw file and the associated config."""
+        file_config = root_config.make_child_from_path(fname)
+        encoding = get_encoding(fname=fname, config=file_config)
+        with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
+            raw_file = target_file.read()
+        # Scan the raw file for config commands.
+        file_config.process_raw_file_for_config(raw_file)
+        # Return the raw file and config
+        return raw_file, file_config, encoding
+
+    @staticmethod
+    def _lex_templated_file(
+        templated_file: TemplatedFile, config: FluffConfig
+    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError], FluffConfig]:
+        """Lex a templated file.
+
+        NOTE: This potentially mutates the config, so make sure to
+        use the returned one.
+        """
+        violations = []
+        linter_logger.info("LEXING RAW (%s)", templated_file.fname)
+        # Get the lexer
+        lexer = Lexer(config=config)
+        # Lex the file and log any problems
+        try:
+            tokens, lex_vs = lexer.lex(templated_file)
+            # We might just get the violations as a list
+            violations += lex_vs
+            linter_logger.info(
+                "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
+            )
+        except SQLLexError as err:
+            linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
+            violations.append(err)
+            return None, violations, config
+
+        if not tokens:  # pragma: no cover TODO?
+            return None, violations, config
+
+        # Check that we've got sensible indentation from the lexer.
+        # We might need to suppress if it's a complicated file.
+        templating_blocks_indent = config.get("template_blocks_indent", "indentation")
+        if isinstance(templating_blocks_indent, str):
+            force_block_indent = templating_blocks_indent.lower().strip() == "force"
+        else:
+            force_block_indent = False
+        templating_blocks_indent = bool(templating_blocks_indent)
+        # If we're forcing it through we don't check.
+        if templating_blocks_indent and not force_block_indent:
+            indent_balance = sum(
+                getattr(elem, "indent_val", 0)
+                for elem in cast(Tuple[BaseSegment, ...], tokens)
+            )
+            if indent_balance != 0:
+                linter_logger.debug(
+                    "Indent balance test failed for %r. Template indents will not be linted for this file.",
+                    templated_file.fname,
+                )
+                # Don't enable the templating blocks.
+                templating_blocks_indent = False
+                # Disable the linting of L003 on templated tokens.
+                config.set_value(["rules", "L003", "lint_templated_tokens"], False)
+
+        # The file will have been lexed without config, so check all indents
+        # are enabled.
+        new_tokens = []
+```
+### FILE: src/sqlfluff/rules/L019.py
+```python
+"""Implementation of Rule L019."""
+
+from typing import Dict, Any
+
+from sqlfluff.core.parser import WhitespaceSegment
+
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_configuration,
+)
+
+
+@document_fix_compatible
+@document_configuration
+class Rule_L019(BaseRule):
+    """Leading/Trailing comma enforcement.
+
+    | **Anti-pattern**
+    | There is a mixture of leading and trailing commas.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+            , b,
+            c
+        FROM foo
+
+    | **Best practice**
+    | By default sqlfluff prefers trailing commas, however it
+    | is configurable for leading commas. Whichever option you chose
+    | it does expect you to be consistent.
+
+    .. code-block:: sql
+
+        SELECT
+            a,
+            b,
+            c
+        FROM foo
+
+        -- Alternatively, set the configuration file to 'leading'
+        -- and then the following would be acceptable:
+
+        SELECT
+            a
+            , b
+            , c
+        FROM foo
+
+
+    """
+
+    _works_on_unparsable = False
+    config_keywords = ["comma_style"]
+
+    @staticmethod
+    def _last_comment_seg(raw_stack):
+        """Trace the raw stack back to the most recent comment segment.
+
+        A return value of `None` indicates no code segments preceding the current position.
+        """
+        for segment in raw_stack[::-1]:
+            if segment.is_comment:
+                return segment
+        return None
+
+    @staticmethod
+    def _last_code_seg(raw_stack):
+        """Trace the raw stack back to the most recent code segment.
+
+        A return value of `None` indicates no code segments preceding the current position.
+        """
+        for segment in raw_stack[::-1]:
+            if segment.is_code or segment.is_type("newline"):
+                return segment
+        return None
+
+    def _eval(self, segment, raw_stack, memory, **kwargs):
+        """Enforce comma placement.
+
+        For leading commas we're looking for trailing commas, so
+        we look for newline segments. For trailing commas we're
+        looking for leading commas, so we look for the comma itself.
+
+        We also want to handle proper whitespace removal/addition. We remove
+        any trailing whitespace after the leading comma, when converting a
+        leading comma to a trailing comma. We add whitespace after the leading
+        comma when converting a trailing comma to a leading comma.
+        """
+        if not memory:
+            memory: Dict[str, Any] = {
+                # Trailing comma keys
+                #
+                # Do we have a fix in place for removing a leading
+                # comma violation, and inserting a new trailing comma?
+                "insert_trailing_comma": False,
+                # A list of whitespace segments that come after a
+                # leading comma violation, to be removed during fixing.
+                "whitespace_deletions": None,
+                # The leading comma violation segment to be removed during fixing
+                "last_leading_comma_seg": None,
+                # The newline segment where we're going to insert our new trailing
+                # comma during fixing
+                "anchor_for_new_trailing_comma_seg": None,
+                #
+                # Leading comma keys
+                #
+                # Do we have a fix in place for removing a trailing
+                # comma violation, and inserting a new leading comma?
+                "insert_leading_comma": False,
+                # The trailing comma violation segment to be removed during fixing
+                "last_trailing_comma_segment": None,
+            }
+
+        if self.comma_style == "trailing":
+            # A comma preceded by a new line == a leading comma
+            if segment.is_type("comma"):
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type("newline"):
+                    # Recorded where the fix should be applied
+                    memory["last_leading_comma_seg"] = segment
+                    last_comment_seg = self._last_comment_seg(raw_stack)
+                    inline_comment = (
+                        last_comment_seg.pos_marker.line_no
+                        == last_seg.pos_marker.line_no
+                        if last_comment_seg
+                        else False
+                    )
+                    # If we have a comment right before the newline, then anchor
+                    # the fix at the comment instead
+                    memory["anchor_for_new_trailing_comma_seg"] = (
+                        last_seg if not inline_comment else last_comment_seg
+                    )
+                    # Trigger fix routine
+                    memory["insert_trailing_comma"] = True
+                    memory["whitespace_deletions"] = []
+                    return LintResult(memory=memory)
+            # Have we found a leading comma violation?
+            if memory["insert_trailing_comma"]:
+                # Search for trailing whitespace to delete after the leading
+                # comma violation
+                if segment.is_type("whitespace"):
+                    memory["whitespace_deletions"] += [segment]
+                    return LintResult(memory=memory)
+                else:
+                    # We've run out of whitespace to delete, time to fix
+                    last_leading_comma_seg = memory["last_leading_comma_seg"]
+                    # Scan backwards to find the last code segment, skipping
+                    # over lines that are either entirely blank or just a
+                    # comment. We want to place the comma immediately after it.
+                    last_code_seg = None
+                    while last_code_seg is None or last_code_seg.is_type("newline"):
+                        last_code_seg = self._last_code_seg(
+                            raw_stack[
+                                : 
+```
+### FILE: src/sqlfluff/core/parser/segments/base.py
+```python
+"""Base segment definitions.
+
+Here we define:
+- BaseSegment. This is the root class for all segments, and is
+  designed to hold other subsegments.
+- UnparsableSegment. A special wrapper to indicate that the parse
+  function failed on this block of segments and to prevent further
+  analysis.
+"""
+
+from io import StringIO
+from cached_property import cached_property
+from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
+import logging
+
+from sqlfluff.core.string_helpers import (
+    frame_msg,
+    curtail_string,
+)
+
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.helpers import (
+    check_still_complete,
+    trim_non_code_segments,
+)
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.context import ParseContext
+
+# Instantiate the linter logger (only for use in methods involved with fixing.)
+linter_logger = logging.getLogger("sqlfluff.linter")
+
+
+class FixPatch(NamedTuple):
+    """An edit patch for a templated file."""
+
+    templated_slice: slice
+    fixed_raw: str
+    # The patch category, functions mostly for debugging and explanation
+    # than for function. It allows traceability of *why* this patch was
+    # generated. It has no siginificance for processing.
+    patch_category: str
+
+
+class BaseSegment:
+    """The base segment element.
+
+    This defines the base element which drives both Lexing, Parsing and Linting.
+    A large chunk of the logic which defines those three operations are centered
+    here. Much of what is defined in the BaseSegment is also used by its many
+    subclasses rather than directly here.
+
+    For clarity, the `BaseSegment` is mostly centered around a segment which contains
+    other subsegments. For segments which don't have *children*, refer to the `RawSegment`
+    class (which still inherits from this one).
+
+    Segments are used both as instances to hold chunks of text, but also as classes
+    themselves where they function a lot like grammars, and return instances of themselves
+    when they match. The many classmethods in this class are usually to serve their
+    purpose as a matcher.
+    """
+
+    # `type` should be the *category* of this kind of segment
+    type = "base"
+    parse_grammar: Optional[Matchable] = None
+    # We define the type here but no value. Subclasses must provide a value.
+    match_grammar: Matchable
+    comment_seperate = False
+    optional = False  # NB: See the sequence grammar for details
+    _name: Optional[str] = None
+    is_meta = False
+    # Are we able to have non-code at the start or end?
+    can_start_end_non_code = False
+    # Can we allow it to be empty? Usually used in combination
+    # with the can_start_end_non_code.
+    allow_empty = False
+    # What other kwargs need to be copied when applying fixes.
+    additional_kwargs: List[str] = []
+
+    def __init__(
+        self,
+        segments,
+        pos_marker=None,
+        name: Optional[str] = None,
+    ):
+        # A cache variable for expandable
+        self._is_expandable = None
+        # Surrogate name option.
+        self._surrogate_name = name
+
+        if len(segments) == 0:  # pragma: no cover
+            raise RuntimeError(
+                "Setting {} with a zero length segment set. This shouldn't happen.".format(
+                    self.__class__
+                )
+            )
+
+        if hasattr(segments, "matched_segments"):  # pragma: no cover TODO?
+            # Safely extract segments from a match
+            self.segments = segments.matched_segments
+        elif isinstance(segments, tuple):
+            self.segments = segments
+        elif isinstance(segments, list):
+            self.segments = tuple(segments)
+        else:  # pragma: no cover
+            raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
+
+        if not pos_marker:
+            # If no pos given, it's the pos of the first segment.
+            if isinstance(segments, (tuple, list)):
+                pos_marker = PositionMarker.from_child_markers(
+                    *(seg.pos_marker for seg in segments)
+                )
+            else:  # pragma: no cover
+                raise TypeError(
+                    f"Unexpected type passed to BaseSegment: {type(segments)}"
+                )
+        self.pos_marker: PositionMarker = pos_marker
+
+    def __eq__(self, other):
+        # NB: this should also work for RawSegment
+        return (
+            # Same class NAME. (could be constructed elsewhere)
+            self.__class__.__name__ == other.__class__.__name__
+            and (self.raw == other.raw)
+            # Both must have a non-null position marker to compare.
+            and self.pos_marker
+            and other.pos_marker
+            # We only match that the *start* is the same. This means we can
+            # still effectively construct searches look for segments.
+            # This is important for .apply_fixes().
+            and (
+                self.pos_marker.start_point_marker()
+                == other.pos_marker.start_point_marker()
+            )
+        )
+
+    def __hash__(self):
+        return hash(
+            (self.__class__.__name__, self.raw, self.pos_marker.source_position())
+        )
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: ({self.pos_marker})>"
+
+    # ################ PRIVATE PROPERTIES
+
+    @property
+    def _comments(self):
+        """Returns only the comment elements of this segment."""
+        return [seg for seg in self.segments if seg.is_type("comment")]
+
+    @property
+    def _non_comments(self):  # pragma: no cover TODO?
+        """Returns only the non-comment elements of this segment."""
+        return [seg for seg in self.segments if not seg.is_type("comment")]
+
+    # ################ PUBLIC PROPERTIES
+
+    @property
+    def name(self):
+
+```
+### FILE: src/sqlfluff/rules/L032.py
+```python
+"""Implementation of Rule L032."""
+
+from sqlfluff.core.rules.base import BaseRule, LintResult
+
+
+class Rule_L032(BaseRule):
+    """Prefer specifying join keys instead of using "USING".
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        SELECT
+            table_a.field_1,
+            table_b.field_2
+        FROM
+            table_a
+        INNER JOIN table_b USING (id)
+
+    | **Best practice**
+    |  Specify the keys directly
+
+    .. code-block:: sql
+
+        SELECT
+            table_a.field_1,
+            table_b.field_2
+        FROM
+            table_a
+        INNER JOIN table_b
+            ON table_a.id = table_b.id
+
+    """
+
+    def _eval(self, segment, **kwargs):
+        """Look for USING in a join clause."""
+        if segment.is_type("join_clause"):
+            for seg in segment.segments:
+                if seg.is_type("keyword") and seg.name == "using":
+                    return [
+                        LintResult(
+                            # Reference the element, not the string.
+                            anchor=seg,
+                            description=(
+                                "Found USING statement. Expected only ON statements."
+                            ),
+                        )
+                    ]
+        return None
+
+```

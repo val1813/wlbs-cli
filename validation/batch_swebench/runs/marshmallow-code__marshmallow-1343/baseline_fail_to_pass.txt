@@ -1,0 +1,11 @@
+command: python -m pytest tests/test_marshalling.py::TestUnmarshaller::test_deserialize_wrong_nested_type_with_validates_method -q
+returncode: 4
+stdout:
+
+stderr:
+ImportError while loading conftest 'D:\wlbs_scan\validation\batch_swebench\runs\marshmallow-code__marshmallow-1343\baseline_repo\tests\conftest.py'.
+tests\conftest.py:5: in <module>
+    from tests.base import User, UserSchema, Blog
+tests\base.py:6: in <module>
+    import simplejson
+E   ModuleNotFoundError: No module named 'simplejson'

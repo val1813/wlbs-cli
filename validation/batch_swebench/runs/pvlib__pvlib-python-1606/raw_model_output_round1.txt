@@ -1,0 +1,26 @@
+```diff
+diff --git a/pvlib/tools.py b/pvlib/tools.py
+index 8d5d8e5..a5d6e5a 100644
+--- a/pvlib/tools.py
++++ b/pvlib/tools.py
+@@ -337,6 +337,10 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50,
+     df['VH'] = upper
+     df['fVH'] = func(df['VH'], **params)
+ 
++    # handle case where lower == upper
++    equal_bounds = df['VL'] == df['VH']
++    df.loc[equal_bounds, 'x'] = df.loc[equal_bounds, 'VL']
++
+     # Golden-section search routine
+     # Uses a vectorized version of the scalar golden-section search presented in
+     # [1]_
+@@ -361,7 +365,7 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8, maxiter=50,
+         df['x'] = np.where(df['VL'] == df['VH'], df['VL'], df['x'])
+         df['fx'] = func(df['x'], **params)
+ 
+-        df['V2'] = np.where(df['fx'] >= df['fV1'], df['V1'], df['V2'])
++        df['V2'] = np.where(df['fx'] >= df['fV1'], df['V1'], df['V2']).where(~equal_bounds, df['V2'])
+         df['fV2'] = np.where(df['fx'] >= df['fV1'], df['fV1'], df['fV2'])
+         df['V1'] = np.where(df['fx'] >= df['fV1'], df['x'], df['V1'])
+         df['fV1'] = np.where(df['fx'] >= df['fV1'], df['fx'], df['fV1'])
+```

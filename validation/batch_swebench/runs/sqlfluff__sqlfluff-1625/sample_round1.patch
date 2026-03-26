@@ -1,0 +1,151 @@
+--- a/src/sqlfluff/rules/L031.py
++++ b/src/sqlfluff/rules/L031.py
+@@ -1,4 +1,4 @@
+-"""Implementation of Rule L031."""
++"""Implementation of Rule L031."""
+ 
+ from sqlfluff.core.rules import (
+     BaseRule,
+@@ -6,7 +6,7 @@
+     RuleContext,
+     EvalResultType,
+ )
+-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
++from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+ from sqlfluff.dialects.dialect_ansi import (
+     AliasExpressionSegment,
+     JoinClauseSegment,
+@@ -14,7 +14,7 @@
+ from sqlfluff.utils.functional import sp, FunctionalContext
+ from sqlfluff.core.rules.doc_decorators import (
+     document_configuration,
+-    document_fix_compatible,
++    document_fix_compatible,
+ )
+ 
+ 
+@@ -22,7 +22,7 @@
+ @document_fix_compatible
+ class Rule_L031(BaseRule):
+     """
+-    Avoid using aliases in join condition.
++    Avoid aliases in from clauses and join conditions.
+ 
+     **Anti-pattern**
+ 
+@@ -30,6 +30,7 @@
+ 
+     .. code-block:: sql
+ 
++        SELECT a.id
+         SELECT
+             a.id,
+             a.name
+@@ -43,6 +44,7 @@
+ 
+     .. code-block:: sql
+ 
++        SELECT tbl.id
+         SELECT
+             tbl.id,
+             tbl.name
+@@ -50,6 +52,7 @@
+         JOIN b
+             ON tbl.id = b.ref_id
+ 
++    .. note::
+         Self-joins are ignored in this rule.
+ 
+     """
+@@ -57,7 +60,7 @@
+     config_keywords = ["force_enable"]
+ 
+     # L031 is a little unusual in that it cares about from expression
+-    # segments that are part of a join clause, so we need to look for those
++    # segments that are part of a join clause, so we need to look for those
+     # specifically.
+     crawl_behaviour = SegmentSeekerCrawler({"from_expression_element"})
+ 
+@@ -65,7 +68,7 @@
+         self,
+         context: RuleContext,
+     ) -> EvalResultType:
+-        """Avoid using aliases in join condition.
++        """Avoid aliases in from clauses and join conditions.
+ 
+         Look for FromExpressionElementSegment segments that are part of a
+         JoinClauseSegment. If they are, then check if they have an alias, and
+@@ -73,6 +76,10 @@
+         """
+         # We only care about from_expression_element segments that are part of a
+         # join clause.
++        # If there's no join clause in the parent stack, then we shouldn't
++        # trigger this rule.
++        if not any(isinstance(seg, JoinClauseSegment) for seg in context.parent_stack):
++            return None
+ 
+         # Get the referenced table segment
+         table_expression = context.segment.get_child("table_expression")
+@@ -80,7 +87,7 @@
+             return None
+ 
+         # Get the alias expression (if present)
+-        alias_expression = context.segment.get_child("alias_expression")
++        alias_expression = context.segment.get_child("alias_expression")
+         if not alias_expression:
+             return None
+ 
+@@ -88,7 +95,7 @@
+         # If it's a self-join, then we ignore it.
+         # Self-joins are where we have the same table referenced twice, but
+         # with different aliases.
+-        # We detect this by checking if the table reference appears twice in
++        # We detect this by checking if the table reference appears twice in
+         # the FROM clause with different aliases.
+         from_clause = FunctionalContext(context).parent_stack.last(
+             sp.is_type("from_clause")
+@@ -96,7 +103,7 @@
+         if not from_clause:
+             return None
+ 
+-        # Get all the from_expression_element segments in the from clause
++        # Get all the from_expression_element segments in the from clause
+         from_expression_elements = from_clause.children(
+             sp.is_type("from_expression_element")
+         )
+@@ -104,7 +111,7 @@
+         # Get the table references and their aliases
+         table_refs = []
+         for element in from_expression_elements:
+-            # Get the table expression
++            # Get the table expression
+             table_expr = element.children(sp.is_type("table_expression")).first()
+             if not table_expr:
+                 continue
+@@ -112,7 +119,7 @@
+             # Get the raw table reference
+             table_ref = table_expr.raw.lower()
+ 
+-            # Get the alias (if present)
++            # Get the alias (if present)
+             alias_expr = element.children(sp.is_type("alias_expression")).first()
+             alias_ref = alias_expr.raw.lower() if alias_expr else None
+ 
+@@ -120,7 +127,7 @@
+ 
+         # Check if this is a self-join
+         # (same table reference with different aliases)
+-        # We count how many times this table appears with different aliases
++        # We count how many times this table appears with different aliases
+         matching_refs = [
+             ref for ref in table_refs if ref[0] == table_expression.raw.lower()
+         ]
+@@ -129,7 +136,7 @@
+             return None
+ 
+         # If we get here, then we have an alias in a join condition that
+-        # should be removed.
++        # should be removed.
+         return LintResult(
+             anchor=alias_expression,
+             description=f"Avoid using aliases in join condition.",

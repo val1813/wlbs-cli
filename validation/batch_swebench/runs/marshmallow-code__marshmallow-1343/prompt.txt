@@ -1,0 +1,115 @@
+You are fixing a SWE-bench Lite instance.
+        Return ONLY a unified git diff patch. No prose.
+
+        Instance: marshmallow-code__marshmallow-1343
+        Repo: marshmallow-code/marshmallow
+        Base commit: 2be2d83a1a9a6d3d9b85804f3ab545cecc409bb0
+
+        Problem statement:
+        [version 2.20.0] TypeError: 'NoneType' object is not subscriptable
+After update from version 2.19.5 to 2.20.0 I got error for code like:
+
+```python
+from marshmallow import Schema, fields, validates
+
+
+class Bar(Schema):
+    value = fields.String()
+
+    @validates('value')  # <- issue here
+    def validate_value(self, value):
+        pass
+
+
+class Foo(Schema):
+    bar = fields.Nested(Bar)
+
+
+sch = Foo()
+
+sch.validate({
+    'bar': 'invalid',
+})
+```
+
+```
+Traceback (most recent call last):
+  File "/_/bug_mschema.py", line 19, in <module>
+    'bar': 'invalid',
+  File "/_/env/lib/python3.7/site-packages/marshmallow/schema.py", line 628, in validate
+    _, errors = self._do_load(data, many, partial=partial, postprocess=False)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/schema.py", line 670, in _do_load
+    index_errors=self.opts.index_errors,
+  File "/_/env/lib/python3.7/site-packages/marshmallow/marshalling.py", line 292, in deserialize
+    index=(index if index_errors else None)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/marshalling.py", line 65, in call_and_store
+    value = getter_func(data)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/marshalling.py", line 285, in <lambda>
+    data
+  File "/_/env/lib/python3.7/site-packages/marshmallow/fields.py", line 265, in deserialize
+    output = self._deserialize(value, attr, data)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/fields.py", line 465, in _deserialize
+    data, errors = self.schema.load(value)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/schema.py", line 588, in load
+    result, errors = self._do_load(data, many, partial=partial, postprocess=True)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/schema.py", line 674, in _do_load
+    self._invoke_field_validators(unmarshal, data=result, many=many)
+  File "/_/env/lib/python3.7/site-packages/marshmallow/schema.py", line 894, in _invoke_field_validators
+    value = data[field_obj.attribute or field_name]
+TypeError: 'NoneType' object is not subscriptable
+```
+
+
+        FAIL_TO_PASS:
+        ["tests/test_marshalling.py::TestUnmarshaller::test_deserialize_wrong_nested_type_with_validates_method"]
+
+        PASS_TO_PASS:
+        ["tests/test_marshalling.py::test_missing_is_falsy", "tests/test_marshalling.py::TestMarshaller::test_prefix", "tests/test_marshalling.py::TestMarshaller::test_marshalling_generator", "tests/test_marshalling.py::TestMarshaller::test_default_to_missing", "tests/test_marshalling.py::TestMarshaller::test_serialize_fields_with_load_only_param", "tests/test_marshalling.py::TestMarshaller::test_missing_data_are_skipped", "tests/test_marshalling.py::TestMarshaller::test_serialize_with_load_only_doesnt_validate", "tests/test_marshalling.py::TestMarshaller::test_serialize_fields_with_dump_to_param", "tests/test_marshalling.py::TestMarshaller::test_serialize_fields_with_dump_to_and_prefix_params", "tests/test_marshalling.py::TestMarshaller::test_stores_indices_of_errors_when_many_equals_true", "tests/test_marshalling.py::TestMarshaller::test_doesnt_store_errors_when_index_errors_equals_false", "tests/test_marshalling.py::TestUnmarshaller::test_extra_data_is_ignored", "tests/test_marshalling.py::TestUnmarshaller::test_stores_errors", "tests/test_marshalling.py::TestUnmarshaller::test_stores_indices_of_errors_when_many_equals_true", "tests/test_marshalling.py::TestUnmarshaller::test_doesnt_store_errors_when_index_errors_equals_false", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize", "tests/test_marshalling.py::TestUnmarshaller::test_extra_fields", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_many", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_stores_errors", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_fields_with_attribute_param", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_fields_with_load_from_param", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_fields_with_dump_only_param", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_wrong_type_root_data", "tests/test_marshalling.py::TestUnmarshaller::test_deserialize_wrong_type_nested_data"]
+
+        Test patch to satisfy:
+        diff --git a/tests/test_marshalling.py b/tests/test_marshalling.py
+--- a/tests/test_marshalling.py
++++ b/tests/test_marshalling.py
+@@ -2,7 +2,7 @@
+
+ import pytest
+
+-from marshmallow import fields, Schema
++from marshmallow import fields, Schema, validates
+ from marshmallow.marshalling import Marshaller, Unmarshaller, missing
+ from marshmallow.exceptions import ValidationError
+
+@@ -283,3 +283,24 @@ class TestSchema(Schema):
+
+             assert result is None
+             assert excinfo.value.messages == {'foo': {'_schema': ['Invalid input type.']}}
++
++    # Regression test for https://github.com/marshmallow-code/marshmallow/issues/1342
++    def test_deserialize_wrong_nested_type_with_validates_method(self, unmarshal):
++        class TestSchema(Schema):
++            value = fields.String()
++
++            @validates('value')
++            def validate_value(self, value):
++                pass
++
++        data = {
++            'foo': 'not what we need'
++        }
++        fields_dict = {
++            'foo': fields.Nested(TestSchema, required=True)
++        }
++        with pytest.raises(ValidationError) as excinfo:
++            result = unmarshal.deserialize(data, fields_dict)
++
++            assert result is None
++            assert excinfo.value.messages == {'foo': {'_schema': ['Invalid input type.']}}
+
+
+        Constraints:
+        - Minimal patch only.
+        - Preserve behavior outside the failing issue.
+        - Match expected error text exactly if tests require exact descriptions.
+        - Output a valid unified diff patch that can pass `git apply --check`.
+
+        Relevant files:

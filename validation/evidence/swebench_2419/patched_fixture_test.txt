@@ -1,0 +1,5 @@
+﻿command: python -m pytest test/rules/yaml_test_cases_test.py -q -k L060
+returncode: 0
+stdout:
+...                                                                      [100%]
+3 passed, 725 deselected in 0.57s

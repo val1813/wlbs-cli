@@ -1,0 +1,25 @@
+diff --git a/pvlib/iam.py b/pvlib/iam.py
+index 5d5d5e5..a2d6e5c 100644
+--- a/pvlib/iam.py
++++ b/pvlib/iam.py
+@@ -238,7 +238,7 @@ def physical(aoi, n=1.526, K=4., L=0.002, n_ar=None):
+     # Fresnel's equation for non-polarized light passing
+     # from medium 1 to medium 2
+     # incidence angle measured from surface normal
+-    # assumes n2_real = n2 and n2_imag = 0
++    # assumes n2_real = n2 and n2_imag = 0 (non-absorbing media)
+     theta1_rad = np.radians(aoi)
+     theta2_rad = np.arcsin(n1 * np.sin(theta1_rad) / n2)
+ 
+@@ -246,7 +246,10 @@ def physical(aoi, n=1.526, K=4., L=0.002, n_ar=None):
+     r_perp = ((n1 * np.cos(theta1_rad) - n2 * np.cos(theta2_rad)) /
+               (n1 * np.cos(theta1_rad) + n2 * np.cos(theta2_rad))) ** 2
+     r_par = ((n1 * np.cos(theta2_rad) - n2 * np.cos(theta1_rad)) /
+-             (n1 * np.cos(theta2_rad) + n2 * np.cos(theta1_rad))) ** 2
++             (n1 * np.cos(theta2_rad) + n2 * np.cos(theta1_rad))) ** 2
++
++    # when n1 == n2 (no reflection), theta2_rad = theta1_rad
++    # and r_perp = r_par = 0 for all angles
+     r = (r_perp + r_par) / 2.
+ 
+     # reflectance of cover interface

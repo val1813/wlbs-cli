@@ -1,0 +1,14 @@
+--- a/src/sqlfluff/rules/L060.py
++++ b/src/sqlfluff/rules/L060.py
+@@ -59,4 +59,10 @@
+             ],
+         )
+ 
+-        return LintResult(context.segment, [fix])
++        # Create appropriate description based on the function found.
++        if context.segment.raw_upper == "IFNULL":
++            description = "Use 'COALESCE' instead of 'IFNULL'."
++        else:  # Must be "NVL"
++            description = "Use 'COALESCE' instead of 'NVL'."
++
++        return LintResult(context.segment, [fix], description=description)

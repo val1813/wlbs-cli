@@ -1,0 +1,13 @@
+diff --git a/src/marshmallow/fields.py b/src/marshmallow/fields.py
+index 8d5c4e6..c5d5e6e 100644
+--- a/src/marshmallow/fields.py
++++ b/src/marshmallow/fields.py
+@@ -1114,7 +1114,7 @@ class DateTime(Field):
+         # Set format from Schema options
+         schema = parent if isinstance(parent, Schema) else parent.parent
+         self.format = format or (
+-            schema.opts.datetimeformat
++            getattr(schema, 'opts', None) and schema.opts.datetimeformat
+             or getattr(schema.opts, self.SCHEMA_OPTS_VAR_NAME)
+         )
+         super()._bind_to_schema(field_name, parent)

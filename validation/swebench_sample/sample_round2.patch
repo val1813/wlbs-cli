@@ -1,0 +1,31 @@
+diff --git a/src/sqlfluff/rules/L060.py b/src/sqlfluff/rules/L060.py
+index 2d5c0e9..c5d5e8a 100644
+--- a/src/sqlfluff/rules/L060.py
++++ b/src/sqlfluff/rules/L060.py
+@@ -1,4 +1,4 @@
+-"""Implementation of Rule L060."""
++"""Implementation of Rule L060."""
+ 
+ from typing import Optional
+ 
+@@ -46,7 +46,7 @@ class Rule_L060(BaseRule):
+         if context.segment.name != "function_name_identifier":
+             return None
+ 
+-        # Only care if the function is ``IFNULL`` or ``NVL``.
++        # Only care if the function is ``IFNULL`` or ``NVL``.
+         if context.segment.raw_upper not in {"IFNULL", "NVL"}:
+             return None
+ 
+@@ -60,6 +60,11 @@ class Rule_L060(BaseRule):
+             ],
+         )
+ 
+-        return LintResult(context.segment, [fix])
++        # Generate appropriate error message
++        if context.segment.raw_upper == "IFNULL":
++            description = "Use 'COALESCE' instead of 'IFNULL'."
++        else:  # Must be "NVL"
++            description = "Use 'COALESCE' instead of 'NVL'."
+ 
++        return LintResult(context.segment, [fix], description=description)

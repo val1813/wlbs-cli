@@ -1,0 +1,11 @@
+--- a/pvlib/temperature.py
++++ b/pvlib/temperature.py
+@@ -596,7 +596,7 @@ def fuentes(poa_global, temp_air, wind_speed, noct_installed=45,
+     # calculate dt
+     # TODO: handle irregular time series
+     # TODO: handle constant poa_global
+-    timedelta_hours = np.diff(poa_global.index).astype(float) / 1e9 / 60 / 60
++    timedelta_hours = np.diff(poa_global.index.values).astype(float) / 1e9 / 60 / 60
+     timedelta_hours = np.append(timedelta_hours, timedelta_hours[-1])
+ 
+     # calculate dt_prev

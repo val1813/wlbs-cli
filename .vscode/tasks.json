@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "wlbs: tests",
+      "type": "shell",
+      "command": "python -m pytest tests -q",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "wlbs: validate",
+      "type": "shell",
+      "command": "python -m wlbs_scan.validate",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "wlbs: advise-rbac",
+      "type": "shell",
+      "command": "python -m wlbs_scan . --advise rbac --json",
+      "problemMatcher": []
+    }
+  ]
+}

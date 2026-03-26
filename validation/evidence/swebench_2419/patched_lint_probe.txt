@@ -1,0 +1,14 @@
+﻿[
+  {
+    "line_no": 2,
+    "line_pos": 2,
+    "code": "L060",
+    "description": "Use 'COALESCE' instead of 'IFNULL'."
+  },
+  {
+    "line_no": 3,
+    "line_pos": 2,
+    "code": "L060",
+    "description": "Use 'COALESCE' instead of 'NVL'."
+  }
+]

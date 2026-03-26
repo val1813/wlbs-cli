@@ -1,0 +1,12 @@
+command: python -m pytest test/rules/std_L016_L36_combo_test.py::test__rules__std_L016_L036_long_line_lint test/rules/std_L016_L36_combo_test.py::test__rules__std_L016_L036_long_line_fix test/rules/std_L016_L36_combo_test.py::test__rules__std_L016_L036_long_line_fix2 -q
+returncode: 0
+stdout:
+...                                                                      [100%]
+============================== warnings summary ===============================
+src\sqlfluff\__init__.py:9
+  D:\wlbs_scan\validation\batch_swebench\runs\sqlfluff__sqlfluff-1733\baseline_repo\src\sqlfluff\__init__.py:9: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 1 warning in 0.21s
+stderr:

@@ -1,0 +1,47 @@
+--- a/src/sqlfluff/core/linter.py
++++ b/src/sqlfluff/core/linter.py
+@@ -1,5 +1,6 @@
+ """The core classes for the linter."""
+ import os
++import io
+ import sys
+ import logging
+ import time
+@@ -2000,7 +2001,7 @@ class LintedFile:
+         # Write to a temporary file first, then move it, to avoid corruption.
+         temp_file = None
+         try:
+-            with tempfile.NamedTemporaryFile(
++            with io.open(
+                 mode="w",
+                 encoding=encoding,
+                 newline="",
+@@ -2008,17 +2009,21 @@ class LintedFile:
+                 suffix=".sql",
+                 delete=False,
+             ) as f:
+-                temp_file = f.name
+-                f.write(in_str)
+-        except (OSError, IOError):
+-            # If we can't write, just return. The original file is unchanged.
+-            if temp_file and os.path.exists(temp_file):
+-                os.remove(temp_file)
+-            return
++                try:
++                    f.write(in_str)
++                except (UnicodeEncodeError, OSError, IOError):
++                    # If we can't write due to encoding or other I/O errors,
++                    # leave the original file unchanged.
++                    return
++                temp_file = f.name
++        except (OSError, IOError, UnicodeEncodeError):
++            # If we can't create the temp file, leave the original unchanged.
++            return
+ 
+         # Now replace the original file with the temp file
+         try:
+             os.replace(temp_file, path)
+         except (OSError, IOError):
++            # If the replace fails, clean up the temp file.
+             if os.path.exists(temp_file):
+                 os.remove(temp_file)

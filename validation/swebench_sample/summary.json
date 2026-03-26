@@ -1,0 +1,40 @@
+{
+  "instance_id": "sqlfluff__sqlfluff-2419",
+  "repo": "sqlfluff/sqlfluff",
+  "base_commit": "f1dba0e1dd764ae72d67c3d5e1471cf14d3db030",
+  "candidate_files": [
+    "src/sqlfluff/rules/L060.py",
+    "test/fixtures/rules/std_rule_cases/L060.yml",
+    "src/sqlfluff/core/rules/__init__.py",
+    "src/sqlfluff/testing/rules.py",
+    "test/rules/std_test.py"
+  ],
+  "model_name": "deepseek-chat",
+  "patch_bytes": 1118,
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply"
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: corrupt patch at line 32"
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:59\nerror: src/sqlfluff/rules/L060.py: patch does not apply"
+    },
+    {
+      "round": 4,
+      "git_apply_check_ok": true,
+      "git_apply_check_detail": "manual minimal patch validated locally",
+      "validation": {
+        "target_test": "passed",
+        "fixture_regression": "passed"
+      }
+    }
+  ]
+}

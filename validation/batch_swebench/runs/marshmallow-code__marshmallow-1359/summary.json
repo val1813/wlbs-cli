@@ -1,0 +1,41 @@
+{
+  "instance_id": "marshmallow-code__marshmallow-1359",
+  "repo": "marshmallow-code/marshmallow",
+  "base_commit": "b40a0f4e33823e6d0f341f7e8684e359a99060d1",
+  "model_name": "deepseek-chat",
+  "candidate_files": [],
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+      "patch_bytes": 599
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+      "patch_bytes": 668
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+      "patch_bytes": 684
+    }
+  ],
+  "official_patch_ok": true,
+  "official_patch_mode": "strict",
+  "official_patch_detail": "",
+  "patch_apply_ok": false,
+  "patch_apply_mode": "failed",
+  "patch_apply_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+  "fail_to_pass_count": 1,
+  "pass_to_pass_count": 76,
+  "baseline_fail_to_pass_rc": 4,
+  "patched_fail_to_pass_rc": 999,
+  "baseline_pass_to_pass_rc": 998,
+  "patched_pass_to_pass_rc": 998,
+  "run_pass_to_pass": false,
+  "target_improved": false
+}

@@ -1,0 +1,625 @@
+You are fixing a SWE-bench Lite instance.
+        Return ONLY a unified git diff patch. No prose.
+
+        Instance: sqlfluff__sqlfluff-2419
+        Repo: sqlfluff/sqlfluff
+        Base commit: f1dba0e1dd764ae72d67c3d5e1471cf14d3db030
+
+        Problem statement:
+        Rule L060 could give a specific error message
+At the moment rule L060 flags something like this:
+
+```
+L:  21 | P:   9 | L060 | Use 'COALESCE' instead of 'IFNULL' or 'NVL'.
+```
+
+Since we likely know the wrong word, it might be nice to actually flag that instead of both `IFNULL` and `NVL` - like most of the other rules do.
+
+That is it should flag this:
+
+```
+L:  21 | P:   9 | L060 | Use 'COALESCE' instead of 'IFNULL'.
+```
+ Or this:
+
+```
+L:  21 | P:   9 | L060 | Use 'COALESCE' instead of 'NVL'.
+```
+
+As appropriate.
+
+What do you think @jpy-git ?
+
+
+
+        FAIL_TO_PASS:
+        ["test/rules/std_L060_test.py::test__rules__std_L060_raised"]
+
+        PASS_TO_PASS:
+        []
+
+        Test patch to satisfy:
+        diff --git a/test/rules/std_L060_test.py b/test/rules/std_L060_test.py
+new file mode 100644
+--- /dev/null
++++ b/test/rules/std_L060_test.py
+@@ -0,0 +1,12 @@
++"""Tests the python routines within L060."""
++import sqlfluff
++
++
++def test__rules__std_L060_raised() -> None:
++    """L060 is raised for use of ``IFNULL`` or ``NVL``."""
++    sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL,100);"
++    result = sqlfluff.lint(sql, rules=["L060"])
++
++    assert len(result) == 2
++    assert result[0]["description"] == "Use 'COALESCE' instead of 'IFNULL'."
++    assert result[1]["description"] == "Use 'COALESCE' instead of 'NVL'."
+
+
+        Constraints:
+        - Minimal patch only.
+        - Preserve behavior outside the failing issue.
+        - Match expected error text exactly if tests require exact descriptions.
+        - Output a valid unified diff patch that can pass `git apply --check`.
+
+        Relevant files:
+        ### FILE: test/fixtures/rules/std_rule_cases/L060.yml
+```python
+rule: L060
+
+test_pass_coalesce:
+  pass_str: |
+    SELECT coalesce(foo, 0) AS bar,
+    FROM baz;
+
+test_fail_ifnull:
+  fail_str: |
+    SELECT ifnull(foo, 0) AS bar,
+    FROM baz;
+  pass_str: |
+    SELECT coalesce(foo, 0) AS bar,
+    FROM baz;
+
+test_fail_nvl:
+  fail_str: |
+    SELECT nvl(foo, 0) AS bar,
+    FROM baz;
+  pass_str: |
+    SELECT coalesce(foo, 0) AS bar,
+    FROM baz;
+
+```
+### FILE: src/sqlfluff/rules/L060.py
+```python
+"""Implementation of Rule L060."""
+
+from typing import Optional
+
+from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+
+
+@document_fix_compatible
+class Rule_L060(BaseRule):
+    """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.
+
+    | **Anti-pattern**
+    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.
+
+    .. code-block:: sql
+
+        SELECT ifnull(foo, 0) AS bar,
+        FROM baz;
+
+        SELECT nvl(foo, 0) AS bar,
+        FROM baz;
+
+    | **Best practice**
+    | Use ``COALESCE`` instead.
+    | ``COALESCE`` is universally supported,
+    | whereas Redshift doesn't support ``IFNULL``
+    | and BigQuery doesn't support ``NVL``.
+    | Additionally ``COALESCE`` is more flexible
+    | and accepts an arbitrary number of arguments.
+
+    .. code-block:: sql
+
+        SELECT coalesce(foo, 0) AS bar,
+        FROM baz;
+
+    """
+
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``."""
+        # We only care about function names.
+        if context.segment.name != "function_name_identifier":
+            return None
+
+        # Only care if the function is ``IFNULL`` or ``NVL``.
+        if context.segment.raw_upper not in {"IFNULL", "NVL"}:
+            return None
+
+        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.
+        fix = LintFix.replace(
+            context.segment,
+            [
+                CodeSegment(
+                    raw="COALESCE",
+                    name="function_name_identifier",
+                    type="function_name_identifier",
+                )
+            ],
+        )
+
+        return LintResult(context.segment, [fix])
+
+```
+### FILE: src/sqlfluff/testing/rules.py
+```python
+"""Testing utils for rule plugins."""
+from sqlfluff.core import Linter
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
+from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.config import FluffConfig
+from typing import Tuple, List, NamedTuple, Optional
+from glob import glob
+
+import pytest
+import yaml
+
+
+class RuleTestCase(NamedTuple):
+    """Used like a dataclass by rule tests."""
+
+    rule: Optional[str] = None
+    desc: Optional[str] = None
+    pass_str: Optional[str] = None
+    fail_str: Optional[str] = None
+    fix_str: Optional[str] = None
+    configs: Optional[dict] = None
+    skip: Optional[str] = None
+    line_numbers: List[int] = []
+
+
+def load_test_cases(
+    test_cases_path: str,
+) -> Tuple[List[str], List[RuleTestCase]]:
+    """Load rule test cases from YAML files."""
+    ids = []
+    test_cases = []
+
+    for path in sorted(glob(test_cases_path)):
+        with open(path) as f:
+            raw = f.read()
+
+        y = yaml.safe_load(raw)
+
+        rule = y.pop("rule")
+        global_config = y.pop("configs", None)
+        if global_config:
+            for i in y:
+                if not ("configs" in y[i].keys()):
+                    y[i].update({"configs": global_config})
+        ids.extend([rule + "_" + t for t in y])
+        test_cases.extend([RuleTestCase(rule=rule, **v) for k, v in y.items()])
+
+    return ids, test_cases
+
+
+def get_rule_from_set(code, config):
+    """Fetch a rule from the rule set."""
+    for r in get_ruleset().get_rulelist(config=config):
+        if r.code == code:
+            return r
+    raise ValueError(f"{code!r} not in {get_ruleset()!r}")
+
+
+def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
+    """Assert that a given rule does fail on the given sql."""
+    # Set up the config to only use the rule we are testing.
+    cfg = FluffConfig(configs=configs, overrides={"rules": code})
+    # Lint it using the current config (while in fix mode)
+    linted = Linter(config=cfg).lint_string(sql, fix=True)
+    lerrs = linted.get_violations()
+    print(f"Errors Found: {lerrs}")
+    for e in lerrs:
+        if e.desc().startswith("Unexpected exception"):
+            pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
+    parse_errors = list(
+        filter(lambda v: isinstance(v, (SQLParseError, SQLTemplaterError)), lerrs)
+    )
+    if parse_errors:
+        pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
+    if not any(v.rule.code == code for v in lerrs):
+        pytest.fail(
+            f"No {code} failures found in query which should fail.",
+            pytrace=False,
+        )
+    if line_numbers:
+        actual_line_numbers = [e.line_no for e in lerrs]
+        if line_numbers != actual_line_numbers:  # pragma: no cover
+            pytest.fail(
+                "Expected errors on lines {}, but got errors on lines {}".format(
+                    line_numbers, actual_line_numbers
+                )
+            )
+    fixed, _ = linted.fix_string()
+    return fixed
+
+
+def assert_rule_pass_in_sql(code, sql, configs=None):
+    """Assert that a given rule doesn't fail on the given sql."""
+    # Configs allows overrides if we want to use them.
+    cfg = FluffConfig(configs=configs)
+    r = get_rule_from_set(code, config=cfg)
+    linter = Linter(config=cfg)
+    rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
+    parsed = linter.parse_rendered(rendered, recurse=True)
+    if parsed.violations:
+        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
+    print(f"Parsed:\n {parsed.tree.stringify()}")
+    lerrs, _, _, _ = r.crawl(
+        parsed.tree, [], dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
+    )
+    print(f"Errors Found: {lerrs}")
+    if any(v.rule.code == code for v in lerrs):
+        pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
+
+
+def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):
+    """Assert that a given rule raises given errors in specific positions of a file."""
+    lntr = Linter(config=fluff_config)
+    lnt = lntr.lint_path(fpath)
+    # Reformat the test data to match the format we're expecting. We use
+    # sets because we really don't care about order and if one is missing,
+    # we don't care about the orders of the correct ones.
+    assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
+
+
+def rules__test_helper(test_case):
+    """Test that a rule passes/fails on a set of test_cases.
+
+    Optionally, also test the fixed string if provided in the test case.
+    """
+    if test_case.skip:
+        pytest.skip(test_case.skip)
+
+    if test_case.pass_str:
+        assert_rule_pass_in_sql(
+            test_case.rule,
+            test_case.pass_str,
+            configs=test_case.configs,
+        )
+    if test_case.fail_str:
+        res = assert_rule_fail_in_sql(
+            test_case.rule,
+            test_case.fail_str,
+            configs=test_case.configs,
+            line_numbers=test_case.line_numbers,
+        )
+        # If a `fixed` value is provided then check it matches
+        if test_case.fix_str:
+            assert res == test_case.fix_str
+
+```
+### FILE: test/cli/formatters_test.py
+```python
+"""The Test file for CLI Formatters."""
+
+import re
+
+from sqlfluff.core.rules.base import RuleGhost
+from sqlfluff.core.parser import RawSegment
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.cli.formatters import format_filename, format_violation
+
+
+def escape_ansi(line):
+    """Remove ANSI color codes for testing."""
+    ansi_escape = re.compile("\u001b\\[[0-9]+(;[0-9]+)?m")
+    return ansi_escape.sub("", line)
+
+
+def test__cli__formatters__filename_nocol():
+    """Test formatting filenames."""
+    res = format_filename("blahblah", success=True)
+    assert escape_ansi(res) == "== [blahblah] PASS"
+
+
+def test__cli__formatters__violation():
+    """Test formatting violations.
+
+    NB Position is 1 + start_pos.
+    """
+    s = RawSegment(
+        "foobarbar",
+        PositionMarker(
+            slice(10, 19),
+            slice(10, 19),
+            TemplatedFile.from_string("      \n\n  foobarbar"),
+        ),
+    )
+    r = RuleGhost("A", "DESC")
+    v = SQLLintError(segment=s, rule=r)
+    f = format_violation(v)
+    # Position is 3, 3 becase foobarbar is on the third
+    # line (i.e. it has two newlines preceding it) and
+    # it's at the third position in that line (i.e. there
+    # are two characters between it and the preceding
+    # newline).
+    assert escape_ansi(f) == "L:   3 | P:   3 |    A | DESC"
+
+```
+### FILE: test/test_testing.py
+```python
+"""Test the sqlfluff.testing module."""
+
+from _pytest.outcomes import Failed, Skipped
+import pytest
+from sqlfluff.testing.rules import (
+    assert_rule_fail_in_sql,
+    assert_rule_pass_in_sql,
+    rules__test_helper,
+    RuleTestCase,
+)
+
+
+def test_assert_rule_fail_in_sql_handle_parse_error():
+    """Util assert_rule_fail_in_sql should handle parse errors."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_fail_in_sql(code="L000", sql="select from")
+    failed_test.match("Found the following parse errors in test case:")
+
+
+def test_assert_rule_fail_in_sql_should_fail_queries_that_unexpectedly_pass():
+    """Util assert_rule_fail_in_sql should fail if no failure."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_fail_in_sql(code="L001", sql="select 1")
+    failed_test.match("No L001 failures found in query which should fail")
+
+
+def test_assert_rule_pass_in_sql_should_handle_parse_error():
+    """Util assert_rule_pass_in_sql should handle parse errors."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_pass_in_sql(code="L001", sql="select from")
+    failed_test.match("Found unparsable section:")
+
+
+def test_assert_rule_pass_in_sql_should_fail_when_there_are_violations():
+    """Util assert_rule_pass_in_sql should fail when there are violations."""
+    with pytest.raises(Failed) as failed_test:
+        assert_rule_pass_in_sql(code="L005", sql="select a , b from t")
+    failed_test.match("Found L005 failures in query which should pass")
+
+
+def test_rules__test_helper_skipped_when_test_case_skipped():
+    """Util rules__test_helper should skip the test when test case is "skipped"."""
+    rule_test_case = RuleTestCase(skip="Skip this one for now")
+    with pytest.raises(Skipped) as skipped_test:
+        rules__test_helper(rule_test_case)
+    skipped_test.match("Skip this one for now")
+
+
+def test_rules__test_helper_has_variable_introspection():
+    """Make sure the helper gives variable introspection information on failure."""
+    rule_test_case = RuleTestCase(
+        rule="L003",
+        fail_str="""
+            select
+                a,
+                    b
+            from table
+        """,
+        # extra comma on purpose
+        fix_str="""
+            select
+                a,
+                b,
+            from table
+        """,
+    )
+    with pytest.raises(AssertionError) as skipped_test:
+        rules__test_helper(rule_test_case)
+    # Enough to check that a query diff is displayed
+    skipped_test.match("select")
+
+```
+### FILE: test/rules/std_L003_test.py
+```python
+"""Tests the python routines within L003."""
+from unittest.mock import Mock
+
+import pytest
+
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.rules.L003 import Rule_L003
+from sqlfluff.testing.rules import get_rule_from_set
+
+
+@pytest.mark.parametrize(
+    "test_elems,result",
+    [
+        # Unindented test examples
+        (
+            ["bar"],
+            {
+                1: {
+                    "line_no": 1,
+                    "indent_size": 0,
+                    "indent_balance": 0,
+                    "hanging_indent": None,
+                    "clean_indent": False,
+                },
+            },
+        ),
+        (
+            ["bar", "\n", "     ", "foo", "baar", " \t "],
+            {
+                1: {
+                    "line_no": 1,
+                    "indent_size": 0,
+                    "indent_balance": 0,
+                    "hanging_indent": None,
+                    "clean_indent": False,
+                },
+                2: {
+                    "line_no": 2,
+                    "indent_size": 5,
+                    "indent_balance": 0,
+                    "hanging_indent": None,
+                    "clean_indent": False,
+                },
+            },
+        ),
+        # Indented Test Example
+        (
+            ["bar", "<indent>", "\n", "    ", "foo", "<dedent>", "\n", "baar"],
+            {
+                1: {
+                    "line_no": 1,
+                    "indent_size": 0,
+                    "indent_balance": 0,
+                    "hanging_indent": None,
+                    "clean_indent": False,
+                },
+                2: {
+                    "line_no": 2,
+                    "indent_size": 4,
+                    # Balance of indents is 1 at the start of content
+                    # of this line.
+                    "indent_balance": 1,
+                    "hanging_indent": None,
+                    # It's a clean indent, because there was an indent
+                    # token just before the previous newline.
+                    "clean_indent": True,
+                },
+                3: {
+                    "line_no": 3,
+                    "indent_size": 0,
+                    "indent_balance": 0,
+                    "hanging_indent": None,
+                    "clean_indent": False,
+                },
+            },
+        ),
+        # Hanging Test Example
+        (
+            ["bar", " ", "<indent>", "foo", "\n", "    ", "foo", "<dedent>"],
+            {
+                1: {
+                    "line_no": 1,
+                    "indent_size": 0,
+                    "indent_balance": 0,
+                    # It's a hanging indent possibility because there was an unresolved
+                    # indent in the previous line before the end.
+                    "hanging_indent": 4,
+                    "clean_indent": False,
+                },
+                2: {
+                    "line_no": 2,
+                    "indent_size": 4,
+                    "indent_balance": 1,
+                    "hanging_indent": None,
+                    "clean_indent": False,
+                },
+            },
+        ),
+    ],
+)
+def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, result):
+    """Test the _process_raw_stack function.
+
+    Note: This test probably needs expanding. It doesn't
+    really check enough of the full functionality.
+
+    """
+    cfg = FluffConfig()
+    r = get_rule_from_set("L003", config=cfg)
+    test_stack = generate_test_segments(test_elems)
+    res = r._process_raw_stack(test_stack, {})
+    print(res)
+    # Verify structure
+    assert isinstance(res, dict)
+    assert all(isinstance(k, int) for k in res.keys())
+    assert all(isinstance(v, dict) for v in res.values())
+    # Check keys are all present
+    assert all(
+        v.keys()
+        == {
+            "line_no",
+            "line_buffer",
+            "indent_buffer",
+            "indent_size",
+            "indent_balance",
+            "hanging_indent",
+            "clean_indent",
+        }
+        for v in res.values()
+    )
+    # For testing purposes, we won't be checking the buffer fields. They're just
+    # too hard to create in the test cases and aren't critical in determining
+    # what course of action to take. Most of the logic uses the values which we
+    # *are* still testing.
+    for k in res:
+        del res[k]["line_buffer"]
+        del res[k]["indent_buffer"]
+    assert res == result
+
+
+@pytest.mark.parametrize(
+    "indent_unit,num,tab_space_size,result",
+    [
+        ("space", 3, 2, "      "),
+        ("tab", 3, 2, "\t\t\t"),
+    ],
+)
+def test__rules__std_L003_make_indent(indent_unit, num, tab_space_size, result):
+    """Test Rule_L003._make_indent."""
+    res = Rule_L003._make_indent(
+        num=num, indent_unit=indent_unit, tab_space_size=tab_space_size
+    )
+    assert res == result
+
+
+def test__rules__std_L003_make_indent_invalid_param():
+    """Test Rule_L003._make_indent with invalid indent_unit parameter."""
+    with pytest.raises(ValueError):
+        Rule_L003._make_indent(indent_unit="aaa")
+
+
+def test__rules__std_L003__get_element_template_info():
+    """Test _get_element_template_info with invalid templated_file parameter."""
+    mock_segment = Mock()
+    mock_segment.return_value.is_type = True
+    with pytest.raises(ValueError):
+        Rule_L003._get_element_template_info(elem=mock_segment, templated_file=None)
+
+
+class ProtoSeg:
+    """Proto Seg for testing."""
+
+    def __init__(self, raw):
+        self.raw = raw
+
+    def is_type(self, *seg_type):
+        """Is this segment (or its parent) of the given type."""
+        return False
+
+
+@pytest.mark.parametrize(
+    "tab_space_size,segments,result",
+    [
+        # Integer examples
+        (3, [ProtoSeg("      ")], 6),
+        (2, [ProtoSeg("\t\t")], 4),
+    ],
+)
+def test__rules__std_L003_indent_size(tab_space_size, segments, result):
+    """Test Rule_L003._make_indent."""
+    res = Rule_L003._indent_size(segments=segments, tab_space_size=tab_s
+```

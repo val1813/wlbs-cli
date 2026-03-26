@@ -1,0 +1,13 @@
+```diff
+--- a/pvlib/temperature.py
++++ b/pvlib/temperature.py
+@@ -599,7 +599,7 @@ def fuentes(poa_global, temp_air, wind_speed, noct_installed=45,
+     # calculate the time delta in hours.  index must be monotonic & without
+     # duplicates, but this is checked by the call to `rolling` below.
+     # TODO: does timedelta need total_seconds?
+-    timedelta_hours = np.diff(poa_global.index).astype(float) / 1e9 / 60 / 60
++    timedelta_hours = np.diff(poa_global.index.values).astype(float) / 1e9 / 60 / 60
+ 
+     # calculate the previous value for each variable
+     prev_poa = poa_global.shift(1)
+```

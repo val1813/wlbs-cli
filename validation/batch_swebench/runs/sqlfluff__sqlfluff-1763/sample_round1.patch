@@ -1,0 +1,27 @@
+--- a/src/sqlfluff/core/linter.py
++++ b/src/sqlfluff/core/linter.py
+@@ -1,5 +1,6 @@
+ """Contains the linter class and linting utilities."""
+ 
++import os
+ import logging
+ import re
+ import sys
+@@ -2028,7 +2029,7 @@ class LintedFile:
+         # Write to a temporary file first, then move it to the target path.
+         # This avoids overwriting the original if something goes wrong.
+         temp_file = tempfile.NamedTemporaryFile(
+-            mode="w", encoding=encoding, delete=False, suffix=".sql"
++            mode="w", encoding=encoding, delete=False, suffix=".sql", errors="replace"
+         )
+         try:
+             temp_file.write(in_str)
+@@ -2036,6 +2037,8 @@ class LintedFile:
+             temp_file.close()
+             shutil.move(temp_file.name, path)
+         except Exception as e:
++            # If something went wrong, remove the temp file
++            os.unlink(temp_file.name)
+             raise e
+         finally:
+             # Ensure the file is closed (if not already)

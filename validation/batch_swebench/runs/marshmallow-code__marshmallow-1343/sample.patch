@@ -1,0 +1,14 @@
+diff --git a/marshmallow/schema.py b/marshmallow/schema.py
+index 6c8a6c0..c4d5e5e 100644
+--- a/marshmallow/schema.py
++++ b/marshmallow/schema.py
+@@ -891,7 +891,8 @@ class Schema(BaseSchema):
+                 field_obj = self.fields[field_name]
+                 validator = field_validators[field_name]
+                 try:
+-                    value = data[field_obj.attribute or field_name]
++                    field_key = field_obj.attribute or field_name
++                    value = data.get(field_key) if data is not None else None
+                 except KeyError:
+                     continue
+                 validated_value = validator(

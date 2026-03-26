@@ -1,0 +1,20 @@
+﻿{
+  "instance_id": "sqlfluff__sqlfluff-2419",
+  "base_commit": "f1dba0e1dd764ae72d67c3d5e1471cf14d3db030",
+  "baseline": {
+    "target_test": {"returncode": 1, "result": "1 failed"},
+    "fixture_test": {"returncode": 0, "result": "3 passed, 725 deselected"},
+    "lint_descriptions": [
+      "Use 'COALESCE' instead of 'IFNULL' or 'NVL'.",
+      "Use 'COALESCE' instead of 'IFNULL' or 'NVL'."
+    ]
+  },
+  "patched": {
+    "target_test": {"returncode": 0, "result": "1 passed"},
+    "fixture_test": {"returncode": 0, "result": "3 passed, 725 deselected"},
+    "lint_descriptions": [
+      "Use 'COALESCE' instead of 'IFNULL'.",
+      "Use 'COALESCE' instead of 'NVL'."
+    ]
+  }
+}

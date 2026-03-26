@@ -1,0 +1,6 @@
+command: 
+returncode: 999
+stdout:
+
+stderr:
+patch not applied

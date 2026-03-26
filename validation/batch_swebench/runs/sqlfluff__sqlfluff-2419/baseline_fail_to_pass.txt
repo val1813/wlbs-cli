@@ -1,0 +1,25 @@
+command: python -m pytest test/rules/std_L060_test.py::test__rules__std_L060_raised -q
+returncode: 1
+stdout:
+F                                                                        [100%]
+================================== FAILURES ===================================
+________________________ test__rules__std_L060_raised _________________________
+
+    def test__rules__std_L060_raised() -> None:
+        """L060 is raised for use of ``IFNULL`` or ``NVL``."""
+        sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL,100);"
+        result = sqlfluff.lint(sql, rules=["L060"])
+    
+        assert len(result) == 2
+>       assert result[0]["description"] == "Use 'COALESCE' instead of 'IFNULL'."
+E       assert "Use 'COALESC...LL' or 'NVL'." == "Use 'COALESC... of 'IFNULL'."
+E         
+E         - Use 'COALESCE' instead of 'IFNULL'.
+E         + Use 'COALESCE' instead of 'IFNULL' or 'NVL'.
+E         ?                                   +++++++++
+
+test\rules\std_L060_test.py:11: AssertionError
+=========================== short test summary info ===========================
+FAILED test/rules/std_L060_test.py::test__rules__std_L060_raised - assert "Us...
+1 failed in 0.15s
+stderr:

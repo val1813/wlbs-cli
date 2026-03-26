@@ -1,0 +1,48 @@
+{
+  "instance_id": "sqlfluff__sqlfluff-2419",
+  "repo": "sqlfluff/sqlfluff",
+  "base_commit": "f1dba0e1dd764ae72d67c3d5e1471cf14d3db030",
+  "model_name": "deepseek-chat",
+  "candidate_files": [
+    "test/fixtures/rules/std_rule_cases/L060.yml",
+    "src/sqlfluff/rules/L060.py",
+    "src/sqlfluff/testing/rules.py",
+    "test/cli/formatters_test.py",
+    "test/test_testing.py",
+    "test/rules/std_L003_test.py"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply",
+      "patch_bytes": 1235
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply",
+      "patch_bytes": 1234
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply",
+      "patch_bytes": 1249
+    }
+  ],
+  "official_patch_ok": true,
+  "official_patch_mode": "strict",
+  "official_patch_detail": "",
+  "patch_apply_ok": true,
+  "patch_apply_mode": "recount_ignore_whitespace",
+  "patch_apply_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply\n\n--- relaxed ---",
+  "fail_to_pass_count": 1,
+  "pass_to_pass_count": 0,
+  "baseline_fail_to_pass_rc": 1,
+  "patched_fail_to_pass_rc": 0,
+  "baseline_pass_to_pass_rc": 0,
+  "patched_pass_to_pass_rc": 0,
+  "run_pass_to_pass": true,
+  "target_improved": true
+}

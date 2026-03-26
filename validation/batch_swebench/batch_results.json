@@ -1,0 +1,456 @@
+{
+  "generated_at": "2026-03-26T17:05:00.539415",
+  "aggregate": {
+    "total_instances": 10,
+    "official_patch_ok": 10,
+    "patch_apply_ok": 2,
+    "target_improved": 1
+  },
+  "instances": [
+    {
+      "instance_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "base_commit": "2be2d83a1a9a6d3d9b85804f3ab545cecc409bb0",
+      "model_name": "deepseek-chat",
+      "candidate_files": [],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: marshmallow/schema.py: No such file or directory",
+          "patch_bytes": 608
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: marshmallow/schema.py: No such file or directory",
+          "patch_bytes": 662
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: marshmallow/schema.py: No such file or directory",
+          "patch_bytes": 649
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: marshmallow/schema.py: No such file or directory\n\n--- relaxed ---\n\nerror: marshmallow/schema.py: No such file or directory",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 24,
+      "baseline_fail_to_pass_rc": 4,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "marshmallow-code__marshmallow-1359",
+      "repo": "marshmallow-code/marshmallow",
+      "base_commit": "b40a0f4e33823e6d0f341f7e8684e359a99060d1",
+      "model_name": "deepseek-chat",
+      "candidate_files": [],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+          "patch_bytes": 599
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+          "patch_bytes": 668
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+          "patch_bytes": 684
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: src/marshmallow/fields.py:1114\nerror: src/marshmallow/fields.py: patch does not apply",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 76,
+      "baseline_fail_to_pass_rc": 4,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "pvlib__pvlib-python-1072",
+      "repo": "pvlib/pvlib-python",
+      "base_commit": "04a523fafbd61bc2e49420963b84ed8e2bd1b3cf",
+      "model_name": "deepseek-chat",
+      "candidate_files": [],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/temperature.py:599\nerror: pvlib/temperature.py: patch does not apply",
+          "patch_bytes": 592
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/temperature.py:596\nerror: pvlib/temperature.py: patch does not apply",
+          "patch_bytes": 504
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/temperature.py:593\nerror: pvlib/temperature.py: patch does not apply",
+          "patch_bytes": 689
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: patch failed: pvlib/temperature.py:593\nerror: pvlib/temperature.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: pvlib/temperature.py:593\nerror: pvlib/temperature.py: patch does not apply",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 18,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "pvlib__pvlib-python-1606",
+      "repo": "pvlib/pvlib-python",
+      "base_commit": "c78b50f4337ecbe536a961336ca91a1176efc0e8",
+      "model_name": "deepseek-chat",
+      "candidate_files": [],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/tools.py:337\nerror: pvlib/tools.py: patch does not apply",
+          "patch_bytes": 1164
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/tools.py:334\nerror: pvlib/tools.py: patch does not apply",
+          "patch_bytes": 1436
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/tools.py:331\nerror: pvlib/tools.py: patch does not apply",
+          "patch_bytes": 2383
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: patch failed: pvlib/tools.py:331\nerror: pvlib/tools.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: pvlib/tools.py:331\nerror: pvlib/tools.py: patch does not apply",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 10,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "pvlib__pvlib-python-1707",
+      "repo": "pvlib/pvlib-python",
+      "base_commit": "40e9e978c170bdde4eeee1547729417665dbc34c",
+      "model_name": "deepseek-chat",
+      "candidate_files": [],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/iam.py:238\nerror: pvlib/iam.py: patch does not apply",
+          "patch_bytes": 1139
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/iam.py:235\nerror: pvlib/iam.py: patch does not apply",
+          "patch_bytes": 578
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: pvlib/iam.py:232\nerror: pvlib/iam.py: patch does not apply",
+          "patch_bytes": 1674
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: patch failed: pvlib/iam.py:232\nerror: pvlib/iam.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: pvlib/iam.py:232\nerror: pvlib/iam.py: patch does not apply",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 30,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "sqlfluff__sqlfluff-1517",
+      "repo": "sqlfluff/sqlfluff",
+      "base_commit": "304a197829f98e7425a46d872ada73176137e5ae",
+      "model_name": "deepseek-chat",
+      "candidate_files": [
+        "src/sqlfluff/core/parser/helpers.py",
+        "src/sqlfluff/testing/rules.py",
+        "src/sqlfluff/core/linter/linter.py",
+        "src/sqlfluff/rules/L019.py",
+        "src/sqlfluff/core/parser/segments/base.py",
+        "src/sqlfluff/rules/L032.py"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/core/parser/helpers.py:27\nerror: src/sqlfluff/core/parser/helpers.py: patch does not apply",
+          "patch_bytes": 842
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: corrupt patch at line 27",
+          "patch_bytes": 1917
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/core/parser/helpers.py:27\nerror: src/sqlfluff/core/parser/helpers.py: patch does not apply",
+          "patch_bytes": 520
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "recount_ignore_whitespace",
+      "official_patch_detail": "error: patch failed: test/dialects/ansi_test.py:3\nerror: test/dialects/ansi_test.py: patch does not apply\n\n--- relaxed ---",
+      "patch_apply_ok": true,
+      "patch_apply_mode": "recount_ignore_whitespace",
+      "patch_apply_detail": "error: patch failed: src/sqlfluff/core/parser/helpers.py:27\nerror: src/sqlfluff/core/parser/helpers.py: patch does not apply\n\n--- relaxed ---",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 42,
+      "baseline_fail_to_pass_rc": 4,
+      "patched_fail_to_pass_rc": 4,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "sqlfluff__sqlfluff-1625",
+      "repo": "sqlfluff/sqlfluff",
+      "base_commit": "14e1a23a3166b9a645a16de96f694c77a5d4abb7",
+      "model_name": "deepseek-chat",
+      "candidate_files": [
+        "test/cli/commands_test.py",
+        "test/core/config_test.py",
+        "test/fixtures/rules/std_rule_cases/L031.yml",
+        "test/rules/std_test.py",
+        "test/dialects/postgres_test.py",
+        "test/core/linter_test.py"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L031.py:1\nerror: src/sqlfluff/rules/L031.py: patch does not apply",
+          "patch_bytes": 5109
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L031.py:1\nerror: src/sqlfluff/rules/L031.py: patch does not apply",
+          "patch_bytes": 4087
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L031.py:1\nerror: src/sqlfluff/rules/L031.py: patch does not apply",
+          "patch_bytes": 3635
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "recount_ignore_whitespace",
+      "official_patch_detail": "error: patch failed: test/cli/commands_test.py:49\nerror: test/cli/commands_test.py: patch does not apply\n\n--- relaxed ---",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: patch failed: src/sqlfluff/rules/L031.py:1\nerror: src/sqlfluff/rules/L031.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: src/sqlfluff/rules/L031.py:1\nerror: src/sqlfluff/rules/L031.py: patch does not apply",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 64,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "sqlfluff__sqlfluff-1733",
+      "repo": "sqlfluff/sqlfluff",
+      "base_commit": "a1579a16b1d8913d9d7c7d12add374a290bcc78c",
+      "model_name": "deepseek-chat",
+      "candidate_files": [
+        "test/rules/std_L016_L36_combo.py",
+        "test/cli/commands_test.py",
+        "test/fixtures/linter/autofix/bigquery/005_unnest_spacing/test-config.yml",
+        "test/fixtures/linter/autofix/bigquery/004_templating/test-config.yml",
+        "test/fixtures/linter/autofix/bigquery/004_templating/before.sql",
+        "test/fixtures/linter/autofix/bigquery/004_templating/after.sql"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: src/sqlfluff/rules/layout.py: No such file or directory",
+          "patch_bytes": 594
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: corrupt patch at line 20",
+          "patch_bytes": 935
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L036.py:1\nerror: src/sqlfluff/rules/L036.py: patch does not apply",
+          "patch_bytes": 1505
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: patch failed: src/sqlfluff/rules/L036.py:1\nerror: src/sqlfluff/rules/L036.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: src/sqlfluff/rules/L036.py:1\nerror: src/sqlfluff/rules/L036.py: patch does not apply",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 3,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 0,
+      "patched_pass_to_pass_rc": 999,
+      "run_pass_to_pass": true,
+      "target_improved": false
+    },
+    {
+      "instance_id": "sqlfluff__sqlfluff-1763",
+      "repo": "sqlfluff/sqlfluff",
+      "base_commit": "a10057635e5b2559293a676486f0b730981f037a",
+      "model_name": "deepseek-chat",
+      "candidate_files": [
+        "test/test_testing.py",
+        "test/cli/commands_test.py",
+        "test/rules/std_roundtrip_test.py",
+        "test/rules/std_test.py",
+        "test/api/info_test.py",
+        "src/sqlfluff/cli/commands.py"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: src/sqlfluff/core/linter.py: No such file or directory",
+          "patch_bytes": 999
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: src/sqlfluff/core/linter.py: No such file or directory",
+          "patch_bytes": 2715
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: src/sqlfluff/core/linter.py: No such file or directory",
+          "patch_bytes": 1710
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "recount_ignore_whitespace",
+      "official_patch_detail": "error: patch failed: test/core/linter_test.py:641\nerror: test/core/linter_test.py: patch does not apply\n\n--- relaxed ---",
+      "patch_apply_ok": false,
+      "patch_apply_mode": "failed",
+      "patch_apply_detail": "error: src/sqlfluff/core/linter.py: No such file or directory\n\n--- relaxed ---\n\nerror: src/sqlfluff/core/linter.py: No such file or directory",
+      "fail_to_pass_count": 3,
+      "pass_to_pass_count": 63,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 999,
+      "baseline_pass_to_pass_rc": 998,
+      "patched_pass_to_pass_rc": 998,
+      "run_pass_to_pass": false,
+      "target_improved": false
+    },
+    {
+      "instance_id": "sqlfluff__sqlfluff-2419",
+      "repo": "sqlfluff/sqlfluff",
+      "base_commit": "f1dba0e1dd764ae72d67c3d5e1471cf14d3db030",
+      "model_name": "deepseek-chat",
+      "candidate_files": [
+        "test/fixtures/rules/std_rule_cases/L060.yml",
+        "src/sqlfluff/rules/L060.py",
+        "src/sqlfluff/testing/rules.py",
+        "test/cli/formatters_test.py",
+        "test/test_testing.py",
+        "test/rules/std_L003_test.py"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply",
+          "patch_bytes": 1235
+        },
+        {
+          "round": 2,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply",
+          "patch_bytes": 1234
+        },
+        {
+          "round": 3,
+          "git_apply_check_ok": false,
+          "git_apply_check_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply",
+          "patch_bytes": 1249
+        }
+      ],
+      "official_patch_ok": true,
+      "official_patch_mode": "strict",
+      "official_patch_detail": "",
+      "patch_apply_ok": true,
+      "patch_apply_mode": "recount_ignore_whitespace",
+      "patch_apply_detail": "error: patch failed: src/sqlfluff/rules/L060.py:1\nerror: src/sqlfluff/rules/L060.py: patch does not apply\n\n--- relaxed ---",
+      "fail_to_pass_count": 1,
+      "pass_to_pass_count": 0,
+      "baseline_fail_to_pass_rc": 1,
+      "patched_fail_to_pass_rc": 0,
+      "baseline_pass_to_pass_rc": 0,
+      "patched_pass_to_pass_rc": 0,
+      "run_pass_to_pass": true,
+      "target_improved": true
+    }
+  ]
+}

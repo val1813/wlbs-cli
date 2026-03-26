@@ -1,0 +1,41 @@
+{
+  "instance_id": "pvlib__pvlib-python-1072",
+  "repo": "pvlib/pvlib-python",
+  "base_commit": "04a523fafbd61bc2e49420963b84ed8e2bd1b3cf",
+  "model_name": "deepseek-chat",
+  "candidate_files": [],
+  "rounds": [
+    {
+      "round": 1,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: pvlib/temperature.py:599\nerror: pvlib/temperature.py: patch does not apply",
+      "patch_bytes": 592
+    },
+    {
+      "round": 2,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: pvlib/temperature.py:596\nerror: pvlib/temperature.py: patch does not apply",
+      "patch_bytes": 504
+    },
+    {
+      "round": 3,
+      "git_apply_check_ok": false,
+      "git_apply_check_detail": "error: patch failed: pvlib/temperature.py:593\nerror: pvlib/temperature.py: patch does not apply",
+      "patch_bytes": 689
+    }
+  ],
+  "official_patch_ok": true,
+  "official_patch_mode": "strict",
+  "official_patch_detail": "",
+  "patch_apply_ok": false,
+  "patch_apply_mode": "failed",
+  "patch_apply_detail": "error: patch failed: pvlib/temperature.py:593\nerror: pvlib/temperature.py: patch does not apply\n\n--- relaxed ---\n\nerror: patch failed: pvlib/temperature.py:593\nerror: pvlib/temperature.py: patch does not apply",
+  "fail_to_pass_count": 1,
+  "pass_to_pass_count": 18,
+  "baseline_fail_to_pass_rc": 1,
+  "patched_fail_to_pass_rc": 999,
+  "baseline_pass_to_pass_rc": 998,
+  "patched_pass_to_pass_rc": 998,
+  "run_pass_to_pass": false,
+  "target_improved": false
+}

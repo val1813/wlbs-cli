@@ -1,0 +1,76 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "wlbs-scan: scan current project",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "wlbs_scan",
+      "args": [
+        "."
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "wlbs-scan: suggest (focus node)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "wlbs_scan",
+      "args": [
+        ".",
+        "--suggest"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "wlbs-scan: run pytest + record",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "wlbs_scan",
+      "args": [
+        ".",
+        "--pytest",
+        "tests/"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "wlbs-scan: context (node=rbac)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "wlbs_scan",
+      "args": [
+        ".",
+        "--context",
+        "rbac"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "wlbs-scan: advise (node=rbac)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "wlbs_scan",
+      "args": [
+        ".",
+        "--advise",
+        "rbac",
+        "--json"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "wlbs-scan: validate",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "wlbs_scan.validate",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

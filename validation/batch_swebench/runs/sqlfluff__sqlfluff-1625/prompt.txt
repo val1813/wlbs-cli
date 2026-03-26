@@ -1,0 +1,1128 @@
+You are fixing a SWE-bench Lite instance.
+        Return ONLY a unified git diff patch. No prose.
+
+        Instance: sqlfluff__sqlfluff-1625
+        Repo: sqlfluff/sqlfluff
+        Base commit: 14e1a23a3166b9a645a16de96f694c77a5d4abb7
+
+        Problem statement:
+        TSQL - L031 incorrectly triggers "Avoid using aliases in join condition" when no join present
+## Expected Behaviour
+
+Both of these queries should pass, the only difference is the addition of a table alias 'a':
+
+1/ no alias
+
+```
+SELECT [hello]
+FROM
+    mytable
+```
+
+2/ same query with alias
+
+```
+SELECT a.[hello]
+FROM
+    mytable AS a
+```
+
+## Observed Behaviour
+
+1/ passes
+2/ fails with: L031: Avoid using aliases in join condition.
+
+But there is no join condition :-)
+
+## Steps to Reproduce
+
+Lint queries above
+
+## Dialect
+
+TSQL
+
+## Version
+
+sqlfluff 0.6.9
+Python 3.6.9
+
+## Configuration
+
+N/A
+
+
+        FAIL_TO_PASS:
+        ["test/cli/commands_test.py::test__cli__command_directed"]
+
+        PASS_TO_PASS:
+        ["test/cli/commands_test.py::test__cli__command_dialect", "test/cli/commands_test.py::test__cli__command_dialect_legacy", "test/cli/commands_test.py::test__cli__command_lint_stdin[command0]", "test/cli/commands_test.py::test__cli__command_lint_stdin[command1]", "test/cli/commands_test.py::test__cli__command_lint_stdin[command2]", "test/cli/commands_test.py::test__cli__command_lint_stdin[command3]", "test/cli/commands_test.py::test__cli__command_lint_parse[command0]", "test/cli/commands_test.py::test__cli__command_lint_parse[command1]", "test/cli/commands_test.py::test__cli__command_lint_parse[command2]", "test/cli/commands_test.py::test__cli__command_lint_parse[command3]", "test/cli/commands_test.py::test__cli__command_lint_parse[command4]", "test/cli/commands_test.py::test__cli__command_lint_parse[command5]", "test/cli/commands_test.py::test__cli__command_lint_parse[command6]", "test/cli/commands_test.py::test__cli__command_lint_parse[command7]", "test/cli/commands_test.py::test__cli__command_lint_parse[command8]", "test/cli/commands_test.py::test__cli__command_lint_parse[command9]", "test/cli/commands_test.py::test__cli__command_lint_parse[command10]", "test/cli/commands_test.py::test__cli__command_lint_parse[command11]", "test/cli/commands_test.py::test__cli__command_lint_parse[command12]", "test/cli/commands_test.py::test__cli__command_lint_parse[command13]", "test/cli/commands_test.py::test__cli__command_lint_parse[command14]", "test/cli/commands_test.py::test__cli__command_lint_parse[command15]", "test/cli/commands_test.py::test__cli__command_lint_parse[command16]", "test/cli/commands_test.py::test__cli__command_lint_parse[command17]", "test/cli/commands_test.py::test__cli__command_lint_parse[command18]", "test/cli/commands_test.py::test__cli__command_lint_parse[command19]", "test/cli/commands_test.py::test__cli__command_lint_parse[command20]", "test/cli/commands_test.py::test__cli__command_lint_parse[command21]", "test/cli/commands_test.py::test__cli__command_lint_parse_with_retcode[command0-1]", "test/cli/commands_test.py::test__cli__command_lint_parse_with_retcode[command1-1]", "test/cli/commands_test.py::test__cli__command_lint_parse_with_retcode[command2-1]", "test/cli/commands_test.py::test__cli__command_lint_warning_explicit_file_ignored", "test/cli/commands_test.py::test__cli__command_lint_skip_ignore_files", "test/cli/commands_test.py::test__cli__command_versioning", "test/cli/commands_test.py::test__cli__command_version", "test/cli/commands_test.py::test__cli__command_rules", "test/cli/commands_test.py::test__cli__command_dialects", "test/cli/commands_test.py::test__cli__command__fix[L001-test/fixtures/linter/indentation_errors.sql]", "test/cli/commands_test.py::test__cli__command__fix[L008-test/fixtures/linter/whitespace_errors.sql]", "test/cli/commands_test.py::test__cli__command__fix[L008-test/fixtures/linter/indentation_errors.sql]", "test/cli/commands_test.py::test__cli__command__fix[L003-test/fixtures/linter/indentation_error_hard.sql]", "test/cli/commands_test.py::test__cli__command_fix_stdin[select", "test/cli/commands_test.py::test__cli__command_fix_stdin[", "test/cli/commands_test.py::test__cli__command_fix_stdin[SELECT", "test/cli/commands_test.py::test__cli__command_fix_stdin_logging_to_stderr", "test/cli/commands_test.py::test__cli__command_fix_stdin_safety", "test/cli/commands_test.py::test__cli__command_fix_stdin_error_exit_code[create", "test/cli/commands_test.py::test__cli__command_fix_stdin_error_exit_code[select", "test/cli/commands_test.py::test__cli__command__fix_no_force[L001-test/fixtures/linter/indentation_errors.sql-y-0-0]", "test/cli/commands_test.py::test__cli__command__fix_no_force[L001-test/fixtures/linter/indentation_errors.sql-n-65-1]", "test/cli/commands_test.py::test__cli__command_parse_serialize_from_stdin[yaml]", "test/cli/commands_test.py::test__cli__command_parse_serialize_from_stdin[json]", "test/cli/commands_test.py::test__cli__command_lint_serialize_from_stdin[select", "test/cli/commands_test.py::test__cli__command_lint_serialize_from_stdin[SElect", "test/cli/commands_test.py::test__cli__command_fail_nice_not_found[command0]", "test/cli/commands_test.py::test__cli__command_fail_nice_not_found[command1]", "test/cli/commands_test.py::test__cli__command_lint_serialize_multiple_files[yaml]", "test/cli/commands_test.py::test__cli__command_lint_serialize_multiple_files[json]", "test/cli/commands_test.py::test__cli__command_lint_serialize_multiple_files[github-annotation]", "test/cli/commands_test.py::test__cli__command_lint_serialize_github_annotation", "test/cli/commands_test.py::test___main___help", "test/cli/commands_test.py::test_encoding[utf-8-ascii]", "test/cli/commands_test.py::test_encoding[utf-8-sig-UTF-8-SIG]", "test/cli/commands_test.py::test_encoding[utf-32-UTF-32]"]
+
+        Test patch to satisfy:
+        diff --git a/test/cli/commands_test.py b/test/cli/commands_test.py
+--- a/test/cli/commands_test.py
++++ b/test/cli/commands_test.py
+@@ -49,7 +49,7 @@ def invoke_assert_code(
+ expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
+ L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
+ L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
+-L:   5 | P:  13 | L031 | Avoid using aliases in join condition
++L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
+ """
+
+
+
+
+        Constraints:
+        - Minimal patch only.
+        - Preserve behavior outside the failing issue.
+        - Match expected error text exactly if tests require exact descriptions.
+        - Output a valid unified diff patch that can pass `git apply --check`.
+
+        Relevant files:
+        ### FILE: test/cli/commands_test.py
+```python
+"""The Test file for CLI (General)."""
+
+import configparser
+import tempfile
+import os
+import shutil
+import json
+import oyaml as yaml
+import subprocess
+import chardet
+import sys
+
+# Testing libraries
+import pytest
+from click.testing import CliRunner
+
+# We import the library directly here to get the version
+import sqlfluff
+from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
+
+
+def invoke_assert_code(
+    ret_code=0,
+    args=None,
+    kwargs=None,
+    cli_input=None,
+    mix_stderr=True,
+    output_contains="",
+):
+    """Invoke a command and check return code."""
+    args = args or []
+    kwargs = kwargs or {}
+    if cli_input:
+        kwargs["input"] = cli_input
+    runner = CliRunner(mix_stderr=mix_stderr)
+    result = runner.invoke(*args, **kwargs)
+    # Output the CLI code for debugging
+    print(result.output)
+    # Check return codes
+    if output_contains != "":
+        assert output_contains in result.output
+    if ret_code == 0:
+        if result.exception:
+            raise result.exception
+    assert ret_code == result.exit_code
+    return result
+
+
+expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
+L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
+L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
+L:   5 | P:  13 | L031 | Avoid using aliases in join condition
+"""
+
+
+def test__cli__command_directed():
+    """Basic checking of lint functionality."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
+    )
+    # We should get a readout of what the error was
+    check_a = "L:   2 | P:   4 | L003"
+    # NB: Skip the number at the end because it's configurable
+    check_b = "Indentation"
+    assert check_a in result.output
+    assert check_b in result.output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not added.
+    # The replace command just accounts for cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_output)
+
+
+def test__cli__command_dialect():
+    """Check the script raises the right exception on an unknown dialect."""
+    # The dialect is unknown should be a non-zero exit code
+    invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "faslkjh",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+
+
+def test__cli__command_dialect_legacy():
+    """Check the script raises the right exception on a legacy dialect."""
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "exasol_fs",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+    assert "Please use the 'exasol' dialect instead." in result.stdout
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        (
+            "-",
+            "-n",
+        ),
+        (
+            "-",
+            "-n",
+            "-v",
+        ),
+        (
+            "-",
+            "-n",
+            "-vv",
+        ),
+        (
+            "-",
+            "-vv",
+        ),
+    ],
+)
+def test__cli__command_lint_stdin(command):
+    """Check basic commands on a simple script using stdin.
+
+    The subprocess command should exit without errors, as no issues should be found.
+    """
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
+        sql = test_file.read()
+    invoke_assert_code(args=[lint, command], cli_input=sql)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        # Test basic linting
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        # Original tests from test__cli__command_lint
+        (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        # Test basic linting with very high verbosity
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        # Test basic linting with specific logger
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvv", "--logger", "parser"]),
+        # Check basic parsing
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        # Test basic parsing with very high verbosity
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        # Check basic parsing, with the code only option
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
+        # Check basic parsing, with the yaml output
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
+        # Check the profiler and benching commands
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        # Check linting works in specifying rules
+        (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
+        # Check linting works in specifying multiple rules
+        (
+            lint,
+            ["-n", "--rules", "L001,L002", "test/fixtures/linter/operator_errors.sql"],
+        ),
+        # Check linting works with both included and excluded rules
+        (
+            lint,
+            [
+                "-n",
+                "--rules",
+                "L001,L006",
+                "--exclude-rules",
+                "L006,L031",
+                "test/fixtures/linter/operator_errors.sql",
+            ],
+        ),
+        # Check linting works with just excluded rules
+
+```
+### FILE: test/core/config_test.py
+```python
+"""Tests for the configuration routines."""
+
+import os
+import sys
+
+from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
+from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.templaters import (
+    RawTemplater,
+    PythonTemplater,
+    JinjaTemplater,
+)
+
+from pathlib import Path
+from unittest.mock import patch, call
+import appdirs
+import pytest
+
+
+config_a = {
+    "core": {"testing_val": "foobar", "testing_int": 4},
+    "bar": {"foo": "barbar"},
+}
+
+
+@pytest.fixture
+def mock_xdg_home(monkeypatch):
+    """Sets the XDG_CONFIG_HOME variable."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
+
+
+def test__config__nested_combine():
+    """Test combination of two config dicts."""
+    a = {"a": {"b": {"c": 123, "d": 456}}}
+    b = {"b": {"b": {"c": 123, "d": 456}}}
+    c = {"a": {"b": {"c": 234, "e": 456}}}
+    r = nested_combine(a, b, c)
+    assert r == {
+        "a": {"b": {"c": 234, "e": 456, "d": 456}},
+        "b": {"b": {"c": 123, "d": 456}},
+    }
+
+
+def test__config__dict_diff():
+    """Test diffs between two config dicts."""
+    a = {"a": {"b": {"c": 123, "d": 456, "f": 6}}}
+    b = {"b": {"b": {"c": 123, "d": 456}}}
+    c = {"a": {"b": {"c": 234, "e": 456, "f": 6}}}
+    assert dict_diff(a, b) == a
+    assert dict_diff(a, c) == {"a": {"b": {"c": 123, "d": 456}}}
+    assert dict_diff(c, a) == {"a": {"b": {"c": 234, "e": 456}}}
+
+
+def test__config__load_file_dir():
+    """Test loading config from a directory path."""
+    c = ConfigLoader()
+    cfg = c.load_config_at_path(
+        os.path.join("test", "fixtures", "config", "inheritance_a")
+    )
+    assert cfg == config_a
+
+
+def test__config__load_file_f():
+    """Test loading config from a file path."""
+    c = ConfigLoader()
+    cfg = c.load_config_at_path(
+        os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql")
+    )
+    assert cfg == config_a
+
+
+def test__config__load_nested():
+    """Test nested overwrite and order of precedence of config files in the same directory."""
+    c = ConfigLoader()
+    cfg = c.load_config_up_to_path(
+        os.path.join(
+            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
+        )
+    )
+    assert cfg == {
+        "core": {"testing_val": "foobar", "testing_int": 1, "testing_bar": 7.698},
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
+def test__config__load_toml():
+    """Test loading config from a pyproject.toml file."""
+    c = ConfigLoader()
+    cfg = c.load_default_config_file(
+        os.path.join("test", "fixtures", "config", "toml"),
+        "pyproject.toml",
+    )
+    assert cfg == {
+        "core": {
+            "testing_int": 5,
+            "testing_bar": 7.698,
+            "testing_bool": False,
+            "testing_arr": ["a", "b", "c"],
+            "testing_inline_table": {"x": 1},
+        },
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
+def test__config__iter_config_paths_right_order():
+    """Test that config paths are fetched ordered by priority."""
+    c = ConfigLoader()
+    cfg_paths = c.iter_config_locations_up_to_path(
+        os.path.join(
+            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
+        ),
+        working_path="test/fixtures",
+    )
+    assert list(cfg_paths) == [
+        str(Path(p).resolve())
+        for p in [
+            "test/fixtures",
+            "test/fixtures/config",
+            "test/fixtures/config/inheritance_a",
+            "test/fixtures/config/inheritance_a/nested",
+        ]
+    ]
+
+
+def test__config__find_sqlfluffignore_in_same_directory():
+    """Test find ignore file in the same directory as sql file."""
+    ignore_files = ConfigLoader.find_ignore_config_files(
+        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
+        working_path="test/fixtures/linter/sqlfluffignore/",
+    )
+    assert ignore_files == {
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
+    }
+
+
+def test__config__nested_config_tests():
+    """Test linting with overriden config in nested paths.
+
+    This looks like a linter test but it's actually a config
+    test.
+    """
+    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules="L002")))
+    lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        if k.endswith("nested\\example.sql"):
+            assert ("L003", 1, 4) in violations[k]
+            assert ("L009", 1, 12) in violations[k]
+            assert "L002" not in [c[0] for c in violations[k]]
+        elif k.endswith("inheritance_b\\example.sql"):
+            assert ("L003", 1, 4) in violations[k]
+            assert "L002" not in [c[0] for c in violations[k]]
+            assert "L009" not in [c[0] for c in violations[k]]
+
+
+@patch("os.path.exists")
+@patch("os.listdir")
+@pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
+def test__config__load_user_appdir_config(
+    mock_listdir, mock_path_exists, mock_xdg_home
+):
+    """Test loading config from user appdir."""
+    xdg_config_path = os.environ.get("XDG_CONFIG_HOME") + "/sqlfluff"
+
+    def path_exists(x):
+        if x == os.path.expanduser("~/.config/sqlfluff"):
+            return False
+        if x == xdg_config_path:
+            return False
+        else:
+            return True
+
+    mock_path_exists.side_effect = path_exists
+
+    c = ConfigLoader()
+
+    with patch.object(appdirs, attribute="system", new="darwin"):
+        resolved_path = c._get_user_config_dir_path()
+        c.load_user_appdir_config()
+    assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
+
+    mock_path_exists.assert_has_calls(
+        [
+            call(xdg_config_path),
+            call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
+        ]
+    )
+
+```
+### FILE: test/fixtures/rules/std_rule_cases/L031.yml
+```python
+rule: L031
+
+test_pass_allow_self_join_alias:
+  # L031 Allow self-joins
+  pass_str: |
+    select
+      x.a,
+      x_2.b
+    from x
+    left join x as x_2 on x.foreign_key = x.foreign_key
+
+test_fail_avoid_aliases_1:
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id;
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id;
+
+test_fail_avoid_aliases_2:
+  # L031 order by
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id
+    order by o.user_id desc
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id
+    order by orders.user_id desc
+
+test_fail_avoid_aliases_3:
+  # L031 order by identifier which is the same raw as an alias but refers to a column
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id
+    order by o desc
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id
+    order by o desc
+
+alias_single_char_identifiers:
+  fail_str: "select b from tbl as a"
+  fix_str: "select b from tbl"
+
+alias_with_wildcard_identifier:
+  fail_str: "select * from tbl as a"
+  fix_str: "select * from tbl"
+
+select_from_values:
+  pass_str: |
+    select *
+    from values(1, 2, 3)
+
+select_from_table_generator:
+  pass_str: |
+    select *
+    from table(
+        generator(
+            rowcount=>10000
+        )
+    )
+
+  configs:
+    core:
+      dialect: snowflake
+
+issue_635:
+  pass_str: |
+    select
+        id::varchar as id,
+        obj:userid::varchar as user_id,
+        redemptions.value:awardedreceiptid::varchar as awarded_receipt_id
+    from
+        a,
+        lateral flatten(input => a.obj:redemptions) redemptions
+
+
+  configs:
+    core:
+      dialect: snowflake
+
+# This query was causing a runtime error in the rule.
+issue_239:
+  pass_str: |
+    WITH
+      confusion_matrix AS (
+      SELECT
+        expected_label,
+        commerce,
+        digital,
+        traditional_services
+      FROM
+        ML.CONFUSION_MATRIX(MODEL model3,
+          (
+          SELECT
+            *
+          FROM
+            table1
+          WHERE
+            training = 0 )))
+
+    SELECT
+      *,
+      commerce pct_commerce
+    FROM
+      confusion_matrix
+  configs:
+    core:
+      dialect: bigquery
+
+# The rule was removing the aliases from this query, causing incorrect behavior.
+# (Aliases may not only be used in select targets; they also influence whether
+# multiple joins to a table are independent or not).
+issue_610:
+  pass_str: |
+    SELECT aaaaaa.c
+    FROM aaaaaa
+    JOIN bbbbbb AS b ON b.a = aaaaaa.id
+    JOIN bbbbbb AS b2 ON b2.other = b.id
+
+issue_1589:
+  pass_str: |
+    select *
+    from (select random() as v from (values(1))) t1,
+         (select max(repl) as m from data) t2,
+         (select * from data
+         where repl=t2.m and
+              rnd>=t.v
+         order by rnd
+         limit 1)
+
+```
+### FILE: test/rules/std_test.py
+```python
+"""Tests for the standard set of rules."""
+import pytest
+import os
+
+from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
+
+from test.fixtures.dbt.templater import (  # noqa
+    DBT_FLUFF_CONFIG,
+    project_dir,
+    dbt_templater,
+)
+
+
+@pytest.mark.parametrize(
+    "rule,path,violations",
+    [
+        ("L001", "indentation_errors.sql", [(4, 24)]),
+        ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
+        (
+            "L003",
+            "indentation_errors.sql",
+            [(2, 4), (3, 4), (4, 6)],
+        ),
+        (
+            "L004",
+            "indentation_errors.sql",
+            [(3, 1), (4, 1), (5, 1)],
+        ),
+        # Check we get comma (with leading space/newline) whitespace errors
+        # NB The newline before the comma, should report on the comma, not the newline for clarity.
+        ("L005", "whitespace_errors.sql", [(2, 9)]),
+        ("L019", "whitespace_errors.sql", [(4, 1)]),
+        # Check we get comma (with incorrect trailing space) whitespace errors,
+        # but also no false positives on line 4 or 5.
+        ("L008", "whitespace_errors.sql", [(3, 12)]),
+        # Check we get operator whitespace errors and it works with brackets
+        (
+            "L006",
+            "operator_errors.sql",
+            [(7, 6), (7, 9), (7, 12)],
+        ),
+        (
+            "L039",
+            "operator_errors.sql",
+            [(3, 8), (4, 10)],
+        ),
+        ("L007", "operator_errors.sql", [(5, 9)]),
+        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & L039)
+        (
+            "L006",
+            "operator_errors_negative.sql",
+            [(5, 6)],
+        ),
+        (
+            "L039",
+            "operator_errors_negative.sql",
+            [(2, 6), (2, 9)],
+        ),
+        # Hard indentation errors
+        (
+            "L003",
+            "indentation_error_hard.sql",
+            [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)],
+        ),
+        # Check bracket handling with closing brackets and contained indents works.
+        ("L003", "indentation_error_contained.sql", []),
+        # Check we handle block comments as expect. Github #236
+        (
+            "L016",
+            "block_comment_errors.sql",
+            [(1, 121), (2, 99), (4, 88)],
+        ),
+        ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
+        # Column references
+        ("L027", "column_references.sql", [(1, 8)]),
+        ("L027", "column_references_bare_function.sql", []),
+        ("L026", "column_references.sql", [(1, 11)]),
+        ("L025", "column_references.sql", [(2, 11)]),
+        # Distinct and Group by
+        ("L021", "select_distinct_group_by.sql", [(1, 8)]),
+        # Make sure that ignoring works as expected
+        ("L006", "operator_errors_ignore.sql", [(10, 8)]),
+        (
+            "L031",
+            "aliases_in_join_error.sql",
+            [(6, 15), (7, 19), (8, 16)],
+        ),
+        (
+            "L046",
+            "heavy_templating.sql",
+            [(12, 13), (12, 25)],
+        ),
+    ],
+)
+def test__rules__std_file(rule, path, violations):
+    """Test the linter finds the given errors in (and only in) the right places."""
+    assert_rule_raises_violations_in_file(
+        rule=rule,
+        fpath="test/fixtures/linter/" + path,
+        violations=violations,
+        fluff_config=FluffConfig(overrides=dict(rules=rule)),
+    )
+
+
+@pytest.mark.dbt
+@pytest.mark.parametrize(
+    "rule,path,violations",
+    [
+        # Group By
+        ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
+    ],
+)
+def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
+    """Test the linter finds the given errors in (and only in) the right places (DBT)."""
+    assert_rule_raises_violations_in_file(
+        rule=rule,
+        fpath=os.path.join(project_dir, path),
+        violations=violations,
+        fluff_config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule)),
+    )
+
+
+@pytest.mark.parametrize(
+    "rule_config_dict",
+    [
+        {"tab_space_size": "blah"},
+        {"max_line_length": "blah"},
+        {"indent_unit": "blah"},
+        {"comma_style": "blah"},
+        {"allow_scalar": "blah"},
+        {"single_table_references": "blah"},
+        {"unquoted_identifiers_policy": "blah"},
+        {"L010": {"capitalisation_policy": "blah"}},
+        {"L011": {"aliasing": "blah"}},
+        {"L012": {"aliasing": "blah"}},
+        {"L014": {"extended_capitalisation_policy": "blah"}},
+        {"L030": {"capitalisation_policy": "blah"}},
+    ],
+)
+def test_improper_configs_are_rejected(rule_config_dict):
+    """Ensure that unsupported configs raise a ValueError."""
+    config = FluffConfig(configs={"rules": rule_config_dict})
+    with pytest.raises(ValueError):
+        get_ruleset().get_rulelist(config)
+
+```
+### FILE: test/dialects/postgres_test.py
+```python
+"""Tests specific to the postgres dialect."""
+from typing import Callable
+
+import pytest
+from _pytest.logging import LogCaptureFixture
+
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.dialects.dialect_postgres_keywords import (
+    get_keywords,
+    priority_keyword_merge,
+)
+
+
+@pytest.mark.parametrize(
+    "segment_reference,raw",
+    [
+        # AT TIME ZONE constructs
+        ("SelectClauseElementSegment", "c_column AT TIME ZONE 'UTC'"),
+        ("SelectClauseElementSegment", "(c_column AT TIME ZONE 'UTC')::time"),
+        (
+            "SelectClauseElementSegment",
+            "timestamp with time zone '2021-10-01' AT TIME ZONE 'UTC'",
+        ),
+        # Notnull and Isnull
+        ("ExpressionSegment", "c is null"),
+        ("ExpressionSegment", "c is not null"),
+        ("ExpressionSegment", "c isnull"),
+        ("ExpressionSegment", "c notnull"),
+        ("SelectClauseElementSegment", "c is null as c_isnull"),
+        ("SelectClauseElementSegment", "c is not null as c_notnull"),
+        ("SelectClauseElementSegment", "c isnull as c_isnull"),
+        ("SelectClauseElementSegment", "c notnull as c_notnull"),
+    ],
+)
+def test_dialect_postgres_specific_segment_parses(
+    segment_reference: str,
+    raw: str,
+    caplog: LogCaptureFixture,
+    dialect_specific_segment_parses: Callable,
+) -> None:
+    """Test that specific segments parse as expected.
+
+    NB: We're testing the PARSE function not the MATCH function
+    although this will be a recursive parse and so the match
+    function of SUBSECTIONS will be tested if present. The match
+    function of the parent will not be tested.
+    """
+    dialect_specific_segment_parses("postgres", segment_reference, raw, caplog)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime) AS myepoch FROM t1",
+        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch FROM t1",
+    ],
+)
+def test_epoch_datetime_unit(raw: str) -> None:
+    """Test the EPOCH keyword for postgres dialect."""
+    # Don't test for new lines or capitalisation
+    cfg = FluffConfig(
+        configs={"core": {"exclude_rules": "L009,L016,L036", "dialect": "postgres"}}
+    )
+    lnt = Linter(config=cfg)
+    result = lnt.lint_string(raw)
+    assert result.num_violations() == 0
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "SELECT foo AS space FROM t1",
+        "SELECT space.something FROM t1 AS space",
+    ],
+)
+def test_space_is_not_reserved(raw: str) -> None:
+    """Ensure that SPACE is not treated as reserved."""
+    cfg = FluffConfig(
+        configs={"core": {"exclude_rules": "L009,L016,L031", "dialect": "postgres"}}
+    )
+    lnt = Linter(config=cfg)
+    result = lnt.lint_string(raw)
+    assert result.num_violations() == 0
+
+
+def test_priority_keyword_merge() -> None:
+    """Test merging on keyword lists works as expected."""
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    result = priority_keyword_merge(kw_list_1, kw_list_2)
+
+    expected_result = [("A", "reserved"), ("B", "non-reserved"), ("C", "non-reserved")]
+
+    assert sorted(result) == sorted(expected_result)
+
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    result_2 = priority_keyword_merge(kw_list_2, kw_list_1)
+
+    expected_result_2 = [
+        ("A", "not-keyword"),
+        ("B", "non-reserved"),
+        ("C", "non-reserved"),
+    ]
+
+    assert sorted(result_2) == sorted(expected_result_2)
+
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    kw_list_3 = [("B", "reserved")]
+
+    result_3 = priority_keyword_merge(kw_list_2, kw_list_1, kw_list_3)
+
+    expected_result_3 = [("A", "not-keyword"), ("B", "reserved"), ("C", "non-reserved")]
+
+    assert sorted(result_3) == sorted(expected_result_3)
+
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    result_4 = priority_keyword_merge(kw_list_1)
+
+    expected_result_4 = kw_list_1
+
+    assert sorted(result_4) == sorted(expected_result_4)
+
+
+def test_get_keywords() -> None:
+    """Test keyword filtering works as expected."""
+    kw_list = [
+        ("A", "not-keyword"),
+        ("B", "reserved"),
+        ("C", "non-reserved"),
+        ("D", "not-keyword"),
+        ("E", "non-reserved-(cannot-be-function-or-type)"),
+    ]
+
+    expected_result = ["A", "D"]
+
+    assert sorted(get_keywords(kw_list, "not-keyword")) == sorted(expected_result)
+
+    expected_result_2 = ["C", "E"]
+
+    assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)
+
+```
+### FILE: test/core/linter_test.py
+```python
+"""The Test file for the linter class."""
+
+import pytest
+import logging
+import os
+import os.path
+from typing import List
+from unittest.mock import patch
+
+from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.linter import runner
+from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.cli.formatters import CallbackFormatter
+from sqlfluff.core.linter import LintingResult, NoQaDirective
+import sqlfluff.core.linter as linter
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
+from sqlfluff.core.templaters import TemplatedFile
+
+
+class DummyLintError(SQLBaseError):
+    """Fake lint error used by tests, similar to SQLLintError."""
+
+    def __init__(self, line_no: int, code: str = "L001"):
+        self._code = code
+        super().__init__(line_no=line_no)
+
+
+def normalise_paths(paths):
+    """Test normalising paths.
+
+    NB Paths on difference platforms might look different, so this
+    makes them comparable.
+    """
+    return {pth.replace("/", ".").replace("\\", ".") for pth in paths}
+
+
+def test__linter__path_from_paths__dir():
+    """Test extracting paths from directories."""
+    lntr = Linter()
+    paths = lntr.paths_from_path("test/fixtures/lexer")
+    assert normalise_paths(paths) == {
+        "test.fixtures.lexer.block_comment.sql",
+        "test.fixtures.lexer.inline_comment.sql",
+        "test.fixtures.lexer.basic.sql",
+    }
+
+
+def test__linter__path_from_paths__default():
+    """Test .sql files are found by default."""
+    lntr = Linter()
+    paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
+    assert "test.fixtures.linter.passing.sql" in paths
+    assert "test.fixtures.linter.discovery_file.txt" not in paths
+
+
+def test__linter__path_from_paths__exts():
+    """Test configuration of file discovery."""
+    lntr = Linter(config=FluffConfig(overrides={"sql_file_exts": ".txt"}))
+    paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
+    assert "test.fixtures.linter.passing.sql" not in paths
+    assert "test.fixtures.linter.discovery_file.txt" in paths
+
+
+def test__linter__path_from_paths__file():
+    """Test extracting paths from a file path."""
+    lntr = Linter()
+    paths = lntr.paths_from_path("test/fixtures/linter/indentation_errors.sql")
+    assert normalise_paths(paths) == {"test.fixtures.linter.indentation_errors.sql"}
+
+
+def test__linter__path_from_paths__not_exist():
+    """Test extracting paths from a file path."""
+    lntr = Linter()
+    with pytest.raises(IOError):
+        lntr.paths_from_path("asflekjfhsakuefhse")
+
+
+def test__linter__path_from_paths__not_exist_ignore():
+    """Test extracting paths from a file path."""
+    lntr = Linter()
+    paths = lntr.paths_from_path("asflekjfhsakuefhse", ignore_non_existent_files=True)
+    assert len(paths) == 0
+
+
+def test__linter__path_from_paths__explicit_ignore():
+    """Test ignoring files that were passed explicitly."""
+    lntr = Linter()
+    paths = lntr.paths_from_path(
+        "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql",
+        ignore_non_existent_files=True,
+        ignore_files=True,
+        working_path="test/fixtures/linter/sqlfluffignore/",
+    )
+    assert len(paths) == 0
+
+
+def test__linter__path_from_paths__dot():
+    """Test extracting paths from a dot."""
+    lntr = Linter()
+    paths = lntr.paths_from_path(".")
+    # Use set theory to check that we get AT LEAST these files
+    assert normalise_paths(paths) >= {
+        "test.fixtures.lexer.block_comment.sql",
+        "test.fixtures.lexer.inline_comment.sql",
+        "test.fixtures.lexer.basic.sql",
+    }
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "test/fixtures/linter/sqlfluffignore",
+        "test/fixtures/linter/sqlfluffignore/",
+        "test/fixtures/linter/sqlfluffignore/.",
+    ],
+)
+def test__linter__path_from_paths__ignore(path):
+    """Test extracting paths from a dot."""
+    lntr = Linter()
+    paths = lntr.paths_from_path(path)
+    # We should only get query_b, because of the sqlfluffignore files.
+    assert normalise_paths(paths) == {
+        "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql"
+    }
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "test/fixtures/linter/indentation_errors.sql",
+        "test/fixtures/linter/whitespace_errors.sql",
+    ],
+)
+def test__linter__lint_string_vs_file(path):
+    """Test the linter finds the same things on strings and files."""
+    with open(path) as f:
+        sql_str = f.read()
+    lntr = Linter()
+    assert (
+        lntr.lint_string(sql_str).check_tuples() == lntr.lint_path(path).check_tuples()
+    )
+
+
+@pytest.mark.parametrize(
+    "rules,num_violations", [(None, 7), ("L010", 2), (("L001", "L009", "L031"), 2)]
+)
+def test__linter__get_violations_filter_rules(rules, num_violations):
+    """Test filtering violations by which rules were violated."""
+    lntr = Linter()
+    lint_result = lntr.lint_string("select a, b FROM tbl c order BY d")
+
+    assert len(lint_result.get_violations(rules=rules)) == num_violations
+
+
+def test__linter__linting_result__sum_dicts():
+    """Test the summing of dictionaries in the linter."""
+    lr = LintingResult()
+    i = {}
+    a = dict(a=3, b=123, f=876.321)
+    b = dict(a=19, b=321.0, g=23478)
+    r = dict(a=22, b=444.0, f=876.321, g=23478)
+    assert lr.sum_dicts(a, b) == r
+    # Check the identity too
+    assert lr.sum_dicts(r, i) == r
+
+
+def test__linter__linting_result__combine_dicts():
+    """Test the combination of dictionaries in the linter."""
+    lr = LintingResult()
+    a = dict(a=3, b=123, f=876.321)
+    b = dict(h=19, i=321.0, j=23478)
+    r = dict(z=22)
+    assert lr.combine_dicts(a, b, r) == dict(
+        a=3, b=123, f=876.321, h=19, i=321.0, j=23478, z=22
+    )
+
+
+@pytest.mark.parametrize("by_path,result_type", [(False, list), (True, dict)])
+def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
+    """Test that a LintingResult can partition violations by the source files."""
+    lntr = Linter(
+```

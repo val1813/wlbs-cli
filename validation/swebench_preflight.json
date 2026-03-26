@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-03-26T06:04:52.512570+00:00",
+  "checks": {
+    "python": {
+      "ok": true,
+      "version": "3.12.9",
+      "executable": "C:\\Users\\15488\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+    },
+    "docker": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "Docker version 29.2.1, build a5c7197",
+      "stderr": ""
+    },
+    "git": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "git version 2.52.0.windows.1",
+      "stderr": ""
+    },
+    "pytest": {
+      "ok": true
+    },
+    "swebench": {
+      "ok": false
+    },
+    "datasets": {
+      "ok": false
+    },
+    "docker_binary_on_path": {
+      "ok": true
+    },
+    "git_binary_on_path": {
+      "ok": true
+    }
+  },
+  "readiness": {
+    "docker_ready": true,
+    "git_ready": true,
+    "python_ready": true,
+    "benchmark_pkg_ready": false,
+    "dataset_pkg_ready": false,
+    "needs_model_executor": true,
+    "needs_predictions_pipeline": true,
+    "overall_ready_for_official_run": false
+  },
+  "commands": {
+    "install_swebench": "python -m pip install swebench datasets",
+    "prepare_predictions": "Use the same DeepSeek model, same max turns, same temperature, and same repo checkout policy for both baseline and WLBS-augmented runs.",
+    "official_eval_template": "python -m swebench.harness.run_evaluation --dataset_name princeton-nlp/SWE-bench_Lite --predictions_path <predictions.jsonl> --max_workers 1"
+  },
+  "claim_boundary": {
+    "supported_now": [
+      "This machine has Docker and Git available.",
+      "A reproducible local WLBS evidence harness already exists in validation/run_product_evidence.py.",
+      "The benchmark protocol below prevents template leakage and overfitting claims."
+    ],
+    "not_supported_now": [
+      "No official SWE-bench score was run in this preflight step.",
+      "A live DeepSeek executor and prediction JSONL pipeline still need to be connected."
+    ]
+  }
+}

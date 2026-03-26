@@ -1,0 +1,671 @@
+{
+  "generated_at_utc": "2026-03-26 06:04 UTC",
+  "project": "D:\\wlbs_scan",
+  "python": "3.12.9",
+  "scanner_version": "0.6.0",
+  "passed": 15,
+  "total": 15,
+  "results": [
+    {
+      "claim": "1",
+      "desc": "Core graph build + curvature on the paper demo stays in the low tens of milliseconds",
+      "passed": true,
+      "measured": "avg=35.48ms  stdev=4.99ms  min=29.38ms  max=47.24ms",
+      "detail": "Measured in-process to exclude Python process startup noise.",
+      "extra": {
+        "runs_ms": [
+          34.67,
+          47.244,
+          36.684,
+          37.46,
+          30.369,
+          29.382,
+          40.825,
+          30.465,
+          35.851,
+          38.844,
+          31.055,
+          32.952
+        ],
+        "avg_ms": 35.483,
+        "stdev_ms": 4.991,
+        "min_ms": 29.382,
+        "max_ms": 47.244
+      }
+    },
+    {
+      "claim": "1b",
+      "desc": "Scan cost grows predictably and the average scan stays below 150 ms up to 60 synthetic Python modules",
+      "passed": true,
+      "measured": "3 files avg=33.85ms; 10 files avg=29.46ms; 30 files avg=58.32ms; 60 files avg=62.79ms",
+      "detail": "Synthetic benchmark is generated deterministically inside the validation script.",
+      "extra": {
+        "3": {
+          "runs_ms": [
+            64.502,
+            32.937,
+            31.801,
+            25.295,
+            24.17,
+            24.403
+          ],
+          "avg_ms": 33.851,
+          "stdev_ms": 14.146,
+          "min_ms": 24.17,
+          "max_ms": 64.502
+        },
+        "10": {
+          "runs_ms": [
+            39.157,
+            24.229,
+            25.181,
+            31.229,
+            25.461,
+            31.509
+          ],
+          "avg_ms": 29.461,
+          "stdev_ms": 5.213,
+          "min_ms": 24.229,
+          "max_ms": 39.157
+        },
+        "30": {
+          "runs_ms": [
+            192.495,
+            42.699,
+            30.162,
+            28.553,
+            28.094,
+            27.911
+          ],
+          "avg_ms": 58.319,
+          "stdev_ms": 60.228,
+          "min_ms": 27.911,
+          "max_ms": 192.495
+        },
+        "60": {
+          "runs_ms": [
+            218.337,
+            31.585,
+            31.532,
+            31.081,
+            32.609,
+            31.601
+          ],
+          "avg_ms": 62.791,
+          "stdev_ms": 69.564,
+          "min_ms": 31.081,
+          "max_ms": 218.337
+        }
+      }
+    },
+    {
+      "claim": "2",
+      "desc": "Behavioral distance d(roles, rbac) = 1 hop",
+      "passed": true,
+      "measured": "measured d = 1",
+      "detail": "Matches the concrete cross-file dependency described in README and PAPER."
+    },
+    {
+      "claim": "3",
+      "desc": "roles becomes the singularity after downstream rbac failures while keeping zero direct failures",
+      "passed": true,
+      "measured": "roles κ=1.000 static=0.590 downstream_failures=3 ; rbac κ=1.000 failures=3",
+      "detail": "This aligns implementation with the paper's Definition 4: upstream, high-curvature, no direct failure.",
+      "extra": {
+        "roles": {
+          "id": "roles",
+          "file": "D:\\wlbs_scan\\demo\\roles.py",
+          "kind": "module",
+          "curvature": 1.0,
+          "static": 0.59,
+          "history": 0.0,
+          "git": 0.0,
+          "complexity": 3,
+          "lines": 31,
+          "git_changes": 0,
+          "failures": 0,
+          "fixes": 0,
+          "downstream_failures": 3,
+          "recent_failure_rate": 0.0,
+          "is_singularity": true
+        },
+        "rbac": {
+          "id": "rbac",
+          "file": "D:\\wlbs_scan\\demo\\rbac.py",
+          "kind": "module",
+          "curvature": 1.0,
+          "static": 0.82,
+          "history": 0.83,
+          "git": 0.0,
+          "complexity": 4,
+          "lines": 28,
+          "git_changes": 0,
+          "failures": 3,
+          "fixes": 0,
+          "downstream_failures": 0,
+          "recent_failure_rate": 1.0,
+          "is_singularity": false
+        }
+      }
+    },
+    {
+      "claim": "4",
+      "desc": "Curvature on a low-static node increases strictly across repeated failure recordings",
+      "passed": true,
+      "measured": "κ series = [0.087, 0.411, 0.415, 0.419, 0.423]",
+      "detail": "Synthetic project avoids early saturation, making world-line accumulation directly observable.",
+      "extra": {
+        "series": [
+          0.087,
+          0.411,
+          0.415,
+          0.419,
+          0.423
+        ]
+      }
+    },
+    {
+      "claim": "5",
+      "desc": "--pytest integration records the expected 4 pass / 2 fail split and persists two failure events",
+      "passed": true,
+      "measured": "passed=4 failed=2 events=2",
+      "detail": "World-lines persisted to D:\\wlbs_scan\\demo\\.wlbs\\world_lines.json.",
+      "extra": {
+        "passed": 4,
+        "failed": 2,
+        "recorded": [
+          [
+            "failure",
+            "demo",
+            "test_admin_access: KeyError: 'admin'"
+          ],
+          [
+            "failure",
+            "demo",
+            "test_grant_permissions: KeyError: 'admin'"
+          ]
+        ],
+        "total_events": 2,
+        "world_lines_path": "D:\\wlbs_scan\\demo\\.wlbs\\world_lines.json"
+      }
+    },
+    {
+      "claim": "6",
+      "desc": "JS import graph scanning resolves a one-hop dependency between core.js and api.js",
+      "passed": true,
+      "measured": "total_nodes=6  d(core, api)=1",
+      "detail": "Confirms the README's cross-language support claim on a deterministic fixture.",
+      "extra": {
+        "report": {
+          "version": "0.6.0",
+          "total_nodes": 6,
+          "high_risk": 0,
+          "total_failures_recorded": 0,
+          "total_fixes_recorded": 0,
+          "task_memory_count": 0,
+          "routing_stats": {
+            "total_tasks": 0,
+            "suggestion_follow_rate": 0.0,
+            "suggestion_accuracy": 0.0,
+            "avg_test_improvement": 0.0
+          },
+          "singularities": [],
+          "nodes": [
+            {
+              "id": "api",
+              "file": "C:\\Users\\15488\\AppData\\Local\\Temp\\wlbs_js_idc62lcb\\api.js",
+              "kind": "module",
+              "curvature": 0.617,
+              "static": 0.617,
+              "history": 0.0,
+              "git": 0.0,
+              "complexity": 1,
+              "lines": 5,
+              "git_changes": 0,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "recent_failure_rate": 0.0,
+              "is_singularity": false
+            },
+            {
+              "id": "core",
+              "file": "C:\\Users\\15488\\AppData\\Local\\Temp\\wlbs_js_idc62lcb\\core.js",
+              "kind": "module",
+              "curvature": 0.61,
+              "static": 0.61,
+              "history": 0.0,
+              "git": 0.0,
+              "complexity": 1,
+              "lines": 3,
+              "git_changes": 0,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "recent_failure_rate": 0.0,
+              "is_singularity": false
+            },
+            {
+              "id": "api.getRole",
+              "file": "C:\\Users\\15488\\AppData\\Local\\Temp\\wlbs_js_idc62lcb\\api.js",
+              "kind": "function",
+              "curvature": 0.45,
+              "static": 0.45,
+              "history": 0.0,
+              "git": 0.0,
+              "complexity": 1,
+              "lines": 30,
+              "git_changes": 0,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "recent_failure_rate": 0.0,
+              "is_singularity": false
+            },
+            {
+              "id": "core.decodeRole",
+              "file": "C:\\Users\\15488\\AppData\\Local\\Temp\\wlbs_js_idc62lcb\\core.js",
+              "kind": "function",
+              "curvature": 0.45,
+              "static": 0.45,
+              "history": 0.0,
+              "git": 0.0,
+              "complexity": 1,
+              "lines": 30,
+              "git_changes": 0,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "recent_failure_rate": 0.0,
+              "is_singularity": false
+            },
+            {
+              "id": "ui.render",
+              "file": "C:\\Users\\15488\\AppData\\Local\\Temp\\wlbs_js_idc62lcb\\ui.js",
+              "kind": "function",
+              "curvature": 0.45,
+              "static": 0.45,
+              "history": 0.0,
+              "git": 0.0,
+              "complexity": 1,
+              "lines": 30,
+              "git_changes": 0,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "recent_failure_rate": 0.0,
+              "is_singularity": false
+            },
+            {
+              "id": "ui",
+              "file": "C:\\Users\\15488\\AppData\\Local\\Temp\\wlbs_js_idc62lcb\\ui.js",
+              "kind": "module",
+              "curvature": 0.367,
+              "static": 0.367,
+              "history": 0.0,
+              "git": 0.0,
+              "complexity": 1,
+              "lines": 5,
+              "git_changes": 0,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "recent_failure_rate": 0.0,
+              "is_singularity": false
+            }
+          ]
+        },
+        "distance": 1
+      }
+    },
+    {
+      "claim": "7",
+      "desc": "HTML report export generates a non-empty artifact containing the key demo nodes",
+      "passed": true,
+      "measured": "nodes=19  size=10621 bytes",
+      "detail": "Artifact: D:\\wlbs_scan\\validation\\demo_report.html",
+      "extra": {
+        "path": "D:\\wlbs_scan\\validation\\demo_report.html",
+        "size_bytes": 10621,
+        "nodes": 19
+      }
+    },
+    {
+      "claim": "8",
+      "desc": "The paper demo still reproduces the intended baseline defect with exactly 2 failing tests",
+      "passed": true,
+      "measured": "pytest summary contains '2 failed, 4 passed'",
+      "detail": "This preserved failure fixture is important because the validation suite depends on it.",
+      "extra": {
+        "returncode": 1,
+        "pytest_output": "....FF                                                                   [100%]\n================================== FAILURES ===================================\n______________________________ test_admin_access ______________________________\n\n    def test_admin_access():\n        \"\"\"This test FAILS because 'admin' is missing from roles.PERMISSIONS.\n        The error manifests in rbac.py but the root cause is in roles.py.\n        This is the exact cross-file failure scenario from the paper.\n        \"\"\"\n        mgr = RBACManager()\n>       assert mgr.check_access(\"admin\", \"read\") is True  # KeyError from roles.py\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ndemo\\tests\\test_rbac.py:34: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndemo\\rbac.py:17: in check_access\n    self._cache[user_role] = get_permissions(user_role)  # may raise KeyError\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_permissions(role: str) -> list:\n        \"\"\"Return permissions for a role. Raises KeyError if role unknown.\"\"\"\n        if not isinstance(role, str):\n            raise TypeError(\"role must be a string\")\n        if not role:\n            raise KeyError(role)\n>       return PERMISSIONS[role]  # Bug: no .get() fallback\n               ^^^^^^^^^^^^^^^^^\nE       KeyError: 'admin'\n\ndemo\\roles.py:23: KeyError\n___________________________ test_grant_permissions ____________________________\n\n    def test_grant_permissions():\n        \"\"\"Also fails for the same root cause.\"\"\"\n        mgr = RBACManager()\n>       mgr.grant_permissions(\"admin\", \"delete\")  # KeyError from roles.py\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ndemo\\tests\\test_rbac.py:40: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ndemo\\rbac.py:21: in grant_permissions\n    perms = get_permissions(role)\n            ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nrole = 'admin'\n\n    def get_permissions(role: str) -> list:\n        \"\"\"Return permissions for a role. Raises KeyError if role unknown.\"\"\"\n        if not isinstance(role, str):\n            raise TypeError(\"role must be a string\")\n        if not role:\n            raise KeyError(role)\n>       return PERMISSIONS[role]  # Bug: no .get() fallback\n               ^^^^^^^^^^^^^^^^^\nE       KeyError: 'admin'\n\ndemo\\roles.py:23: KeyError\n=========================== short test summary info ===========================\nFAILED demo/tests/test_rbac.py::test_admin_access - KeyError: 'admin'\nFAILED demo/tests/test_rbac.py::test_grant_permissions - KeyError: 'admin'\n2 failed, 4 passed in 0.05s"
+      }
+    },
+    {
+      "claim": "9",
+      "desc": "Resolution-decay context keeps `roles` and `rbac` in the full-fidelity near tier",
+      "passed": true,
+      "measured": "tier_counts={'near': 3, 'mid': 0, 'far': 0}  approx_units=42",
+      "detail": "Confirms the paper's L1/L2/L3 context assembly behavior on the cross-file demo.",
+      "extra": {
+        "focus": "rbac",
+        "focus_curvature": 1.0,
+        "tiers": {
+          "near": [
+            {
+              "id": "rbac",
+              "distance": 0,
+              "kind": "module",
+              "curvature": 1.0,
+              "static": 0.82,
+              "failures": 3,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "is_singularity": false,
+              "calls": [
+                "roles"
+              ],
+              "called_by": [
+                "tests.test_rbac"
+              ],
+              "recent_events": [
+                {
+                  "ts": "2026-03-26T06:04:56.018561+00:00",
+                  "kind": "failure",
+                  "node": "rbac",
+                  "detail": "context probe 1"
+                },
+                {
+                  "ts": "2026-03-26T06:04:56.018561+00:00",
+                  "kind": "failure",
+                  "node": "rbac",
+                  "detail": "context probe 2"
+                },
+                {
+                  "ts": "2026-03-26T06:04:56.019565+00:00",
+                  "kind": "failure",
+                  "node": "rbac",
+                  "detail": "context probe 3"
+                }
+              ]
+            },
+            {
+              "id": "roles",
+              "distance": 1,
+              "kind": "module",
+              "curvature": 1.0,
+              "static": 0.59,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 3,
+              "is_singularity": true,
+              "calls": [],
+              "called_by": [
+                "rbac"
+              ],
+              "recent_events": []
+            },
+            {
+              "id": "tests.test_rbac",
+              "distance": 1,
+              "kind": "module",
+              "curvature": 0.188,
+              "static": 0.188,
+              "failures": 0,
+              "fixes": 0,
+              "downstream_failures": 0,
+              "is_singularity": false,
+              "calls": [
+                "rbac"
+              ],
+              "called_by": [],
+              "recent_events": []
+            }
+          ],
+          "mid": [],
+          "far": []
+        },
+        "tier_counts": {
+          "near": 3,
+          "mid": 0,
+          "far": 0
+        },
+        "approx_context_units": 42
+      }
+    },
+    {
+      "claim": "10",
+      "desc": "Repair suggestion routes downstream symptom node `rbac` to upstream target `roles`",
+      "passed": true,
+      "measured": "target=roles  reasoning_steps=4  actions=3",
+      "detail": "This is the first executable version of the paper's Gate-side reasoning chain in the standalone scanner.",
+      "extra": {
+        "focus": "rbac",
+        "recommended_target": "roles",
+        "resolution_context": {
+          "focus": "rbac",
+          "focus_curvature": 1.0,
+          "tiers": {
+            "near": [
+              {
+                "id": "rbac",
+                "distance": 0,
+                "kind": "module",
+                "curvature": 1.0,
+                "static": 0.82,
+                "failures": 3,
+                "fixes": 0,
+                "downstream_failures": 0,
+                "is_singularity": false,
+                "calls": [
+                  "roles"
+                ],
+                "called_by": [
+                  "tests.test_rbac"
+                ],
+                "recent_events": [
+                  {
+                    "ts": "2026-03-26T06:04:56.018561+00:00",
+                    "kind": "failure",
+                    "node": "rbac",
+                    "detail": "context probe 1"
+                  },
+                  {
+                    "ts": "2026-03-26T06:04:56.018561+00:00",
+                    "kind": "failure",
+                    "node": "rbac",
+                    "detail": "context probe 2"
+                  },
+                  {
+                    "ts": "2026-03-26T06:04:56.019565+00:00",
+                    "kind": "failure",
+                    "node": "rbac",
+                    "detail": "context probe 3"
+                  }
+                ]
+              },
+              {
+                "id": "roles",
+                "distance": 1,
+                "kind": "module",
+                "curvature": 1.0,
+                "static": 0.59,
+                "failures": 0,
+                "fixes": 0,
+                "downstream_failures": 3,
+                "is_singularity": true,
+                "calls": [],
+                "called_by": [
+                  "rbac"
+                ],
+                "recent_events": []
+              },
+              {
+                "id": "tests.test_rbac",
+                "distance": 1,
+                "kind": "module",
+                "curvature": 0.188,
+                "static": 0.188,
+                "failures": 0,
+                "fixes": 0,
+                "downstream_failures": 0,
+                "is_singularity": false,
+                "calls": [
+                  "rbac"
+                ],
+                "called_by": [],
+                "recent_events": []
+              }
+            ],
+            "mid": [],
+            "far": []
+          },
+          "tier_counts": {
+            "near": 3,
+            "mid": 0,
+            "far": 0
+          },
+          "approx_context_units": 42
+        },
+        "reasoning_chain": [
+          "symptom appears at rbac, but higher-priority upstream candidate roles sits 1 hop(s) away",
+          "roles is a singularity: no direct failures, but downstream failures accumulated behind it",
+          "roles carries historical lift beyond static risk (0.590 -> 1.000)",
+          "rbac has 3 recorded failure event(s), making it a symptom seed for backpropagation"
+        ],
+        "recent_target_events": [],
+        "action_chain": [
+          "inspect roles first",
+          "review exported interfaces / dependency assumptions around roles",
+          "add or update regression tests covering the rbac -> roles path"
+        ]
+      }
+    },
+    {
+      "claim": "11",
+      "desc": "Advisory output is agent-friendly: schema-tagged, suggestion-toned, and confidence-scored",
+      "passed": true,
+      "measured": "schema=wlbs-advisory-v1  tone=suggestion  confidence=0.911",
+      "detail": "This is the Phase 1 harness interface described in HARNESS_ROADMAP.md.",
+      "extra": {
+        "schema": "wlbs-advisory-v1",
+        "generated_at": "2026-03-26T06:04:56.046609+00:00",
+        "symptom": "rbac",
+        "advisory": {
+          "primary_suggestion": {
+            "text": "roles may be worth investigating first",
+            "confidence": 0.911,
+            "tone": "suggestion",
+            "reasoning": [
+              "symptom appears at rbac, but higher-priority upstream candidate roles sits 1 hop(s) away",
+              "roles is a singularity: no direct failures, but downstream failures accumulated behind it",
+              "roles carries historical lift beyond static risk (0.590 -> 1.000)",
+              "rbac has 3 recorded failure event(s), making it a symptom seed for backpropagation",
+              "behavioral distance to symptom: 1 hop(s)",
+              "routing policy confidence for rbac->roles: 0.750",
+              "successful similar-task bonus: +0.000 from 0 matched task(s)"
+            ]
+          },
+          "alternative_suggestions": [
+            {
+              "text": "rbac itself may also deserve a direct check",
+              "confidence": 0.6,
+              "tone": "note",
+              "reasoning": [
+                "rbac has 3 direct failure event(s) recorded"
+              ]
+            }
+          ],
+          "what_to_read_first": [
+            "roles.py",
+            "rbac.py"
+          ],
+          "what_might_be_safe_to_skip": [],
+          "open_questions": [
+            "Is the failure pattern consistent across repeated test runs?",
+            "Does roles show recent ownership or churn worth checking with --blame?"
+          ],
+          "similar_past_tasks": []
+        },
+        "metadata": {
+          "nodes_analyzed": 19,
+          "world_line_events": 3,
+          "scan_ms": 0
+        }
+      }
+    },
+    {
+      "claim": "12",
+      "desc": "Task-level outcome recording persists task memory and updates routing stats",
+      "passed": true,
+      "measured": "task_id=Ta9ac3d44a68a4111  routing_total=1  follow_rate=1.000",
+      "detail": "This is the Phase 2 harness memory loop: advise -> act -> record outcome.",
+      "extra": {
+        "task_record": {
+          "task_id": "Ta9ac3d44a68a4111",
+          "ts": "2026-03-26T06:04:56.046609+00:00",
+          "symptom": "rbac",
+          "wlbs_suggested_target": "roles",
+          "final_target": "roles",
+          "suggestion_was_followed": true,
+          "result": "pass",
+          "tests_before": {
+            "pass": 4,
+            "fail": 2,
+            "total": 6
+          },
+          "tests_after": {
+            "pass": 6,
+            "fail": 0,
+            "total": 6
+          },
+          "test_delta": 2,
+          "detail": "",
+          "symptom_feature_vector": [
+            0.82,
+            0.3,
+            0.0,
+            0.0,
+            0.2
+          ]
+        },
+        "routing_stats": {
+          "total_tasks": 1,
+          "suggestion_follow_rate": 1.0,
+          "suggestion_accuracy": 1.0,
+          "avg_test_improvement": 2.0
+        }
+      }
+    },
+    {
+      "claim": "13",
+      "desc": "Routing policy confidence rises after a followed success and drops after a followed failure",
+      "passed": true,
+      "measured": "pass_conf=0.825  fail_conf=0.277",
+      "detail": "Implements the EMA-style policy update from HARNESS_ROADMAP Phase 3.",
+      "extra": {
+        "pass_conf": 0.825,
+        "fail_conf": 0.277
+      }
+    },
+    {
+      "claim": "14",
+      "desc": "Advisory output includes structurally similar past tasks when task memory exists",
+      "passed": true,
+      "measured": "similar_tasks=1",
+      "detail": "This is the minimal cross-task transfer path for the harness.",
+      "extra": {
+        "similar_tasks": [
+          {
+            "task_id": "T6855a52be1784175",
+            "similarity": 1.0,
+            "symptom": "payment_handler",
+            "final_target": "registry",
+            "result": "pass",
+            "detail": "missing key in registry"
+          }
+        ]
+      }
+    }
+  ]
+}

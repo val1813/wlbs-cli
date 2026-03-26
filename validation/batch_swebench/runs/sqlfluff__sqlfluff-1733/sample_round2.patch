@@ -1,0 +1,141 @@
+diff --git a/src/sqlfluff/rules/L036.py b/src/sqlfluff/rules/L036.py
+--- a/src/sqlfluff/rules/L036.py
++++ b/src/sqlfluff/rules/L036.py
+@@ -1,4 +1,4 @@
+-"""Implementation of Rule L036."""
++"""Implementation of Rule L036."""
+ 
+ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+ from sqlfluff.core.rules.context import RuleContext
+@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+ from sqlfluff.utils.functional import sp, FunctionalContext
+ from sqlfluff.core.templaters.base import TemplatedFile
+ 
+-import itertools
++from itertools import chain
+ 
+ 
+ class Rule_L036(BaseRule):
+@@ -14,7 +14,7 @@ class Rule_L036(BaseRule):
+ 
+     targets_tuples = sp.is_type(
+         "select_clause_element", "set_expression", "with_compound_statement"
+-    )
++    )
+ 
+     def _eval(self, context: RuleContext) -> LintResult:
+         """Select targets should be on a new line unless there is only one select target.
+@@ -22,7 +22,7 @@ class Rule_L036(BaseRule):
+         This rule only applies when there is more than one select target.
+         """
+         # Config type hints
+-        self.ignore_comment_lines: bool
++        self.ignore_comment_lines: bool
+ 
+         assert context.segment.is_type("select_clause")
+         functional = FunctionalContext(context)
+@@ -30,7 +30,7 @@ class Rule_L036(BaseRule):
+         children = functional.segment.children()
+         select_targets = children.select(sp.is_type("select_clause_element"))
+ 
+-        if len(select_targets) <= 1:
++        if len(select_targets) <= 1:
+             return LintResult()
+ 
+         # Ignore select statements that contain macros.
+@@ -38,7 +38,7 @@ class Rule_L036(BaseRule):
+         templated_file = context.templated_file
+         assert templated_file
+         for select_target in select_targets:
+-            if select_target.raw_segments[0].pos_marker.is_literal():
++            if select_target.raw_segments[0].pos_marker.is_literal():
+                 return LintResult()
+ 
+         # Find first select target before a newline.
+@@ -46,7 +46,7 @@ class Rule_L036(BaseRule):
+         first_select = None
+         for seg in children:
+             if seg.is_type("select_clause_element"):
+-                first_select = seg
++                first_select = seg
+                 break
+             if seg.is_type("newline"):
+                 newline_before_first_select = seg
+@@ -54,7 +54,7 @@ class Rule_L036(BaseRule):
+ 
+         # If there's a newline before the first select target, we're done.
+         if newline_before_first_select:
+-            return LintResult()
++            return LintResult()
+ 
+         # There's no newline. Create one.
+         assert first_select
+@@ -62,7 +62,7 @@ class Rule_L036(BaseRule):
+         # Insert newline before the first select target.
+         fixes = [
+             LintFix.create_before(
+-                anchor_segment=first_select.get(),
++                anchor_segment=first_select.get(),
+                 edit_segments=[context.segment.make_newline("\n")],
+             )
+         ]
+@@ -70,7 +70,7 @@ class Rule_L036(BaseRule):
+         # If the select clause is already on its own line, we should add
+         # appropriate indentation to the newly moved select target.
+         select_clause = children.first(sp.is_type("keyword")).get()
+-        if select_clause.pos_marker.line_pos > 1:
++        if select_clause.pos_marker.line_pos > 1:
+             # Get the indent from the select clause
+             select_line_no = select_clause.pos_marker.line_no
+             line_slices = templated_file.line_slices
+@@ -78,7 +78,7 @@ class Rule_L036(BaseRule):
+             # Find the slice containing the select clause
+             select_slice = None
+             for slice_ in line_slices:
+-                if slice_.line_no == select_line_no:
++                if slice_.line_no == select_line_no:
+                     select_slice = slice_
+                     break
+             assert select_slice
+@@ -86,7 +86,7 @@ class Rule_L036(BaseRule):
+             # Get the raw segments in the select slice
+             raw_slice = templated_file.raw_sliced[select_slice.slice_idx]
+             raw_segments = raw_slice.raw_segments
+-            indent_segments = []
++            indent_segments = []
+             for seg in raw_segments:
+                 if seg.is_type("whitespace"):
+                     indent_segments.append(seg)
+@@ -94,7 +94,7 @@ class Rule_L036(BaseRule):
+                     break
+ 
+             # Calculate the indent size
+-            indent_size = 0
++            indent_size = 0
+             for seg in indent_segments:
+                 if seg.raw == "\t":
+                     indent_size += self.tab_space_size
+@@ -102,7 +102,7 @@ class Rule_L036(BaseRule):
+                     indent_size += len(seg.raw)
+ 
+             # Add one more level of indentation
+-            indent_size += self.tab_space_size
++            indent_size += self.tab_space_size
+ 
+             # Create the indent string
+             if self.indent_unit == "tab":
+@@ -110,7 +110,7 @@ class Rule_L036(BaseRule):
+             else:
+                 indent_str = " " * indent_size
+ 
+-            fixes.append(
++            fixes.append(
+                 LintFix.create_before(
+                     anchor_segment=first_select.get(),
+                     edit_segments=[context.segment.make_whitespace(indent_str)],
+@@ -118,4 +118,4 @@ class Rule_L036(BaseRule):
+             )
+ 
+         # Return the result with fixes
+-        return LintResult(anchor=first_select, fixes=fixes)
++        return LintResult(anchor=first_select, fixes=fixes)

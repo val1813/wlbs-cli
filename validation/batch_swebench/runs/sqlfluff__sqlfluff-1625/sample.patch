@@ -1,0 +1,90 @@
+diff --git a/src/sqlfluff/rules/L031.py b/src/sqlfluff/rules/L031.py
+--- a/src/sqlfluff/rules/L031.py
++++ b/src/sqlfluff/rules/L031.py
+@@ -1,4 +1,4 @@
+-"""Implementation of Rule L031."""
++"""Implementation of Rule L031."""
+ from typing import List, Optional
+ 
+ from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+ from sqlfluff.utils.functional import sp, FunctionalContext
+ 
+ 
+-class Rule_L031(BaseRule):
++class Rule_L031(BaseRule):
+     """Avoid using aliases in join condition.
+ 
+     | **Anti-pattern**
+@@ -36,7 +36,7 @@ class Rule_L031(BaseRule):
+     """
+ 
+     targets_templated = True
+-    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
++    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
+ 
+     def _eval(self, context: RuleContext) -> Optional[LintResult]:
+         """Avoid using aliases in join condition.
+@@ -44,7 +44,7 @@ class Rule_L031(BaseRule):
+         Look for violations in join conditions, excluding self-joins.
+         """
+         # We only care about select statements
+-        if not context.segment.is_type("select_statement"):
++        if not context.segment.is_type("select_statement"):
+             return None
+ 
+         functional_context = FunctionalContext(context)
+@@ -52,7 +52,7 @@ class Rule_L031(BaseRule):
+         # Get all referenced tables in FROM clause
+         from_clause = functional_context.segment.children(
+             sp.is_type("from_clause")
+-        ).first()
++        ).first()
+         if not from_clause:
+             return None
+ 
+@@ -60,7 +60,7 @@ class Rule_L031(BaseRule):
+         table_aliases = []
+         for table_ref in from_clause.children(sp.is_type("table_expression")):
+             alias_exp = table_ref.children(sp.is_type("alias_expression")).first()
+-            if alias_exp:
++            if alias_exp:
+                 table_aliases.append(
+                     alias_exp.children(sp.is_type("naked_identifier")).first().raw
+                 )
+@@ -68,7 +68,7 @@ class Rule_L031(BaseRule):
+         # Get all join clauses
+         join_clauses = from_clause.children(sp.is_type("join_clause"))
+         # If there are no joins, then we shouldn't trigger this rule
+-        if not join_clauses:
++        if not join_clauses:
+             return None
+ 
+         # For each join clause, check if the join condition uses an alias
+@@ -76,7 +76,7 @@ class Rule_L031(BaseRule):
+         for join_clause in join_clauses:
+             join_on = join_clause.children(sp.is_type("join_on_condition")).first()
+             if not join_on:
+-                continue
++                continue
+ 
+             # Get all column references in the join condition
+             col_refs = join_on.children(sp.is_type("column_reference"))
+@@ -84,7 +84,7 @@ class Rule_L031(BaseRule):
+                 # Check if this column reference uses an alias
+                 identifier = col_ref.children(sp.is_type("identifier")).first()
+                 if not identifier:
+-                    continue
++                    continue
+ 
+                 # Check if the identifier has multiple parts (e.g., alias.column)
+                 parts = identifier.children(sp.is_type("naked_identifier"))
+@@ -92,7 +92,7 @@ class Rule_L031(BaseRule):
+                     # First part is the alias
+                     alias = parts[0].raw
+                     if alias in table_aliases:
+-                        violations.append(identifier)
++                        violations.append(identifier)
+ 
+         if violations:
+             return LintResult(anchor=violations[0])

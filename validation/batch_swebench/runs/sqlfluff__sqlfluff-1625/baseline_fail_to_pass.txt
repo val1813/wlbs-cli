@@ -1,0 +1,42 @@
+command: python -m pytest test/cli/commands_test.py::test__cli__command_directed -q
+returncode: 1
+stdout:
+F                                                                        [100%]
+================================== FAILURES ===================================
+_________________________ test__cli__command_directed _________________________
+
+    def test__cli__command_directed():
+        """Basic checking of lint functionality."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
+        )
+        # We should get a readout of what the error was
+        check_a = "L:   2 | P:   4 | L003"
+        # NB: Skip the number at the end because it's configurable
+        check_b = "Indentation"
+        assert check_a in result.output
+        assert check_b in result.output
+        # Finally check the WHOLE output to make sure that unexpected newlines are not added.
+        # The replace command just accounts for cross platform testing.
+>       assert result.output.replace("\\", "/").startswith(expected_output)
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x00000224C1E18B40>('== [test/fixtures/linter/indentation_error_simple.sql] FAIL\nL:   2 | P:   4 | L003 | Indentation not hanging or a mu...ywords must be consistently upper case.\nL:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.\n')
+E        +    where <built-in method startswith of str object at 0x00000224C1E18B40> = '== [test/fixtures/linter/indentation_error_simple.sql] FAIL\\nL:   2 | P:   4 | L003 | Indentation not hanging or a mu... must be consistently upper case.\\nL:   5 | P:  13 | L031 | Avoid using aliases in join condition\\nAll Finished \U0001f4dc \U0001f389!\\n'.startswith
+E        +      where '== [test/fixtures/linter/indentation_error_simple.sql] FAIL\\nL:   2 | P:   4 | L003 | Indentation not hanging or a mu... must be consistently upper case.\\nL:   5 | P:  13 | L031 | Avoid using aliases in join condition\\nAll Finished \U0001f4dc \U0001f389!\\n' = <built-in method replace of str object at 0x00000224C1E18670>('\\\\', '/')
+E        +        where <built-in method replace of str object at 0x00000224C1E18670> = '== [test\\\\fixtures\\\\linter\\\\indentation_error_simple.sql] FAIL\\nL:   2 | P:   4 | L003 | Indentation not hanging or a... must be consistently upper case.\\nL:   5 | P:  13 | L031 | Avoid using aliases in join condition\\nAll Finished \U0001f4dc \U0001f389!\\n'.replace
+E        +          where '== [test\\\\fixtures\\\\linter\\\\indentation_error_simple.sql] FAIL\\nL:   2 | P:   4 | L003 | Indentation not hanging or a... must be consistently upper case.\\nL:   5 | P:  13 | L031 | Avoid using aliases in join condition\\nAll Finished \U0001f4dc \U0001f389!\\n' = <Result SystemExit(65)>.output
+
+test\cli\commands_test.py:70: AssertionError
+---------------------------- Captured stdout call -----------------------------
+== [test\\fixtures\\linter\\indentation_error_simple.sql] FAIL\nL:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces\nL:   5 | P:  10 | L010 | Keywords must be consistently upper case.\nL:   5 | P:  13 | L031 | Avoid using aliases in join condition\nAll Finished \U0001f4dc \U0001f389!\n
+============================== warnings summary ===============================
+src\sqlfluff\__init__.py:9
+  D:\wlbs_scan\validation\batch_swebench\runs\sqlfluff__sqlfluff-1625\baseline_repo\src\sqlfluff\__init__.py:9: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test/cli/commands_test.py::test__cli__command_directed - AssertionErro...
+1 failed, 1 warning in 0.30s
+stderr:

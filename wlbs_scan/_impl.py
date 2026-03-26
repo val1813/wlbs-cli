@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -694,16 +694,22 @@ def print_status(graph: BehaviorGraph, store: WorldLineStore, api_key: str = "",
     if api_key:
         info = query_points(api_key, hub_url)
         if info:
+            tier = info.get('tier', 'free')
+            points = info.get('points', 0)
+            expires = info.get('key_expires_at', '')
+            tier_color = CYAN if tier == 'pro' else GRAY
+            tier_label = '✦ Pro' if tier == 'pro' else 'Free'
             print()
             print(colored("  Account:", WHITE, BOLD))
-            print(colored(f"    Points: {info.get('points', 0):.1f} / 100", CYAN))
-            print(colored(f"    Tier:   {info.get('tier', 'free')}", GRAY))
-            expires = info.get("key_expires_at", "")
-            if expires:
-                print(colored(f"    Key expires: {expires[:10]}", GRAY))
+            print(colored(f"    Plan:   {tier_label}", tier_color))
+            print(colored(f"    Points: {points:.1f} / 100  (100 pts = 1 free Pro key)", CYAN))
+            if expires and tier != 'expired':
+                print(colored(f"    Expires: {expires[:10]}", GRAY))
+            elif tier == 'expired':
+                print(colored(f"    Status: EXPIRED — contact valhuang@kaiwucl.com to renew", RED))
     else:
         print()
-        print(colored("  Add --api-key <key> to see account info", GRAY))
+        print(colored("  Not signed in. Run: wlbs --register", GRAY))
     print()
     print(colored("━"*55, CYAN))
     print()

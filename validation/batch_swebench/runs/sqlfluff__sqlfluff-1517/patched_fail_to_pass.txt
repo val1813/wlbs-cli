@@ -1,0 +1,14 @@
+command: python -m pytest test/dialects/ansi_test.py::test__dialect__ansi_multiple_semicolons[select -q
+returncode: 4
+stdout:
+
+============================== warnings summary ===============================
+src\sqlfluff\__init__.py:9
+  D:\wlbs_scan\validation\batch_swebench\runs\sqlfluff__sqlfluff-1517\patched_repo\src\sqlfluff\__init__.py:9: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 warning in 0.05s
+stderr:
+ERROR: not found: D:\wlbs_scan\validation\batch_swebench\runs\sqlfluff__sqlfluff-1517\patched_repo\test\dialects\ansi_test.py::test__dialect__ansi_multiple_semicolons
+(no match in any of [<Module ansi_test.py>])

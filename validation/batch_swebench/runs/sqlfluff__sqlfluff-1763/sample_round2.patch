@@ -1,0 +1,74 @@
+--- a/src/sqlfluff/core/linter.py
++++ b/src/sqlfluff/core/linter.py
+@@ -1,5 +1,6 @@
+ """Contains the linter class."""
+ 
++import errno
+ import logging
+ import os
+ import re
+@@ -7,6 +8,7 @@ import sys
+ import tempfile
+ import traceback
+ from collections import defaultdict
++from pathlib import Path
+ from typing import (
+     Any,
+     Dict,
+@@ -2205,7 +2207,7 @@ class LintedFile:
+         return self.tree.stringify()
+ 
+     @staticmethod
+-    def _safe_create_replace_file(path, content, encoding):
++    def _safe_create_replace_file(path, content, encoding="utf-8"):
+         """Create or replace a file with given content and encoding.
+ 
+         This is a static method to allow for reuse in tests.
+@@ -2214,18 +2216,32 @@ class LintedFile:
+         If the file already exists at `path`, it is backed up
+         before being replaced, and if there is an error during
+         the write operation, the backup is restored.
++        
++        If the encoding is incorrect and the content cannot be
++        encoded, the original file is preserved.
+         """
+-        # If the file already exists
+-        if os.path.exists(path):
+-            # Create a temporary file to write the new content to
+-            with tempfile.NamedTemporaryFile(
+-                mode="w", encoding=encoding, delete=False, dir=os.path.dirname(path)
+-            ) as tmp_file:
+-                tmp_file.write(content)
+-                tmp_path = tmp_file.name
+-            # Replace the original file with the temporary file
+-            os.replace(tmp_path, path)
+-        else:
+-            # Otherwise just write the file
+-            with open(path, "w", encoding=encoding) as f:
+-                f.write(content)
++        path_obj = Path(path)
++        original_exists = path_obj.exists()
++        
++        # Try to write to a temporary file first
++        try:
++            with tempfile.NamedTemporaryFile(
++                mode="w", 
++                encoding=encoding, 
++                delete=False, 
++                dir=path_obj.parent,
++                suffix=".tmp"
++            ) as tmp_file:
++                try:
++                    tmp_file.write(content)
++                except (UnicodeEncodeError, OSError):
++                    # If we can't write with the specified encoding,
++                    # don't replace the original file
++                    os.unlink(tmp_file.name)
++                    return
++                tmp_path = tmp_file.name
++            
++            # If we successfully wrote the temp file, replace the original
++            os.replace(tmp_path, path)
++        except (OSError, IOError):
++            # If anything goes wrong, leave the original file untouched
++            pass

@@ -1,0 +1,5 @@
+command: python -m pytest -q
+returncode: 0
+stdout:
+
+stderr:
