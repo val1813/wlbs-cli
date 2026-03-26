@@ -5,7 +5,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="wlbs-scan",
-    version="0.5.0",
+    version="0.6.0",
     description="WLBS Behavior Graph Scanner — static + dynamic curvature analysis for Python/JS codebases",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -13,7 +13,8 @@ setup(
     author_email="valhuang@kaiwucl.com",
     url="https://github.com/val1813/wlbs-cli",
     python_requires=">=3.8",
-    py_modules=["wlbs_scan"],
+    packages=["wlbs_scan"],
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "wlbs-scan=wlbs_scan:main",
