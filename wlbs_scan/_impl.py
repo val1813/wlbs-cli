@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.5"
+__version__ = "0.6.6"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -630,8 +630,9 @@ def write_auto_advice(graph: BehaviorGraph, store: WorldLineStore, root: Path, a
     if not high_risk and not sings:
         advice_path.write_text("<!-- wlbs: no high-risk nodes detected -->", encoding="utf-8")
         return
+    tier_label = "Pro" if api_key else "Free"
     lines = [
-        "<!-- wlbs-scan auto-advice (Pro) -->",
+        f"<!-- wlbs-scan auto-advice ({tier_label}) -->",
         f"<!-- Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} -->",
         "",
     ]
@@ -2251,8 +2252,8 @@ Examples:
             print(json.dumps(report_json(graph,store),indent=2,ensure_ascii=False))
         else:
             print_report(graph,store,top_n=args.top,show_sing=not args.no_singularities)
-        if args.api_key and not args.json and not args.ci:
-            write_auto_advice(graph, store, root, args.api_key, args.hub_url)
+        if not args.json and not args.ci:
+            write_auto_advice(graph, store, root, args.api_key or "", args.hub_url)
         # CI mode: fail if any node exceeds threshold
         if args.ci:
             bad = [n for n in graph.nodes.values() if n.curvature >= args.fail_above]
