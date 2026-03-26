@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.9"
+__version__ = "0.7.0"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -480,7 +480,7 @@ def behavioral_distance(graph: BehaviorGraph, src: str, dst: str) -> int:
     return 999
 
 # ── Reports ────────────────────────────────────────────────────────────────────
-def print_report(graph: BehaviorGraph, store: WorldLineStore, top_n=15, show_sing=True):
+def print_report(graph: BehaviorGraph, store: WorldLineStore, top_n=15, show_sing=True, show_all=False):
     nodes = sorted(graph.nodes.values(), key=lambda n: n.curvature, reverse=True)
     total=len(nodes)
     high=sum(1 for n in nodes if n.curvature>=0.7)
@@ -501,16 +501,30 @@ def print_report(graph: BehaviorGraph, store: WorldLineStore, top_n=15, show_sin
         print(f"  Memory: {colored('no history yet',GRAY)}"
               f"  — use --record-failure / --record-fix to teach it")
     print()
-    print(colored(f"  Top {min(top_n,total)} by curvature:", BOLD))
+    # Default: only HIGH nodes (κ≥0.7); --all shows top_n regardless
+    if show_all:
+        display_nodes = nodes[:top_n]
+        label = f"Top {min(top_n,total)} by curvature"
+    else:
+        display_nodes = [n for n in nodes if n.curvature >= 0.7][:top_n]
+        label = f"High-risk nodes (κ≥0.70)"
+        if not display_nodes:
+            print(colored("  No high-risk nodes detected.", GREEN))
+            print(colored(f"  {med} medium-risk nodes exist. Run with --all to see them.", GRAY))
+            print()
+            return
+    print(colored(f"  {label}:", BOLD))
     print(colored(f"  {'RISK':<8} {'κ':>6} T  {'FAIL':>5} {'FIX':>4}  {'GIT':>4}  ID", GRAY))
     print(colored("  "+"─"*62, GRAY))
-    for node in nodes[:top_n]:
+    for node in display_nodes:
         fs = colored(f"{node.failure_count:>5}",RED) if node.failure_count>0 else f"{'0':>5}"
         xs = colored(f"{node.fix_count:>4}",GREEN) if node.fix_count>0 else f"{'0':>4}"
         gs = f"{node.git_change_count:>4}" if node.git_change_count>0 else colored("   -",GRAY)
         w  = colored(" ⚠",YELLOW) if not node.has_exception_handling and node.complexity>5 else ""
         print(f"  {node.risk_label} {node.curvature:>6.3f} {node.trend}  "
               f"{fs} {xs}  {gs}  {colored(node.id,CYAN)}{w}")
+    if not show_all and med > 0:
+        print(colored(f"  ... {med} medium-risk nodes hidden. Run with --all to see all.", GRAY))
     if show_sing:
         sings = find_singularities(graph)
         if sings:
@@ -1787,27 +1801,56 @@ After a successful fix: `wlbs-scan . --record-fix <node>`
 """
 
 
+def _find_claude_md() -> Path | None:
+    """Walk up from cwd to find CLAUDE.md, AGENTS.md, or .cursorrules."""
+    targets = ("CLAUDE.md", "AGENTS.md", ".cursorrules")
+    current = Path(os.getcwd()).resolve()
+    for parent in [current, *current.parents]:
+        for t in targets:
+            p = parent / t
+            if p.exists():
+                return p
+    return None
+
+
 def _cmd_begin() -> None:
-    """Onboarding: show quick start + generate CLAUDE.md snippet."""
+    """Onboarding: auto-write wlbs snippet into CLAUDE.md if found."""
     print(colored("\n  wlbs begin — setup", BOLD))
     print()
-    print(colored("  Step 1/1  Add wlbs to your AI coding assistant", CYAN))
-    print()
-    print("  Add the following to your project's CLAUDE.md (or AGENTS.md / .cursorrules):")
-    print(colored("  ─" * 54, GRAY))
-    print(colored(CLAUDE_MD_SNIPPET.strip(), WHITE))
-    print(colored("  ─" * 54, GRAY))
-    print()
-    # Also write a ready-to-copy file in cwd
-    snippet_path = Path(".").resolve() / ".wlbs" / "claude_md_snippet.md"
+
+    # Try to auto-write into existing CLAUDE.md / AGENTS.md / .cursorrules
+    md_path = _find_claude_md()
+    if md_path:
+        text = md_path.read_text(encoding="utf-8")
+        if "wlbs" in text:
+            print(colored(f"  wlbs already configured in {md_path}", GREEN))
+        else:
+            md_path.write_text(text.rstrip() + "\n\n" + CLAUDE_MD_SNIPPET.strip() + "\n", encoding="utf-8")
+            print(colored(f"  ✓ wlbs snippet added to {md_path}", GREEN))
+        print()
+    else:
+        # No config file found — show snippet for manual copy
+        print(colored("  Step 1/1  Add wlbs to your AI coding assistant", CYAN))
+        print()
+        print("  No CLAUDE.md / AGENTS.md / .cursorrules found.")
+        print("  Create one in your project root and add:")
+        print(colored("  ─" * 54, GRAY))
+        print(colored(CLAUDE_MD_SNIPPET.strip(), WHITE))
+        print(colored("  ─" * 54, GRAY))
+        print()
+
+    # Always save snippet file for reference
+    root = Path(_find_project_root())
+    snippet_path = root / ".wlbs" / "claude_md_snippet.md"
     try:
         snippet_path.parent.mkdir(parents=True, exist_ok=True)
         snippet_path.write_text(CLAUDE_MD_SNIPPET.strip() + "\n", encoding="utf-8")
-        print(colored(f"  Snippet also saved to: {snippet_path}", GRAY))
+        if not md_path:
+            print(colored(f"  Snippet saved to: {snippet_path}", GRAY))
     except Exception:
         pass
-    print()
-    print(colored("  Then in your project directory:", BOLD))
+
+    print(colored("  Ready. In your project directory:", BOLD))
     print(colored("    wlbs bug", CYAN) + "   — scan for risky files")
     print(colored("    wlbs fix", CYAN) + "   — get repair suggestions")
     print()
@@ -1890,6 +1933,8 @@ Examples:
     p.add_argument("--watch",action="store_true")
     p.add_argument("--threshold",type=float,default=0.55)
     p.add_argument("--no-singularities",action="store_true")
+    p.add_argument("--all",action="store_true",
+                   help="Show all nodes by curvature (default: only HIGH κ≥0.70)")
     p.add_argument("--dist",nargs=2,metavar=("SRC","DST"))
     p.add_argument("--context",metavar="NODE",
                    help="Show resolution-decay context assembly around a node")
@@ -2248,7 +2293,7 @@ Examples:
         if args.json:
             print(json.dumps(report_json(graph,store),indent=2,ensure_ascii=False))
         else:
-            print_report(graph,store,top_n=args.top,show_sing=not args.no_singularities)
+            print_report(graph,store,top_n=args.top,show_sing=not args.no_singularities,show_all=args.all)
         if not args.json and not args.ci:
             write_auto_advice(graph, store, root, args.api_key or "", args.hub_url)
         # CI mode: fail if any node exceeds threshold
