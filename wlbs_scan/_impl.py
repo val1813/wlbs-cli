@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"
 
 RESET="\033[0m"; BOLD="\033[1m"; RED="\033[91m"; YELLOW="\033[93m"
 GREEN="\033[92m"; CYAN="\033[96m"; GRAY="\033[90m"; WHITE="\033[97m"; MAGENTA="\033[95m"
@@ -1851,7 +1851,7 @@ Examples:
                    help="Show current cloud account info")
     p.add_argument("--keygen",action="store_true",
                    help="Generate a wlbs API key (requires login)")
-    p.add_argument("--set-api-key",metavar="KEY",
+    p.add_argument("--set-api-key","--key",metavar="KEY",
                    help="Save a wlbs API key to local config")
     p.add_argument("--api-key",metavar="KEY",
                    help="wlbs API key to use for --sync (overrides saved config and WLBS_API_KEY)")
