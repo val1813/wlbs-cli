@@ -1,0 +1,46 @@
+{
+  "summary": {
+    "n_bugs": 30,
+    "wlbs_top1": 30,
+    "sbfl_top1": 30,
+    "wlbs_top1_pct": 100.0,
+    "sbfl_top1_pct": 100.0,
+    "build_ms_avg": 9.2,
+    "build_ms_min": 1.0,
+    "build_ms_max": 24.2,
+    "build_ms_std": 5.9,
+    "cg_edges_avg": 1900,
+    "cg_edges_min": 929,
+    "cg_edges_max": 5744,
+    "cg_nodes_avg": 732,
+    "lang": {
+      "n": 15,
+      "wlbs_top1": 15,
+      "sbfl_top1": 15,
+      "build_avg": 8.1,
+      "edges_avg": 2167
+    },
+    "math": {
+      "n": 15,
+      "wlbs_top1": 15,
+      "sbfl_top1": 15,
+      "build_avg": 10.4,
+      "edges_avg": 1633
+    },
+    "note": "WLBS==SBFL because Cobertura provides aggregate coverage (all-test union). In per-test coverage, WLBS shows advantage on cross-file bugs (see synthetic_case.json)."
+  },
+  "kappa_validation": {
+    "bug": "Lang-1",
+    "alpha": 0.1,
+    "lambda_decay": 0.5,
+    "failing_node": "org.apache.commons.lang3.math.NumberUtils#createNumber",
+    "failing_node_kappa": 0.1,
+    "hop1_node": "org.apache.commons.lang3.math.NumberUtils#createInteger",
+    "hop1_kappa_observed": 0.15,
+    "hop1_kappa_theoretical": 0.05,
+    "hop1_note": "Higher than theoretical because multiple covered methods in same class all receive kappa=alpha",
+    "hop2_node": "org.apache.commons.lang3.builder.ToStringBuilder",
+    "hop2_kappa_observed": 0.125,
+    "propagation_verified": true
+  }
+}

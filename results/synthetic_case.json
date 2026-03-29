@@ -1,0 +1,27 @@
+{
+  "sbfl_rank": "NOT FOUND",
+  "wlbs_rank": 4,
+  "propagation": [
+    {
+      "hop": 0,
+      "node": "TestClass#testMethod",
+      "kappa": 0.1
+    },
+    {
+      "hop": 1,
+      "node": "ServiceFacade#process",
+      "kappa": 0.15000000000000002
+    },
+    {
+      "hop": 2,
+      "node": "DataProcessor#compute",
+      "kappa": 0.07500000000000001
+    },
+    {
+      "hop": 3,
+      "node": "BuggyHelper#validate",
+      "kappa": 0.037500000000000006
+    }
+  ],
+  "singularities": []
+}

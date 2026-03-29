@@ -1,0 +1,18 @@
+# WLBS: Weighted Location by Behavior Singularity
+# Python dependencies
+
+# Core (no extra install needed for basic experiment)
+# Python standard library: json, xml, re, subprocess, pathlib, collections, time
+
+# Visualization (for case study figures)
+matplotlib==3.10.8
+networkx==3.6.1
+
+# Scientific (optional, not required for core algorithm)
+numpy==1.26.4
+scipy==1.17.1
+
+# Java requirements (via WSL):
+# OpenJDK 11: /usr/lib/jvm/java-11-openjdk-amd64
+# Defects4J v2.0: /opt/defects4j
+# perl, javap (included with JDK)
